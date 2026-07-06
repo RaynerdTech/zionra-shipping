@@ -1,26 +1,489 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ======================================================
+   ZIONRA DESIGN TOKENS
+   Source: Figma design system.
+   Only approved global tokens are defined here for now:
+   colors, fonts, typography, and buttons.
+====================================================== */
+
+@theme {
+  /* ================================
+     Fonts
+     Headings/display: Inter
+     Body/labels/buttons: DM Sans
+  ================================ */
+  --font-display: var(--font-inter);
+  --font-sans: var(--font-dm-sans);
+  --font-body: var(--font-dm-sans);
+
+  /* ================================
+     Primary / Blue Scale
+  ================================ */
+  --color-primary-01: #ebf2fc;
+  --color-primary-02: #c3d9f7;
+  --color-primary-03: #9bc0f2;
+  --color-primary-04: #72a7ec;
+  --color-primary-05: #4a8ee7;
+  --color-primary-06: #286bdc;
+  --color-primary-07: #1f56b0;
+  --color-primary-08: #174184;
+  --color-primary-09: #0f2c58;
+  --color-primary-10: #07162c;
+
+  /* ================================
+     Secondary / Orange Scale
+  ================================ */
+  --color-secondary-01: #fff5e8;
+  --color-secondary-02: #ffe4b3;
+  --color-secondary-03: #ffd280;
+  --color-secondary-04: #ffc14d;
+  --color-secondary-05: #ffb03d;
+  --color-secondary-06: #ffa630;
+  --color-secondary-07: #cc8426;
+  --color-secondary-08: #99631d;
+  --color-secondary-09: #664213;
+  --color-secondary-10: #33210a;
+
+  /* ================================
+     Tertiary / Green Scale
+  ================================ */
+  --color-tertiary-01: #e6faf8;
+  --color-tertiary-02: #b3f0e8;
+  --color-tertiary-03: #80e5dd;
+  --color-tertiary-04: #4ddad0;
+  --color-tertiary-05: #3dd4c8;
+  --color-tertiary-06: #2ec4b6;
+  --color-tertiary-07: #259d92;
+  --color-tertiary-08: #1c766d;
+  --color-tertiary-09: #124e49;
+  --color-tertiary-10: #092724;
+
+  /* ================================
+     Neutral Scale
+  ================================ */
+  --color-neutral-01: #f4f6fa;
+  --color-neutral-02: #e2e7f0;
+  --color-neutral-03: #c4cede;
+  --color-neutral-04: #a6b5cc;
+  --color-neutral-05: #8ba3bf;
+  --color-neutral-06: #5a738f;
+  --color-neutral-07: #4a5f77;
+  --color-neutral-08: #2e4460;
+  --color-neutral-09: #1e2e42;
+  --color-neutral-10: #111c2d;
+
+  /* ================================
+     Semantic Colors
+  ================================ */
+  --color-error: #b3261e;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* ================================
+     Current Homepage Aliases
+     These keep existing homepage classes working while
+     mapping them to the approved Figma palette.
+  ================================ */
+  --color-zion-bg: #07162c;
+  --color-zion-text: #f4f6fa;
+  --color-zion-white: #ffffff;
+
+  --color-zion-blue: #286bdc;
+  --color-zion-blue-light: #72a7ec;
+  --color-zion-teal: #2ec4b6;
+  --color-zion-orange: #ffa630;
+  --color-zion-green: #2ec4b6;
+
+  --color-zion-surface: #0f2c58;
+  --color-zion-surface-2: #174184;
+  --color-zion-surface-3: #1f56b0;
+  --color-zion-blue-soft: #174184;
+
+  --color-zion-muted: #8ba3bf;
+  --color-zion-muted-2: #5a738f;
+  --color-zion-muted-3: #4a5f77;
+
+  --color-zion-border: #c4cede;
+  --color-zion-progress: #286bdc;
+  --color-zion-progress-bg: #174184;
+  --color-zion-progress-dot: #1f56b0;
+  --color-zion-progress-ring: #9bc0f2;
+
+  --color-navlink-dimblue: #2e4460;
+  --color-navborder: #c4cede;
+  --color-blackcolor: #000000;
+  --color-quotebordercolor: #c4cede;
+  --color-inputbackgroundcolor: #0f2c58;
+  --color-placeholdercolor: #8ba3bf;
+
+  --color-primarybutton: #ffa630;
+  --color-secondarybutton: #286bdc;
+  --color-thirdbutton: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ======================================================
+   BASE RESET
+====================================================== */
+
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--color-neutral-10);
+  background: var(--color-white);
+}
+
+/* ======================================================
+   ZIONRA TYPOGRAPHY UTILITIES
+   These match the approved Figma type system.
+====================================================== */
+
+@layer utilities {
+  .zion-display-xl {
+    font-family: var(--font-display);
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 80px;
+    letter-spacing: -2.5px;
+  }
+
+  .zion-display-l {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 64px;
+    letter-spacing: -2px;
+  }
+
+  .zion-h1 {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 52px;
+    letter-spacing: -1.5px;
+  }
+
+  .zion-h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 44px;
+    letter-spacing: -1px;
+  }
+
+  .zion-h3 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 34px;
+    letter-spacing: -0.5px;
+  }
+
+  .zion-h4 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 30px;
+    letter-spacing: -0.3px;
+  }
+
+  .zion-body-xl {
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 30px;
+  }
+
+  .zion-body-l {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+  }
+
+  .zion-body-m {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+  }
+
+  .zion-body-s {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .zion-label-l {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.2px;
+  }
+
+  .zion-label-m {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .zion-label-s {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 1.5px;
+  }
+}
+
+/* ======================================================
+   ZIONRA BUTTON SYSTEM
+   Based on Figma button component states.
+   Icons are not wired globally. Add icons per component.
+====================================================== */
+
+@layer components {
+  .zion-btn {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 32px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 6px;
+    padding: 0 12px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .zion-btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary-06) 35%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Button sizes */
+  .zion-btn-sm {
+    min-width: 144px;
+    min-height: 32px;
+  }
+
+  .zion-btn-md {
+    min-width: 144px;
+    min-height: 54px;
+  }
+
+  .zion-btn-lg {
+    min-width: 144px;
+    min-height: 64px;
+  }
+
+  /* Filled blue */
+  .zion-btn-blue {
+    background: var(--color-primary-06);
+    color: var(--color-white);
+  }
+
+  .zion-btn-blue:hover {
+    background: var(--color-primary-07);
+  }
+
+  .zion-btn-blue:active {
+    background: var(--color-primary-08);
+  }
+
+  /* Filled orange */
+  .zion-btn-orange {
+    background: var(--color-secondary-06);
+    color: var(--color-white);
+  }
+
+  .zion-btn-orange:hover {
+    background: var(--color-secondary-07);
+  }
+
+  .zion-btn-orange:active {
+    background: var(--color-secondary-08);
+  }
+
+  /* Filled green */
+  .zion-btn-green {
+    background: var(--color-tertiary-06);
+    color: var(--color-white);
+  }
+
+  .zion-btn-green:hover {
+    background: var(--color-tertiary-07);
+  }
+
+  .zion-btn-green:active {
+    background: var(--color-tertiary-08);
+  }
+
+  /* Outline blue */
+  .zion-btn-outline-blue {
+    border: 1px solid var(--color-primary-06);
+    background: var(--color-white);
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-outline-blue:hover {
+    border-color: var(--color-primary-07);
+    background: var(--color-primary-01);
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-outline-blue:active {
+    border-color: var(--color-primary-07);
+    background: var(--color-primary-01);
+    color: var(--color-primary-07);
+  }
+
+  /* Ghost blue */
+  .zion-btn-ghost-blue {
+    background: transparent;
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-ghost-blue.zion-btn-ghost-default {
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .zion-btn-ghost-blue:hover {
+    background: var(--color-primary-01);
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-ghost-blue:active {
+    background: var(--color-primary-01);
+    color: var(--color-primary-07);
+  }
+
+  /* Error */
+  .zion-btn-error {
+    background: var(--color-error);
+    color: var(--color-white);
+  }
+
+  /* Disabled */
+  .zion-btn:disabled,
+  .zion-btn-disabled {
+    border-color: var(--color-neutral-02);
+    background: var(--color-neutral-02);
+    color: var(--color-neutral-05);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .zion-btn-outline-blue:disabled,
+  .zion-btn-outline-blue.zion-btn-disabled {
+    border: 1px solid var(--color-neutral-02);
+    background: var(--color-white);
+    color: var(--color-neutral-05);
+  }
+
+  .zion-btn-ghost-blue:disabled,
+  .zion-btn-ghost-blue.zion-btn-disabled {
+    background: var(--color-white);
+    color: var(--color-neutral-05);
+  }
+
+  /* Loading */
+  .zion-btn-loading {
+    pointer-events: none;
+  }
+
+  .zion-btn-spinner {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    animation: zion-spin 900ms linear infinite;
+  }
+
+  @keyframes zion-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ======================================================
+     TEMPORARY HOMEPAGE ALIASES
+     These preserve the current homepage class names.
+     We can replace component usage with the new classes next.
+  ====================================================== */
+
+  .zion-btn-primary {
+    background: var(--color-secondary-06);
+    color: var(--color-white);
+  }
+
+  .zion-btn-primary:hover {
+    background: var(--color-secondary-07);
+  }
+
+  .zion-btn-primary:active {
+    background: var(--color-secondary-08);
+  }
+
+  .zion-btn-secondary {
+    background: var(--color-primary-06);
+    color: var(--color-white);
+  }
+
+  .zion-btn-secondary:hover {
+    background: var(--color-primary-07);
+  }
+
+  .zion-btn-secondary:active {
+    background: var(--color-primary-08);
+  }
+
+  .zion-btn-third {
+    border: 1px solid var(--color-primary-06);
+    background: var(--color-white);
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-third:hover {
+    border-color: var(--color-primary-07);
+    background: var(--color-primary-01);
+    color: var(--color-primary-06);
+  }
+
+  .zion-btn-third:active {
+    border-color: var(--color-primary-07);
+    background: var(--color-primary-01);
+    color: var(--color-primary-07);
+  }
+
+  .zion-btn-mobile {
+    width: 100%;
+  }
 }
