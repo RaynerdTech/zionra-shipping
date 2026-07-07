@@ -3,13 +3,15 @@
 /* ======================================================
    ZIONRA DESIGN TOKENS
    Source: Figma design system.
-   Only approved global tokens are defined here for now:
-   colors, fonts, typography, and buttons.
+
+   Active tokens below are the approved global source of truth.
+   Old homepage tokens are NOT active anymore.
+   See the migration map after the active tokens.
 ====================================================== */
 
 @theme {
   /* ================================
-     Fonts
+     FONTS
      Headings/display: Inter
      Body/labels/buttons: DM Sans
   ================================ */
@@ -18,7 +20,7 @@
   --font-body: var(--font-dm-sans);
 
   /* ================================
-     Primary / Blue Scale
+     PRIMARY / BLUE SCALE
   ================================ */
   --color-primary-01: #ebf2fc;
   --color-primary-02: #c3d9f7;
@@ -32,7 +34,7 @@
   --color-primary-10: #07162c;
 
   /* ================================
-     Secondary / Orange Scale
+     SECONDARY / ORANGE SCALE
   ================================ */
   --color-secondary-01: #fff5e8;
   --color-secondary-02: #ffe4b3;
@@ -46,7 +48,7 @@
   --color-secondary-10: #33210a;
 
   /* ================================
-     Tertiary / Green Scale
+     TERTIARY / GREEN SCALE
   ================================ */
   --color-tertiary-01: #e6faf8;
   --color-tertiary-02: #b3f0e8;
@@ -60,7 +62,7 @@
   --color-tertiary-10: #092724;
 
   /* ================================
-     Neutral Scale
+     NEUTRAL SCALE
   ================================ */
   --color-neutral-01: #f4f6fa;
   --color-neutral-02: #e2e7f0;
@@ -74,52 +76,58 @@
   --color-neutral-10: #111c2d;
 
   /* ================================
-     Semantic Colors
+     SEMANTIC COLORS
   ================================ */
   --color-error: #b3261e;
   --color-white: #ffffff;
   --color-black: #000000;
 
-  /* ================================
-     Current Homepage Aliases
-     These keep existing homepage classes working while
-     mapping them to the approved Figma palette.
-  ================================ */
-  --color-zion-bg: #07162c;
-  --color-zion-text: #f4f6fa;
-  --color-zion-white: #ffffff;
+  /* Form text */
+  --color-text-body-light: #3e5775;
 
-  --color-zion-blue: #286bdc;
-  --color-zion-blue-light: #72a7ec;
-  --color-zion-teal: #2ec4b6;
-  --color-zion-orange: #ffa630;
-  --color-zion-green: #2ec4b6;
+  /* ======================================================
+     OLD HOMEPAGE TOKEN MIGRATION MAP
+     These are intentionally commented out.
+     Do not use these in new code.
 
-  --color-zion-surface: #0f2c58;
-  --color-zion-surface-2: #174184;
-  --color-zion-surface-3: #1f56b0;
-  --color-zion-blue-soft: #174184;
+     OLD TOKEN                         NEW TOKEN / CLASS
+     ------------------------------------------------------
+     --color-zion-bg                  -> --color-primary-10 / bg-primary-10
+     --color-zion-text                -> --color-neutral-01 / text-neutral-01
+     --color-zion-white               -> --color-white / text-white, bg-white
+     --color-navlink-dimblue          -> --color-neutral-08 / text-neutral-08
+     --color-navborder                -> --color-neutral-03 / border-neutral-03
+     --color-blackcolor               -> --color-black / text-black, bg-black
+     --color-quotebordercolor         -> --color-neutral-03 / border-neutral-03
 
-  --color-zion-muted: #8ba3bf;
-  --color-zion-muted-2: #5a738f;
-  --color-zion-muted-3: #4a5f77;
+     --color-primarybutton            -> --color-secondary-06 / bg-secondary-06
+     --color-secondarybutton          -> --color-primary-06 / bg-primary-06
+     --color-thirdbutton              -> --color-white / bg-white
 
-  --color-zion-border: #c4cede;
-  --color-zion-progress: #286bdc;
-  --color-zion-progress-bg: #174184;
-  --color-zion-progress-dot: #1f56b0;
-  --color-zion-progress-ring: #9bc0f2;
+     --color-zion-blue                -> --color-primary-06 / bg-primary-06, text-primary-06
+     --color-zion-blue-light          -> --color-primary-04 / bg-primary-04, text-primary-04
+     --color-zion-teal                -> --color-tertiary-06 / bg-tertiary-06
+     --color-zion-orange              -> --color-secondary-06 / bg-secondary-06
+     --color-zion-green               -> --color-tertiary-06 / bg-tertiary-06
 
-  --color-navlink-dimblue: #2e4460;
-  --color-navborder: #c4cede;
-  --color-blackcolor: #000000;
-  --color-quotebordercolor: #c4cede;
-  --color-inputbackgroundcolor: #0f2c58;
-  --color-placeholdercolor: #8ba3bf;
+     --color-zion-muted               -> --color-neutral-05 / text-neutral-05
+     --color-zion-muted-2             -> --color-neutral-06 / text-neutral-06
+     --color-zion-muted-3             -> --color-neutral-07 / text-neutral-07
 
-  --color-primarybutton: #ffa630;
-  --color-secondarybutton: #286bdc;
-  --color-thirdbutton: #ffffff;
+     --color-zion-surface             -> --color-primary-09 / bg-primary-09
+     --color-zion-surface-2           -> --color-primary-08 / bg-primary-08
+     --color-zion-surface-3           -> --color-primary-07 / bg-primary-07
+     --color-zion-blue-soft           -> --color-primary-08 / bg-primary-08
+
+     --color-zion-border              -> --color-neutral-03 / border-neutral-03
+     --color-zion-progress            -> --color-primary-06 / bg-primary-06
+     --color-zion-progress-bg         -> --color-primary-08 / bg-primary-08
+     --color-zion-progress-dot        -> --color-primary-07 / bg-primary-07
+     --color-zion-progress-ring       -> --color-primary-03 / ring-primary-03
+
+     --color-inputbackgroundcolor     -> --color-primary-09 / bg-primary-09
+     --color-placeholdercolor         -> --color-neutral-05 / placeholder:text-neutral-05
+  ====================================================== */
 }
 
 /* ======================================================
@@ -144,7 +152,7 @@ body {
 
 /* ======================================================
    ZIONRA TYPOGRAPHY UTILITIES
-   These match the approved Figma type system.
+   Approved Figma type system.
 ====================================================== */
 
 @layer utilities {
@@ -251,8 +259,10 @@ body {
 
 /* ======================================================
    ZIONRA BUTTON SYSTEM
-   Based on Figma button component states.
-   Icons are not wired globally. Add icons per component.
+   Approved Figma button component states.
+
+   Icons are not global.
+   Add icons inside the button component where needed.
 ====================================================== */
 
 @layer components {
@@ -284,11 +294,14 @@ body {
   }
 
   .zion-btn:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-primary-06) 35%, transparent);
+    outline: 2px solid
+      color-mix(in srgb, var(--color-primary-06) 35%, transparent);
     outline-offset: 2px;
   }
 
-  /* Button sizes */
+  /* ================================
+     Button sizes
+  ================================ */
   .zion-btn-sm {
     min-width: 144px;
     min-height: 32px;
@@ -304,7 +317,9 @@ body {
     min-height: 64px;
   }
 
-  /* Filled blue */
+  /* ================================
+     Filled blue
+  ================================ */
   .zion-btn-blue {
     background: var(--color-primary-06);
     color: var(--color-white);
@@ -318,7 +333,9 @@ body {
     background: var(--color-primary-08);
   }
 
-  /* Filled orange */
+  /* ================================
+     Filled orange
+  ================================ */
   .zion-btn-orange {
     background: var(--color-secondary-06);
     color: var(--color-white);
@@ -332,7 +349,9 @@ body {
     background: var(--color-secondary-08);
   }
 
-  /* Filled green */
+  /* ================================
+     Filled green
+  ================================ */
   .zion-btn-green {
     background: var(--color-tertiary-06);
     color: var(--color-white);
@@ -346,7 +365,9 @@ body {
     background: var(--color-tertiary-08);
   }
 
-  /* Outline blue */
+  /* ================================
+     Outline blue
+  ================================ */
   .zion-btn-outline-blue {
     border: 1px solid var(--color-primary-06);
     background: var(--color-white);
@@ -365,7 +386,9 @@ body {
     color: var(--color-primary-07);
   }
 
-  /* Ghost blue */
+  /* ================================
+     Ghost blue
+  ================================ */
   .zion-btn-ghost-blue {
     background: transparent;
     color: var(--color-primary-06);
@@ -386,13 +409,17 @@ body {
     color: var(--color-primary-07);
   }
 
-  /* Error */
+  /* ================================
+     Error
+  ================================ */
   .zion-btn-error {
     background: var(--color-error);
     color: var(--color-white);
   }
 
-  /* Disabled */
+  /* ================================
+     Disabled
+  ================================ */
   .zion-btn:disabled,
   .zion-btn-disabled {
     border-color: var(--color-neutral-02);
@@ -415,7 +442,9 @@ body {
     color: var(--color-neutral-05);
   }
 
-  /* Loading */
+  /* ================================
+     Loading
+  ================================ */
   .zion-btn-loading {
     pointer-events: none;
   }
@@ -434,56 +463,135 @@ body {
   }
 
   /* ======================================================
-     TEMPORARY HOMEPAGE ALIASES
-     These preserve the current homepage class names.
-     We can replace component usage with the new classes next.
+     ZIONRA FORM FIELD SYSTEM
+     Based on approved Figma input field specs.
+
+     Used for login, create account, forgot password,
+     reset password, and partner auth forms.
   ====================================================== */
 
-  .zion-btn-primary {
-    background: var(--color-secondary-06);
-    color: var(--color-white);
+  .zion-field-support {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    color: var(--color-text-body-light);
   }
 
-  .zion-btn-primary:hover {
-    background: var(--color-secondary-07);
+  .zion-field-error {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    color: var(--color-error);
   }
 
-  .zion-btn-primary:active {
-    background: var(--color-secondary-08);
-  }
-
-  .zion-btn-secondary {
-    background: var(--color-primary-06);
-    color: var(--color-white);
-  }
-
-  .zion-btn-secondary:hover {
-    background: var(--color-primary-07);
-  }
-
-  .zion-btn-secondary:active {
-    background: var(--color-primary-08);
-  }
-
-  .zion-btn-third {
-    border: 1px solid var(--color-primary-06);
-    background: var(--color-white);
-    color: var(--color-primary-06);
-  }
-
-  .zion-btn-third:hover {
-    border-color: var(--color-primary-07);
-    background: var(--color-primary-01);
-    color: var(--color-primary-06);
-  }
-
-  .zion-btn-third:active {
-    border-color: var(--color-primary-07);
-    background: var(--color-primary-01);
-    color: var(--color-primary-07);
-  }
-
-  .zion-btn-mobile {
+  .zion-input {
+    display: block;
     width: 100%;
+    height: 48px;
+    border: 1.5px solid var(--color-neutral-03);
+    border-radius: 10px;
+    background: var(--color-white);
+    padding: 12px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    color: var(--color-black);
+    outline: none;
+    transition:
+      border-color 180ms ease,
+      border-width 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
   }
+
+  .zion-input::placeholder {
+    color: var(--color-neutral-05);
+  }
+
+  .zion-input:focus {
+    border: 2px solid var(--color-primary-06);
+  }
+
+  .zion-input-error,
+  .zion-input[aria-invalid="true"] {
+    border: 2px solid var(--color-error);
+  }
+
+  /* Password/input-with-icon wrapper */
+  .zion-input-shell {
+    display: flex;
+    width: 100%;
+    height: 48px;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid var(--color-neutral-03);
+    border-radius: 10px;
+    background: var(--color-white);
+    padding: 12px;
+    transition:
+      border-color 180ms ease,
+      border-width 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .zion-input-shell:focus-within {
+    border: 2px solid var(--color-primary-06);
+  }
+
+  .zion-input-shell-error,
+  .zion-input-shell[aria-invalid="true"] {
+    border: 2px solid var(--color-error);
+  }
+
+  .zion-input-shell-control {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    color: var(--color-black);
+    outline: none;
+  }
+
+  .zion-input-shell-control::placeholder {
+    color: var(--color-neutral-05);
+  }
+
+  .zion-password-toggle {
+    display: inline-flex;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .zion-password-toggle svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ======================================================
+     OLD BUTTON CLASS MIGRATION MAP
+     These old classes are intentionally removed.
+
+     OLD CLASS                 NEW CLASS
+     ------------------------------------------------------
+     zion-btn zion-btn-sm zion-btn-orange          zion-btn zion-btn-sm zion-btn-orange
+     zion-btn zion-btn-sm zion-btn-blue        zion-btn zion-btn-sm zion-btn-blue
+     zion-btn zion-btn-sm zion-btn-outline-blue            zion-btn zion-btn-sm zion-btn-outline-blue
+     w-full           use w-full directly in the component
+  ====================================================== */
 }

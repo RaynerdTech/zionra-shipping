@@ -1,40 +1,40 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties } from "react";
 
 type HeroVisualProps = {
-  ambientOnly?: boolean
-}
+  ambientOnly?: boolean;
+};
 
 const colors = {
-  blue: '#286BDC',
-  blueLight: '#61A0FF',
-  blueSoft: '#153D7B',
-  teal: '#2EC4B6',
-  orange: '#FFA630',
-  green: '#2EC4B6',
-  white: '#FFFFFF',
-  surface: '#102A56',
-  muted: '#8FA3C5',
-  progress: '#5B9BFF',
-  progressBg: '#1E4788',
-  progressDot: '#234D91',
-  progressRing: '#9CC4FF',
-} as const
+  blue: "#286BDC",
+  blueLight: "#61A0FF",
+  blueSoft: "#153D7B",
+  teal: "#2EC4B6",
+  orange: "#FFA630",
+  green: "#2EC4B6",
+  white: "#FFFFFF",
+  surface: "#102A56",
+  muted: "#8FA3C5",
+  progress: "#5B9BFF",
+  progressBg: "#1E4788",
+  progressDot: "#234D91",
+  progressRing: "#9CC4FF",
+} as const;
 
 function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
-  const cx = 310
-  const cy = 287
+  const cx = 310;
+  const cy = 287;
 
   return (
     <div className="relative h-[657px] w-[650px] overflow-visible font-sans">
       <div
-  className="pointer-events-none absolute inset-0 hidden lg:block"
-  style={{
-    backgroundImage:
-      'linear-gradient(to right, rgba(40,107,220,0.045) 1px, transparent 1px)',
-    backgroundSize: '76px 100%',
-    backgroundPosition: '18px 0',
-  }}
-/>
+        className="pointer-events-none absolute inset-0 hidden lg:block"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(40,107,220,0.045) 1px, transparent 1px)",
+          backgroundSize: "76px 100%",
+          backgroundPosition: "18px 0",
+        }}
+      />
 
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
@@ -43,11 +43,41 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Orbit rings */}
-        <circle cx={cx} cy={cy} r="315" stroke={colors.blue} strokeOpacity="0.07" />
-        <circle cx={cx} cy={cy} r="248" stroke={colors.blue} strokeOpacity="0.085" />
-        <circle cx={cx} cy={cy} r="184" stroke={colors.blue} strokeOpacity="0.1" />
-        <circle cx={cx} cy={cy} r="126" stroke={colors.blue} strokeOpacity="0.13" />
-        <circle cx={cx} cy={cy} r="72" stroke={colors.blue} strokeOpacity="0.16" />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="315"
+          stroke={colors.blue}
+          strokeOpacity="0.07"
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="248"
+          stroke={colors.blue}
+          strokeOpacity="0.085"
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="184"
+          stroke={colors.blue}
+          strokeOpacity="0.1"
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="126"
+          stroke={colors.blue}
+          strokeOpacity="0.13"
+        />
+        <circle
+          cx={cx}
+          cy={cy}
+          r="72"
+          stroke={colors.blue}
+          strokeOpacity="0.16"
+        />
 
         {/* Center to top cards */}
         <line
@@ -68,16 +98,8 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
         />
 
         {/* Port Harcourt to Glasgow middle connector */}
-        <path
-          d="M156 304L310 313"
-          stroke={colors.blue}
-          strokeOpacity="0.25"
-        />
-        <path
-          d="M310 313L496 304"
-          stroke={colors.blue}
-          strokeOpacity="0.25"
-        />
+        <path d="M156 304L310 313" stroke={colors.blue} strokeOpacity="0.25" />
+        <path d="M310 313L496 304" stroke={colors.blue} strokeOpacity="0.25" />
 
         {/* Center to bottom cards */}
         <line
@@ -100,32 +122,36 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
 
       {/* Center glow */}
       <div
-        className="absolute h-[146px] w-[146px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zion-blue/[0.035]"
+        className="absolute h-[146px] w-[146px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/[0.035]"
         style={{ left: cx, top: cy }}
       />
       <div
-        className="absolute h-[112px] w-[112px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zion-blue/[0.075]"
+        className="absolute h-[112px] w-[112px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/[0.075]"
         style={{ left: cx, top: cy }}
       />
       <div
-        className="absolute h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zion-blue/10"
+        className="absolute h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/10"
         style={{ left: cx, top: cy }}
       />
       <div
-        className="absolute h-[70px] w-[70px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zion-blue bg-zion-blue-soft"
+        className="absolute h-[70px] w-[70px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-06 bg-primary-08"
         style={{ left: cx, top: cy }}
       />
       <div
-        className="absolute flex h-[54px] w-[54px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-zion-blue font-display text-[26px] font-bold leading-none text-zion-white shadow-[0_0_28px_rgba(40,107,220,0.42)]"
+        className="absolute flex h-[54px] w-[54px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary-06 font-display text-[26px] font-bold leading-none text-white shadow-[0_0_28px_rgba(40,107,220,0.42)]"
         style={{ left: cx, top: cy }}
       >
         Z
-        <span className="absolute right-[3px] top-[10px] h-[12px] w-[12px] rounded-full bg-zion-orange" />
+        <span className="absolute right-[3px] top-[10px] h-[12px] w-[12px] rounded-full bg-secondary-06" />
       </div>
 
       {/* Route dots */}
       <SmallPoint className="left-[222px] top-[222px]" color={colors.blue} />
-      <SmallPoint className="left-[391px] top-[211px]" color={colors.orange} orange />
+      <SmallPoint
+        className="left-[391px] top-[211px]"
+        color={colors.orange}
+        orange
+      />
       <SmallPoint className="left-[396px] top-[402px]" color={colors.teal} />
 
       {!ambientOnly && (
@@ -192,21 +218,21 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
             width="w-[100px]"
           />
 
-          <div className="absolute left-[49px] top-[530px] h-[86px] w-[518px] rounded-[10px] border border-zion-blue/55 bg-zion-surface shadow-[0_14px_28px_rgba(0,0,0,0.24)]">
-            <div className="absolute left-0 top-0 h-[4px] w-full rounded-t-[10px] bg-zion-blue" />
+          <div className="absolute left-[49px] top-[530px] h-[86px] w-[518px] rounded-[10px] border border-primary-06/55 bg-primary-09 shadow-[0_14px_28px_rgba(0,0,0,0.24)]">
+            <div className="absolute left-0 top-0 h-[4px] w-full rounded-t-[10px] bg-primary-06" />
 
             <div className="px-[16px] pt-[16px]">
               <div className="flex items-start gap-[10px]">
-                <span className="mt-[-1px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-zion-green/20">
-                  <span className="block h-[8px] w-[8px] rounded-full bg-zion-green" />
+                <span className="mt-[-1px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-tertiary-06/20">
+                  <span className="block h-[8px] w-[8px] rounded-full bg-tertiary-06" />
                 </span>
 
                 <div>
-                  <p className="text-[14px] font-light leading-none tracking-[-0.01em] text-zion-white font-display">
+                  <p className="text-[14px] font-light leading-none tracking-[-0.01em] text-white font-display">
                     Live ZNR-20480
                   </p>
 
-                  <p className="mt-[10px] text-[13px] leading-none text-zion-muted-2">
+                  <p className="mt-[10px] text-[13px] leading-none text-neutral-05">
                     Manchester → Lagos
                     <span className="px-[7px]">·</span>
                     In transit
@@ -218,17 +244,17 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
 
               <div className="mt-[10px] flex items-center justify-between">
                 <div className="relative h-[16px] w-[382px]">
-                  <div className="absolute left-0 right-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-zion-progress-bg" />
-                  <div className="absolute left-0 top-1/2 h-[6px] w-[226px] -translate-y-1/2 rounded-full bg-zion-progress" />
+                  <div className="absolute left-0 right-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-primary-06-bg" />
+                  <div className="absolute left-0 top-1/2 h-[6px] w-[226px] -translate-y-1/2 rounded-full bg-primary-06" />
 
-                  <ProgressDot active style={{ left: '0px' }} />
-                  <ProgressDot active style={{ left: '77px' }} />
-                  <ProgressDot active style={{ left: '154px' }} />
-                  <ProgressDot style={{ left: '231px' }} />
-                  <ProgressDot style={{ left: '308px' }} />
+                  <ProgressDot active style={{ left: "0px" }} />
+                  <ProgressDot active style={{ left: "77px" }} />
+                  <ProgressDot active style={{ left: "154px" }} />
+                  <ProgressDot style={{ left: "231px" }} />
+                  <ProgressDot style={{ left: "308px" }} />
                 </div>
 
-                <p className="pb-[1px] text-[14px] font-semibold leading-none text-zion-orange">
+                <p className="pb-[1px] text-[14px] font-semibold leading-none text-secondary-06">
                   ETA 3 days
                 </p>
               </div>
@@ -237,23 +263,23 @@ function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
         </>
       )}
     </div>
-  )
+  );
 }
 
 type InfoCardProps = {
-  className?: string
-  accent: string
-  color: string
-  title: string
-  subtitle: string
-  status: string
-  orange?: boolean
-  largeDot?: boolean
-  width: string
-}
+  className?: string;
+  accent: string;
+  color: string;
+  title: string;
+  subtitle: string;
+  status: string;
+  orange?: boolean;
+  largeDot?: boolean;
+  width: string;
+};
 
 function InfoCard({
-  className = '',
+  className = "",
   accent,
   color,
   title,
@@ -265,7 +291,7 @@ function InfoCard({
 }: InfoCardProps) {
   return (
     <div
-      className={`absolute ${width} h-[86px] rounded-[10px] border bg-zion-surface  ${className}`}
+      className={`absolute ${width} h-[86px] rounded-[10px] border bg-primary-09  ${className}`}
       style={{ borderColor: accent }}
     >
       <div
@@ -277,10 +303,10 @@ function InfoCard({
         <NodeIcon color={color} orange={orange} large={largeDot} />
 
         <div className="min-w-0">
-          <p className="whitespace-nowrap text-[14px] font-semibold leading-[1.05] text-zion-white font-sans">
+          <p className="whitespace-nowrap text-[14px] font-semibold leading-[1.05] text-white font-sans">
             {title}
           </p>
-          <p className="mt-[4px] whitespace-nowrap text-[12px] leading-none text-zion-muted-2">
+          <p className="mt-[4px] whitespace-nowrap text-[12px] leading-none text-neutral-05">
             {subtitle}
           </p>
         </div>
@@ -296,7 +322,7 @@ function InfoCard({
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function NodeIcon({
@@ -304,9 +330,9 @@ function NodeIcon({
   orange = false,
   large = false,
 }: {
-  color: string
-  orange?: boolean
-  large?: boolean
+  color: string;
+  orange?: boolean;
+  large?: boolean;
 }) {
   if (large) {
     return (
@@ -314,12 +340,12 @@ function NodeIcon({
         className="block h-[30px] w-[30px] shrink-0 rounded-full"
         style={{ backgroundColor: color }}
       />
-    )
+    );
   }
 
-  const size = orange ? 28 : 24
-  const fillOpacity = orange ? 0.14 : 0.2
-  const inner = orange ? 12 : 12
+  const size = orange ? 28 : 24;
+  const fillOpacity = orange ? 0.14 : 0.2;
+  const inner = orange ? 12 : 12;
 
   return (
     <span
@@ -348,11 +374,11 @@ function NodeIcon({
           width: inner,
           height: inner,
           backgroundColor: color,
-          transform: 'translate(-50%, -50%)',
+          transform: "translate(-50%, -50%)",
         }}
       />
     </span>
-  )
+  );
 }
 
 function SmallPoint({
@@ -360,13 +386,13 @@ function SmallPoint({
   color,
   orange = false,
 }: {
-  className: string
-  color: string
-  orange?: boolean
+  className: string;
+  color: string;
+  orange?: boolean;
 }) {
-  const size = orange ? 20 : 22
-  const inner = orange ? 10 : 10
-  const opacity = orange ? 0.14 : 0.2
+  const size = orange ? 20 : 22;
+  const inner = orange ? 10 : 10;
+  const opacity = orange ? 0.14 : 0.2;
 
   return (
     <span
@@ -386,30 +412,30 @@ function SmallPoint({
           width: inner,
           height: inner,
           backgroundColor: color,
-          transform: 'translate(-50%, -50%)',
+          transform: "translate(-50%, -50%)",
         }}
       />
     </span>
-  )
+  );
 }
 
 function ProgressDot({
   active = false,
   style,
 }: {
-  active?: boolean
-  style?: CSSProperties
+  active?: boolean;
+  style?: CSSProperties;
 }) {
   return (
     <span
       className={`absolute top-1/2 h-[16px] w-[16px] -translate-x-1/2 -translate-y-1/2 rounded-full ${
         active
-          ? 'border-[4px] border-zion-blue bg-zion-white/90'
-          : 'bg-zion-progress-dot'
+          ? "border-[4px] border-primary-06 text-white/90"
+          : "bg-primary-06-dot"
       }`}
       style={style}
     />
-  )
+  );
 }
 
-export default HeroVisual
+export default HeroVisual;

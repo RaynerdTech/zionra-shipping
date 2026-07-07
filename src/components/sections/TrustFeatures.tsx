@@ -1,54 +1,54 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 type FeatureItem = {
-  title: string
-  description: string
-  icon: ReactNode
-  iconWrapClass: string
-  iconClass: string
-}
+  title: string;
+  description: string;
+  icon: ReactNode;
+  iconWrapClass: string;
+  iconClass: string;
+};
 
 const featureItems: FeatureItem[] = [
   {
-    title: 'Verified Shipping Agents',
-    description: 'We work with reliable verified shipping agents',
-    iconWrapClass: 'bg-zion-blue-soft',
-    iconClass: 'text-zion-blue-light',
+    title: "Verified Shipping Agents",
+    description: "We work with reliable verified shipping agents",
+    iconWrapClass: "bg-primary-08",
+    iconClass: "text-primary-04",
     icon: <VerifiedIcon />,
   },
   {
-    title: 'Compare  Prices',
-    description: 'Compare rates and save more',
-    iconWrapClass: 'bg-zion-orange/25',
-    iconClass: 'text-zion-orange',
+    title: "Compare  Prices",
+    description: "Compare rates and save more",
+    iconWrapClass: "bg-secondary-06/25",
+    iconClass: "text-secondary-06",
     icon: <PriceIcon />,
   },
   {
-    title: 'Real-time Tracking',
-    description: 'Track every step of the way',
-    iconWrapClass: 'bg-zion-teal/25',
-    iconClass: 'text-zion-teal',
+    title: "Real-time Tracking",
+    description: "Track every step of the way",
+    iconWrapClass: "bg-tertiary-06/25",
+    iconClass: "text-tertiary-06",
     icon: <TrackingIcon />,
   },
   {
-    title: 'Safe & Secure',
-    description: 'Protected & secure payment',
-    iconWrapClass: 'bg-zion-green/20',
-    iconClass: 'text-zion-green',
+    title: "Safe & Secure",
+    description: "Protected & secure payment",
+    iconWrapClass: "bg-tertiary-06/20",
+    iconClass: "text-tertiary-06",
     icon: <SecureIcon />,
   },
   {
-    title: '24/7 Support',
-    description: 'Always here when you need us',
-    iconWrapClass: 'bg-zion-blue-soft',
-    iconClass: 'text-zion-blue-light',
+    title: "24/7 Support",
+    description: "Always here when you need us",
+    iconWrapClass: "bg-primary-08",
+    iconClass: "text-primary-04",
     icon: <SupportIcon />,
   },
-]
+];
 
 function TrustFeatures() {
   return (
-    <section className="w-full bg-zion-bg">
+    <section className="w-full bg-primary-10">
       <div className="w-full lg:px-25">
         <div className="hidden min-h-[124px] grid-cols-5 md:grid">
           {featureItems.map((item, index) => (
@@ -74,7 +74,7 @@ function TrustFeatures() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function FeatureCard({
@@ -83,10 +83,10 @@ function FeatureCard({
   mobile = false,
   showDivider = false,
 }: {
-  item: FeatureItem
-  desktop?: boolean
-  mobile?: boolean
-  showDivider?: boolean
+  item: FeatureItem;
+  desktop?: boolean;
+  mobile?: boolean;
+  showDivider?: boolean;
 }) {
   if (desktop) {
     return (
@@ -98,20 +98,20 @@ function FeatureCard({
             <span className={item.iconClass}>{item.icon}</span>
           </div>
 
-          <h3 className="mt-[12px] font-sans text-[12px] lg:text-[14px] font-medium leading-none text-zion-white whitespace-nowrap">
+          <h3 className="mt-[12px] font-sans text-[12px] lg:text-[14px] font-medium leading-none text-white whitespace-nowrap">
             {item.title}
           </h3>
 
-          <p className="mt-[8px] font-sans text-[10px] lg:text-[12px] font-light leading-[16px] text-zion-muted-2">
+          <p className="mt-[8px] font-sans text-[10px] lg:text-[12px] font-light leading-[16px] text-neutral-05">
             {item.description}
           </p>
         </div>
 
         {showDivider && (
-          <span className="absolute right-0 top-1/2 h-[92px] w-px -translate-y-1/2 bg-zion-border" />
+          <span className="absolute right-0 top-1/2 h-[92px] w-px -translate-y-1/2 bg-primary-06/30" />
         )}
       </div>
-    )
+    );
   }
 
   if (mobile) {
@@ -123,14 +123,14 @@ function FeatureCard({
           <span className={item.iconClass}>{item.icon}</span>
         </div>
 
-        <h3 className="mt-[10px] font-sans text-[12px] font-semibold text-zion-white">
+        <h3 className="mt-[10px] font-sans text-[12px] font-semibold text-white">
           {item.title}
         </h3>
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 function VerifiedIcon() {
@@ -154,7 +154,7 @@ function VerifiedIcon() {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
 
 function PriceIcon() {
@@ -182,7 +182,7 @@ function PriceIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 function TrackingIcon() {
@@ -235,7 +235,7 @@ function TrackingIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 function SecureIcon() {
@@ -285,7 +285,7 @@ function SecureIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 function SupportIcon() {
@@ -317,7 +317,7 @@ function SupportIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
-export default TrustFeatures
+export default TrustFeatures;
