@@ -1,0 +1,25 @@
+# Responsibility:
+# Defines local infrastructure services for Zionra development.
+# This starts a real PostgreSQL database in Docker for backend development.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zionra-postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: zionra
+      POSTGRES_PASSWORD: zionra_dev_password
+      POSTGRES_DB: zionra_dev
+    volumes:
+      - zionra_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zionra -d zionra_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  zionra_postgres_data:

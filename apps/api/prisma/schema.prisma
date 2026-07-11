@@ -1,0 +1,88 @@
+// Responsibility:
+// Defines the database structure for the Zionra API.
+//
+// This schema supports customer registration, email verification,
+// password reset, and database-backed rolling customer sessions.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CustomerStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model Customer {
+  id                 String         @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String         @unique
+  phoneCountryCode   String
+  phoneNumber        String
+  passwordHash       String
+  countryOfResidence String
+  referralSource     String?
+  acceptedTermsAt    DateTime
+  marketingOptIn     Boolean        @default(false)
+  emailVerifiedAt    DateTime?
+  status             CustomerStatus @default(ACTIVE)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  emailVerificationCodes CustomerEmailVerificationCode[]
+  passwordResetCodes     CustomerPasswordResetCode[]
+  sessions               CustomerSession[]
+
+  @@index([email])
+  @@index([phoneCountryCode, phoneNumber])
+}
+
+model CustomerEmailVerificationCode {
+  id        String    @id @default(cuid())
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([codeHash])
+}
+
+model CustomerPasswordResetCode {
+  id        String    @id @default(cuid())
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([codeHash])
+}
+
+model CustomerSession {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([expiresAt])
+}

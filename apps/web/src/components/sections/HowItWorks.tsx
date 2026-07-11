@@ -77,7 +77,7 @@ function HowItWorks() {
         <div className="mt-[28px] lg:mt-[24px]">
           <button
             type="button"
-            className="zion-btn zion-btn zion-btn-sm zion-btn-blue font-light"
+            className="zion-btn zion-btn-sm zion-btn-blue font-light"
           >
             Learn more
           </button>
