@@ -35,6 +35,19 @@ export type RegisterCustomerInput = {
   marketingOptIn: boolean;
 };
 
+export type CompleteGoogleProfileInput = {
+  phoneCountryCode: string;
+  phoneNumber: string;
+  countryOfResidence: string;
+  referralSource: string | null;
+  acceptedTerms: boolean;
+  marketingOptIn: boolean;
+};
+
+export type LinkGoogleAccountInput = {
+  password: string;
+};
+
 export type LoginCustomerInput = {
   email: string;
   password: string;
@@ -85,32 +98,15 @@ function isValidPhoneNumber(phoneNumber: string) {
   return normalizePhoneNumber(phoneNumber).length >= 7;
 }
 
-export function validateRegisterCustomer(
-  requestBody: unknown,
-): ValidationResult<RegisterCustomerInput> {
-  const body = toBody(requestBody);
+function validateProfileCompletionFields(body: RequestBody) {
   const errors: FieldErrors = {};
 
-  const firstName = getString(body, "firstName");
-  const lastName = getString(body, "lastName");
-  const email = getString(body, "email").toLowerCase();
   const phoneCountryCode = getString(body, "phoneCountryCode");
   const phoneNumber = getString(body, "phoneNumber");
-  const password = getString(body, "password");
-  const confirmPassword = getString(body, "confirmPassword");
   const countryOfResidence = getString(body, "countryOfResidence");
   const referralSource = getString(body, "referralSource");
   const acceptedTerms = getBoolean(body, "acceptedTerms");
   const marketingOptIn = getBoolean(body, "marketingOptIn");
-
-  if (!firstName) errors.firstName = REQUIRED_MESSAGE;
-  if (!lastName) errors.lastName = REQUIRED_MESSAGE;
-
-  if (!email) {
-    errors.email = REQUIRED_MESSAGE;
-  } else if (!isValidEmail(email)) {
-    errors.email = "Enter a valid email address.";
-  }
 
   if (!phoneCountryCode) {
     errors.phoneCountryCode = REQUIRED_MESSAGE;
@@ -120,6 +116,52 @@ export function validateRegisterCustomer(
     errors.phoneNumber = REQUIRED_MESSAGE;
   } else if (!isValidPhoneNumber(phoneNumber)) {
     errors.phoneNumber = "Enter a valid phone number.";
+  }
+
+  if (!countryOfResidence) {
+    errors.countryOfResidence = REQUIRED_MESSAGE;
+  }
+
+  if (!acceptedTerms) {
+    errors.acceptedTerms =
+      "You must agree to Zionra's Terms of Service and Privacy Policy.";
+  }
+
+  return {
+    errors,
+    data: {
+      phoneCountryCode,
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+      countryOfResidence,
+      referralSource: referralSource || null,
+      acceptedTerms,
+      marketingOptIn,
+    },
+  };
+}
+
+export function validateRegisterCustomer(
+  requestBody: unknown,
+): ValidationResult<RegisterCustomerInput> {
+  const body = toBody(requestBody);
+  const errors: FieldErrors = {};
+
+  const firstName = getString(body, "firstName");
+  const lastName = getString(body, "lastName");
+  const email = getString(body, "email").toLowerCase();
+  const password = getString(body, "password");
+  const confirmPassword = getString(body, "confirmPassword");
+  const profileFields = validateProfileCompletionFields(body);
+
+  Object.assign(errors, profileFields.errors);
+
+  if (!firstName) errors.firstName = REQUIRED_MESSAGE;
+  if (!lastName) errors.lastName = REQUIRED_MESSAGE;
+
+  if (!email) {
+    errors.email = REQUIRED_MESSAGE;
+  } else if (!isValidEmail(email)) {
+    errors.email = "Enter a valid email address.";
   }
 
   if (!password) {
@@ -132,15 +174,6 @@ export function validateRegisterCustomer(
     errors.confirmPassword = REQUIRED_MESSAGE;
   } else if (password && password !== confirmPassword) {
     errors.confirmPassword = "Passwords do not match.";
-  }
-
-  if (!countryOfResidence) {
-    errors.countryOfResidence = REQUIRED_MESSAGE;
-  }
-
-  if (!acceptedTerms) {
-    errors.acceptedTerms =
-      "You must agree to Zionra's Terms of Service and Privacy Policy.";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -156,13 +189,53 @@ export function validateRegisterCustomer(
       firstName,
       lastName,
       email,
-      phoneCountryCode,
-      phoneNumber: normalizePhoneNumber(phoneNumber),
       password,
-      countryOfResidence,
-      referralSource: referralSource || null,
-      acceptedTerms,
-      marketingOptIn,
+      ...profileFields.data,
+    },
+  };
+}
+
+export function validateCompleteGoogleProfile(
+  requestBody: unknown,
+): ValidationResult<CompleteGoogleProfileInput> {
+  const body = toBody(requestBody);
+  const validation = validateProfileCompletionFields(body);
+
+  if (Object.keys(validation.errors).length > 0) {
+    return {
+      success: false,
+      errors: validation.errors,
+    };
+  }
+
+  return {
+    success: true,
+    data: validation.data,
+  };
+}
+
+export function validateLinkGoogleAccount(
+  requestBody: unknown,
+): ValidationResult<LinkGoogleAccountInput> {
+  const body = toBody(requestBody);
+  const password = getString(body, "password");
+  const errors: FieldErrors = {};
+
+  if (!password) {
+    errors.password = REQUIRED_MESSAGE;
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      success: false,
+      errors,
+    };
+  }
+
+  return {
+    success: true,
+    data: {
+      password,
     },
   };
 }

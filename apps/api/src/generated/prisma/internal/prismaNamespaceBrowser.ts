@@ -54,7 +54,9 @@ export const ModelName = {
   Customer: 'Customer',
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
-  CustomerSession: 'CustomerSession'
+  CustomerSession: 'CustomerSession',
+  CustomerOAuthAccount: 'CustomerOAuthAccount',
+  CustomerOAuthSignup: 'CustomerOAuthSignup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -130,6 +132,36 @@ export const CustomerSessionScalarFieldEnum = {
 } as const
 
 export type CustomerSessionScalarFieldEnum = (typeof CustomerSessionScalarFieldEnum)[keyof typeof CustomerSessionScalarFieldEnum]
+
+
+export const CustomerOAuthAccountScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerOAuthAccountScalarFieldEnum = (typeof CustomerOAuthAccountScalarFieldEnum)[keyof typeof CustomerOAuthAccountScalarFieldEnum]
+
+
+export const CustomerOAuthSignupScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  tokenHash: 'tokenHash',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerOAuthSignupScalarFieldEnum = (typeof CustomerOAuthSignupScalarFieldEnum)[keyof typeof CustomerOAuthSignupScalarFieldEnum]
 
 
 export const SortOrder = {

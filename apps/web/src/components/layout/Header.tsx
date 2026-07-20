@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const logoZionra = "/images/logo-zionracopy.png";
+const logoZionra = "/images/logo-zionra.png";
 
 const navItems = ["Home", "How It Works", "Get quote", "About Us", "Support"];
 

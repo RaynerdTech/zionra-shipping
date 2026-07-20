@@ -22,12 +22,19 @@ const envSchema = z.object({
 
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
+
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  GOOGLE_CALLBACK_URL: z.string().url(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-  console.error("Invalid environment variables:", parsedEnv.error.flatten().fieldErrors);
+  console.error(
+    "Invalid environment variables:",
+    parsedEnv.error.flatten().fieldErrors,
+  );
   process.exit(1);
 }
 

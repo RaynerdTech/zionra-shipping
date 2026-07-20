@@ -387,7 +387,9 @@ export const ModelName = {
   Customer: 'Customer',
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
-  CustomerSession: 'CustomerSession'
+  CustomerSession: 'CustomerSession',
+  CustomerOAuthAccount: 'CustomerOAuthAccount',
+  CustomerOAuthSignup: 'CustomerOAuthSignup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -403,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerSession"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +705,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerOAuthAccount: {
+      payload: Prisma.$CustomerOAuthAccountPayload<ExtArgs>
+      fields: Prisma.CustomerOAuthAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerOAuthAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerOAuthAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerOAuthAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerOAuthAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerOAuthAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerOAuthAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerOAuthAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerOAuthAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerOAuthAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        update: {
+          args: Prisma.CustomerOAuthAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerOAuthAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerOAuthAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerOAuthAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerOAuthAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerOAuthAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerOAuthAccount>
+        }
+        groupBy: {
+          args: Prisma.CustomerOAuthAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerOAuthAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerOAuthAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerOAuthAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerOAuthSignup: {
+      payload: Prisma.$CustomerOAuthSignupPayload<ExtArgs>
+      fields: Prisma.CustomerOAuthSignupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerOAuthSignupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerOAuthSignupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerOAuthSignupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerOAuthSignupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerOAuthSignupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerOAuthSignupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerOAuthSignupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerOAuthSignupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerOAuthSignupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        update: {
+          args: Prisma.CustomerOAuthSignupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerOAuthSignupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerOAuthSignupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerOAuthSignupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerOAuthSignupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerOAuthSignupPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerOAuthSignupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerOAuthSignup>
+        }
+        groupBy: {
+          args: Prisma.CustomerOAuthSignupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerOAuthSignupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerOAuthSignupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerOAuthSignupCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -801,6 +951,36 @@ export const CustomerSessionScalarFieldEnum = {
 export type CustomerSessionScalarFieldEnum = (typeof CustomerSessionScalarFieldEnum)[keyof typeof CustomerSessionScalarFieldEnum]
 
 
+export const CustomerOAuthAccountScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerOAuthAccountScalarFieldEnum = (typeof CustomerOAuthAccountScalarFieldEnum)[keyof typeof CustomerOAuthAccountScalarFieldEnum]
+
+
+export const CustomerOAuthSignupScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  tokenHash: 'tokenHash',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerOAuthSignupScalarFieldEnum = (typeof CustomerOAuthSignupScalarFieldEnum)[keyof typeof CustomerOAuthSignupScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -877,6 +1057,20 @@ export type EnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'CustomerStatus[]'
  */
 export type ListEnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OAuthProvider'
+ */
+export type EnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OAuthProvider'>
+    
+
+
+/**
+ * Reference to a field of type 'OAuthProvider[]'
+ */
+export type ListEnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OAuthProvider[]'>
     
 
 
@@ -1007,6 +1201,8 @@ export type GlobalOmitConfig = {
   customerEmailVerificationCode?: Prisma.CustomerEmailVerificationCodeOmit
   customerPasswordResetCode?: Prisma.CustomerPasswordResetCodeOmit
   customerSession?: Prisma.CustomerSessionOmit
+  customerOAuthAccount?: Prisma.CustomerOAuthAccountOmit
+  customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit
 }
 
 /* Types for Logging */

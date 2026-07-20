@@ -37,3 +37,13 @@ export type CustomerPasswordResetCode = Prisma.CustomerPasswordResetCodeModel
  * 
  */
 export type CustomerSession = Prisma.CustomerSessionModel
+/**
+ * Model CustomerOAuthAccount
+ * 
+ */
+export type CustomerOAuthAccount = Prisma.CustomerOAuthAccountModel
+/**
+ * Model CustomerOAuthSignup
+ * 
+ */
+export type CustomerOAuthSignup = Prisma.CustomerOAuthSignupModel

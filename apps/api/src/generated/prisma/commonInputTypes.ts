@@ -165,6 +165,23 @@ export type EnumCustomerStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCustomerStatusFilter<$PrismaModel>
 }
 
+export type EnumOAuthProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.OAuthProvider | Prisma.EnumOAuthProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel> | $Enums.OAuthProvider
+}
+
+export type EnumOAuthProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.OAuthProvider | Prisma.EnumOAuthProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumOAuthProviderWithAggregatesFilter<$PrismaModel> | $Enums.OAuthProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -327,6 +344,23 @@ export type NestedEnumCustomerStatusWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCustomerStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCustomerStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumOAuthProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.OAuthProvider | Prisma.EnumOAuthProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel> | $Enums.OAuthProvider
+}
+
+export type NestedEnumOAuthProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.OAuthProvider | Prisma.EnumOAuthProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.OAuthProvider[] | Prisma.ListEnumOAuthProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumOAuthProviderWithAggregatesFilter<$PrismaModel> | $Enums.OAuthProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
 }
 
 

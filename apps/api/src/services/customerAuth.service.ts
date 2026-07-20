@@ -117,7 +117,7 @@ async function createPasswordResetCode(customerId: string) {
   return code;
 }
 
-async function createCustomerSession(customerId: string) {
+export async function createCustomerSession(customerId: string) {
   const sessionToken = createCustomerSessionToken();
 
   await prisma.customerSession.create({
@@ -192,19 +192,31 @@ export async function verifyCustomerEmail(input: EmailCodeInput) {
     );
   }
 
-  const verificationCode = await prisma.customerEmailVerificationCode.findFirst({
-    where: {
-      customerId: customer.id,
-      codeHash: hashToken(input.code),
-      usedAt: null,
-      expiresAt: {
-        gt: new Date(),
+  if (customer.emailVerifiedAt) {
+    throw new HttpError(
+      HTTP_STATUS.BAD_REQUEST,
+      "This email address is already verified.",
+      {
+        code: "EMAIL_ALREADY_VERIFIED",
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    );
+  }
+
+  const verificationCode =
+    await prisma.customerEmailVerificationCode.findFirst({
+      where: {
+        customerId: customer.id,
+        codeHash: hashToken(input.code),
+        usedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
 
   if (!verificationCode) {
     throw new HttpError(
@@ -275,7 +287,7 @@ export async function loginCustomer(input: LoginCustomerInput) {
     },
   });
 
-  if (!customer) {
+  if (!customer || !customer.passwordHash) {
     throw new HttpError(HTTP_STATUS.UNAUTHORIZED, "Invalid email or password.");
   }
 

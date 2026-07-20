@@ -1,8 +1,8 @@
 // Responsibility:
 // Defines the database structure for the Zionra API.
 //
-// This schema supports customer registration, email verification,
-// password reset, and database-backed rolling customer sessions.
+// This schema supports password authentication, Google authentication,
+// email verification, password reset, and database-backed rolling sessions.
 
 generator client {
   provider = "prisma-client"
@@ -18,6 +18,10 @@ enum CustomerStatus {
   SUSPENDED
 }
 
+enum OAuthProvider {
+  GOOGLE
+}
+
 model Customer {
   id                 String         @id @default(cuid())
   firstName          String
@@ -25,7 +29,7 @@ model Customer {
   email              String         @unique
   phoneCountryCode   String
   phoneNumber        String
-  passwordHash       String
+  passwordHash       String?
   countryOfResidence String
   referralSource     String?
   acceptedTermsAt    DateTime
@@ -38,6 +42,7 @@ model Customer {
   emailVerificationCodes CustomerEmailVerificationCode[]
   passwordResetCodes     CustomerPasswordResetCode[]
   sessions               CustomerSession[]
+  oauthAccounts          CustomerOAuthAccount[]
 
   @@index([email])
   @@index([phoneCountryCode, phoneNumber])
@@ -84,5 +89,39 @@ model CustomerSession {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
+  @@index([expiresAt])
+}
+
+model CustomerOAuthAccount {
+  id                String        @id @default(cuid())
+  provider          OAuthProvider
+  providerAccountId String
+  email             String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@unique([provider, customerId])
+  @@index([email])
+}
+
+model CustomerOAuthSignup {
+  id                String        @id @default(cuid())
+  provider          OAuthProvider
+  providerAccountId String
+  tokenHash         String        @unique
+  email             String
+  firstName         String
+  lastName          String
+  expiresAt         DateTime
+  usedAt            DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([email])
   @@index([expiresAt])
 }

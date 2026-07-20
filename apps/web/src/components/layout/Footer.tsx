@@ -1,4 +1,4 @@
-const logoZionra = "/images/logo-zionracopy.png";
+const logoZionra = "/images/logo-zionra.png";
 
 type FooterLinkGroup = {
   title: string;

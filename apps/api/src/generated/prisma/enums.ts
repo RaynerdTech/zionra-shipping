@@ -15,3 +15,10 @@ export const CustomerStatus = {
 } as const
 
 export type CustomerStatus = (typeof CustomerStatus)[keyof typeof CustomerStatus]
+
+
+export const OAuthProvider = {
+  GOOGLE: 'GOOGLE'
+} as const
+
+export type OAuthProvider = (typeof OAuthProvider)[keyof typeof OAuthProvider]
