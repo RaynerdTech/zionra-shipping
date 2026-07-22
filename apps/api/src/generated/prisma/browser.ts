@@ -33,6 +33,11 @@ export type CustomerEmailVerificationCode = Prisma.CustomerEmailVerificationCode
  */
 export type CustomerPasswordResetCode = Prisma.CustomerPasswordResetCodeModel
 /**
+ * Model CustomerPasswordResetAuthorization
+ * 
+ */
+export type CustomerPasswordResetAuthorization = Prisma.CustomerPasswordResetAuthorizationModel
+/**
  * Model CustomerSession
  * 
  */

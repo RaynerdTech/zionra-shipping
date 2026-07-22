@@ -1,14 +1,14 @@
 /**
  * Responsibility:
- * Defines metadata and renders the customer forgot-password route.
+ * Defines metadata and renders the customer account-lookup step for password recovery.
  */
 
 import type { Metadata } from "next";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Forgot your password? | Zionra",
-  description: "Request a Zionra customer password-reset code.",
+  title: "Find your account | Zionra",
+  description: "Start secure recovery for a Zionra customer account.",
 };
 
 type ForgotPasswordPageProps = {

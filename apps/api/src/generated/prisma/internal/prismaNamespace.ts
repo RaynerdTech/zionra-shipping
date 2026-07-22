@@ -387,6 +387,7 @@ export const ModelName = {
   Customer: 'Customer',
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
+  CustomerPasswordResetAuthorization: 'CustomerPasswordResetAuthorization',
   CustomerSession: 'CustomerSession',
   CustomerOAuthAccount: 'CustomerOAuthAccount',
   CustomerOAuthSignup: 'CustomerOAuthSignup'
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +629,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerPasswordResetCodeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerPasswordResetCodeCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerPasswordResetAuthorization: {
+      payload: Prisma.$CustomerPasswordResetAuthorizationPayload<ExtArgs>
+      fields: Prisma.CustomerPasswordResetAuthorizationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerPasswordResetAuthorizationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerPasswordResetAuthorizationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerPasswordResetAuthorizationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerPasswordResetAuthorizationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerPasswordResetAuthorizationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerPasswordResetAuthorizationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerPasswordResetAuthorizationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerPasswordResetAuthorizationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerPasswordResetAuthorizationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        update: {
+          args: Prisma.CustomerPasswordResetAuthorizationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerPasswordResetAuthorizationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerPasswordResetAuthorizationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerPasswordResetAuthorizationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerPasswordResetAuthorizationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPasswordResetAuthorizationPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerPasswordResetAuthorizationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerPasswordResetAuthorization>
+        }
+        groupBy: {
+          args: Prisma.CustomerPasswordResetAuthorizationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPasswordResetAuthorizationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerPasswordResetAuthorizationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPasswordResetAuthorizationCountAggregateOutputType> | number
         }
       }
     }
@@ -930,11 +1005,25 @@ export const CustomerPasswordResetCodeScalarFieldEnum = {
   codeHash: 'codeHash',
   expiresAt: 'expiresAt',
   usedAt: 'usedAt',
+  failedAttempts: 'failedAttempts',
   createdAt: 'createdAt',
   customerId: 'customerId'
 } as const
 
 export type CustomerPasswordResetCodeScalarFieldEnum = (typeof CustomerPasswordResetCodeScalarFieldEnum)[keyof typeof CustomerPasswordResetCodeScalarFieldEnum]
+
+
+export const CustomerPasswordResetAuthorizationScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  customerId: 'customerId',
+  passwordResetCodeId: 'passwordResetCodeId'
+} as const
+
+export type CustomerPasswordResetAuthorizationScalarFieldEnum = (typeof CustomerPasswordResetAuthorizationScalarFieldEnum)[keyof typeof CustomerPasswordResetAuthorizationScalarFieldEnum]
 
 
 export const CustomerSessionScalarFieldEnum = {
@@ -1061,6 +1150,20 @@ export type ListEnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'OAuthProvider'
  */
 export type EnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OAuthProvider'>
@@ -1075,16 +1178,16 @@ export type ListEnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Float'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'Float[]'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1200,6 +1303,7 @@ export type GlobalOmitConfig = {
   customer?: Prisma.CustomerOmit
   customerEmailVerificationCode?: Prisma.CustomerEmailVerificationCodeOmit
   customerPasswordResetCode?: Prisma.CustomerPasswordResetCodeOmit
+  customerPasswordResetAuthorization?: Prisma.CustomerPasswordResetAuthorizationOmit
   customerSession?: Prisma.CustomerSessionOmit
   customerOAuthAccount?: Prisma.CustomerOAuthAccountOmit
   customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit

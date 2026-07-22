@@ -64,9 +64,12 @@ export type EmailCodeInput = {
   code: string;
 };
 
-export type ResetPasswordInput = {
+export type PasswordResetCodeInput = {
   email: string;
   code: string;
+};
+
+export type ResetPasswordInput = {
   password: string;
 };
 
@@ -352,17 +355,19 @@ export function validateEmailCodeInput(
   };
 }
 
+export function validatePasswordResetCode(
+  requestBody: unknown,
+): ValidationResult<PasswordResetCodeInput> {
+  return validateEmailCodeInput(requestBody);
+}
+
 export function validateResetPassword(
   requestBody: unknown,
 ): ValidationResult<ResetPasswordInput> {
   const body = toBody(requestBody);
-  const codeValidation = validateEmailCodeInput(requestBody);
   const password = getString(body, "password");
   const confirmPassword = getString(body, "confirmPassword");
-
-  const errors: FieldErrors = codeValidation.success
-    ? {}
-    : { ...codeValidation.errors };
+  const errors: FieldErrors = {};
 
   if (!password) {
     errors.password = REQUIRED_MESSAGE;
@@ -386,8 +391,6 @@ export function validateResetPassword(
   return {
     success: true,
     data: {
-      email: codeValidation.success ? codeValidation.data.email : "",
-      code: codeValidation.success ? codeValidation.data.code : "",
       password,
     },
   };

@@ -13,6 +13,7 @@ export const routes = {
     customerCreateAccount: "/create-account",
     customerVerifyEmail: "/verify-email",
     customerForgotPassword: "/forgot-password",
+    customerVerifyPasswordResetCode: "/forgot-password/verify",
     customerResetPassword: "/reset-password",
     customerCompleteProfile: "/complete-profile",
     customerLinkGoogleAccount: "/link-google-account",
@@ -38,6 +39,10 @@ export const routes = {
       me: "/api/customer/auth/me",
 
       forgotPassword: "/api/customer/auth/forgot-password",
+      verifyPasswordResetCode:
+        "/api/customer/auth/verify-password-reset-code",
+      passwordResetSession:
+        "/api/customer/auth/password-reset-session",
       resetPassword: "/api/customer/auth/reset-password",
 
       google: "/api/customer/auth/google",

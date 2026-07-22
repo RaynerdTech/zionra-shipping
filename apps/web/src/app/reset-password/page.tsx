@@ -1,27 +1,16 @@
 /**
  * Responsibility:
- * Defines metadata and renders the customer password-reset route.
+ * Defines metadata and renders the authorized new-password step.
  */
 
 import type { Metadata } from "next";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Reset your password | Zionra",
-  description: "Reset a Zionra customer account password.",
+  title: "Create a new password | Zionra",
+  description: "Create a new password after secure code verification.",
 };
 
-type ResetPasswordPageProps = {
-  searchParams: Promise<{
-    email?: string | string[];
-  }>;
-};
-
-export default async function ResetPasswordPage({
-  searchParams,
-}: ResetPasswordPageProps) {
-  const params = await searchParams;
-  const email = Array.isArray(params.email) ? params.email[0] : params.email;
-
-  return <ResetPasswordForm email={email ?? ""} />;
+export default function ResetPasswordPage() {
+  return <ResetPasswordForm />;
 }

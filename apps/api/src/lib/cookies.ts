@@ -18,6 +18,10 @@ import {
   GOOGLE_SIGNUP_DURATION_MS,
 } from "./googleAuth.js";
 import { env } from "../config/env.js";
+import {
+  CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME,
+  CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
+} from "./token.js";
 
 const GOOGLE_OAUTH_COOKIE_PATH = "/";
 const GOOGLE_SIGNUP_COOKIE_PATH = "/api/customer/auth/google";
@@ -98,5 +102,23 @@ export function clearGoogleSignupCookie(res: Response) {
   res.clearCookie(GOOGLE_SIGNUP_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
     path: GOOGLE_SIGNUP_COOKIE_PATH,
+  });
+}
+
+export function setCustomerPasswordResetAuthorizationCookie(
+  res: Response,
+  token: string,
+) {
+  res.cookie(CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
+    path: "/api/customer/auth",
+  });
+}
+
+export function clearCustomerPasswordResetAuthorizationCookie(res: Response) {
+  res.clearCookie(CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: "/api/customer/auth",
   });
 }

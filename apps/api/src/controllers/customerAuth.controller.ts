@@ -8,12 +8,16 @@
 import type { Request, Response } from "express";
 import {
   clearCustomerAuthCookie,
+  clearCustomerPasswordResetAuthorizationCookie,
   setCustomerAuthCookie,
+  setCustomerPasswordResetAuthorizationCookie,
 } from "../lib/cookies.js";
 import { AUTH_COOKIE_NAME } from "../lib/auth.js";
+import { CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME } from "../lib/token.js";
 import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import {
   getCurrentCustomer,
+  getCustomerPasswordResetSession,
   loginCustomer,
   logoutCustomer,
   registerCustomer,
@@ -21,11 +25,13 @@ import {
   resetCustomerPassword,
   sendCustomerPasswordResetCode,
   verifyCustomerEmail,
+  verifyCustomerPasswordResetCode,
 } from "../services/customerAuth.service.js";
 import {
   validateEmailCodeInput,
   validateEmailInput,
   validateLoginCustomer,
+  validatePasswordResetCode,
   validateRegisterCustomer,
   validateResetPassword,
 } from "../validators/customerAuth.validators.js";
@@ -226,6 +232,8 @@ export async function forgotPasswordController(
       return;
     }
 
+    clearCustomerPasswordResetAuthorizationCookie(res);
+
     const result = await sendCustomerPasswordResetCode(validation.data);
 
     res.status(HTTP_STATUS.OK).json(result);
@@ -234,6 +242,62 @@ export async function forgotPasswordController(
       res,
       error,
       "Something went wrong while sending the password reset code.",
+    );
+  }
+}
+
+export async function verifyPasswordResetCodeController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const validation = validatePasswordResetCode(req.body);
+
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    const result = await verifyCustomerPasswordResetCode(validation.data);
+
+    setCustomerPasswordResetAuthorizationCookie(
+      res,
+      result.resetAuthorizationToken,
+    );
+
+    res.status(HTTP_STATUS.OK).json({
+      message: result.message,
+      redirectTo: "/reset-password",
+    });
+  } catch (error) {
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while verifying the password reset code.",
+    );
+  }
+}
+
+export async function getPasswordResetSessionController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const resetAuthorizationToken = req.cookies?.[
+      CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME
+    ] as string | undefined;
+    const result = await getCustomerPasswordResetSession(
+      resetAuthorizationToken,
+    );
+
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    clearCustomerPasswordResetAuthorizationCookie(res);
+
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while loading your password reset session.",
     );
   }
 }
@@ -250,10 +314,25 @@ export async function resetPasswordController(
       return;
     }
 
-    const result = await resetCustomerPassword(validation.data);
+    const resetAuthorizationToken = req.cookies?.[
+      CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME
+    ] as string | undefined;
+    const result = await resetCustomerPassword(
+      resetAuthorizationToken,
+      validation.data,
+    );
+
+    clearCustomerPasswordResetAuthorizationCookie(res);
 
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
+    if (
+      error instanceof HttpError &&
+      error.code === "PASSWORD_RESET_SESSION_EXPIRED"
+    ) {
+      clearCustomerPasswordResetAuthorizationCookie(res);
+    }
+
     handleControllerError(
       res,
       error,

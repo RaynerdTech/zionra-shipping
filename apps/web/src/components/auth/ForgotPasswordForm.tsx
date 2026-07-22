@@ -1,8 +1,7 @@
 /**
  * Responsibility:
- * Collects a customer's email address and requests a password-reset code.
- * It validates the email, calls the existing customer authentication API,
- * displays recoverable errors, and moves the customer to the reset-code step.
+ * Collects the customer email used to begin password recovery.
+ * It always advances with privacy-safe messaging and never confirms account existence.
  */
 
 "use client";
@@ -77,7 +76,9 @@ export default function ForgotPasswordForm({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email: normalizedEmail }),
+          body: JSON.stringify({
+            email: normalizedEmail,
+          }),
         },
       );
 
@@ -88,19 +89,21 @@ export default function ForgotPasswordForm({
           ...(result.errors ?? {}),
           form:
             result.message ??
-            "Unable to send a password-reset code. Please try again.",
+            "Unable to start password recovery. Please try again.",
         });
         return;
       }
 
       router.push(
-        `${routes.web.customerResetPassword}?email=${encodeURIComponent(
+        `${routes.web.customerVerifyPasswordResetCode}?email=${encodeURIComponent(
           normalizedEmail,
         )}`,
       );
     } catch (error) {
-      console.error("Password-reset request failed:", error);
-      setErrors({ form: "Unable to reach the server. Please try again." });
+      console.error("Password-recovery request failed:", error);
+      setErrors({
+        form: "Unable to reach the server. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -108,12 +111,12 @@ export default function ForgotPasswordForm({
 
   return (
     <AuthRecoveryShell
-      backHref={routes.web.customerLogin}
-      backLabel="Back to login"
-      title="Forgot your password?"
-      description="Enter your Zionra email address and we’ll send you a six-digit reset code."
+      backHref={routes.web.home}
+      backLabel="Back to home"
+      title="Find your account"
+      description="Enter the email address connected to your Zionra account."
     >
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-[560px]">
         <label htmlFor="email" className="block">
           <span className="mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10">
             Email Address <span className="text-error">*</span>
@@ -143,11 +146,6 @@ export default function ForgotPasswordForm({
           ) : null}
         </label>
 
-        <div className="mt-5 rounded-xl border border-primary-02 bg-primary-01 px-4 py-3 font-sans text-sm font-normal leading-[22px] text-text-body-light">
-          The code expires in 1 minute. Requesting another code will invalidate
-          the previous one.
-        </div>
-
         {errors.form ? (
           <p aria-live="polite" className="zion-field-error mt-4 text-center">
             {errors.form}
@@ -163,10 +161,10 @@ export default function ForgotPasswordForm({
           {isSubmitting ? (
             <>
               <LoadingSpinner />
-              <span className="sr-only">Sending reset code</span>
+              <span className="sr-only">Continuing</span>
             </>
           ) : (
-            "Send reset code"
+            "Continue"
           )}
         </button>
       </form>

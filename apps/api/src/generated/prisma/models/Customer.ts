@@ -264,6 +264,7 @@ export type CustomerWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeListRelationFilter
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeListRelationFilter
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationListRelationFilter
   sessions?: Prisma.CustomerSessionListRelationFilter
   oauthAccounts?: Prisma.CustomerOAuthAccountListRelationFilter
 }
@@ -286,6 +287,7 @@ export type CustomerOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeOrderByRelationAggregateInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeOrderByRelationAggregateInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationOrderByRelationAggregateInput
   sessions?: Prisma.CustomerSessionOrderByRelationAggregateInput
   oauthAccounts?: Prisma.CustomerOAuthAccountOrderByRelationAggregateInput
 }
@@ -311,6 +313,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeListRelationFilter
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeListRelationFilter
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationListRelationFilter
   sessions?: Prisma.CustomerSessionListRelationFilter
   oauthAccounts?: Prisma.CustomerOAuthAccountListRelationFilter
 }, "id" | "email">
@@ -375,6 +378,7 @@ export type CustomerCreateInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
 }
@@ -397,6 +401,7 @@ export type CustomerUncheckedCreateInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
 }
@@ -419,6 +424,7 @@ export type CustomerUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
 }
@@ -441,6 +447,7 @@ export type CustomerUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
 }
@@ -610,6 +617,20 @@ export type CustomerUpdateOneRequiredWithoutPasswordResetCodesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutPasswordResetCodesInput, Prisma.CustomerUpdateWithoutPasswordResetCodesInput>, Prisma.CustomerUncheckedUpdateWithoutPasswordResetCodesInput>
 }
 
+export type CustomerCreateNestedOneWithoutPasswordResetAuthorizationsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutPasswordResetAuthorizationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutPasswordResetAuthorizationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutPasswordResetAuthorizationsInput
+  upsert?: Prisma.CustomerUpsertWithoutPasswordResetAuthorizationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUpdateWithoutPasswordResetAuthorizationsInput>, Prisma.CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput>
+}
+
 export type CustomerCreateNestedOneWithoutSessionsInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutSessionsInput, Prisma.CustomerUncheckedCreateWithoutSessionsInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSessionsInput
@@ -655,6 +676,7 @@ export type CustomerCreateWithoutEmailVerificationCodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
 }
@@ -676,6 +698,7 @@ export type CustomerUncheckedCreateWithoutEmailVerificationCodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
 }
@@ -713,6 +736,7 @@ export type CustomerUpdateWithoutEmailVerificationCodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
 }
@@ -734,6 +758,7 @@ export type CustomerUncheckedUpdateWithoutEmailVerificationCodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
 }
@@ -755,6 +780,7 @@ export type CustomerCreateWithoutPasswordResetCodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
 }
@@ -776,6 +802,7 @@ export type CustomerUncheckedCreateWithoutPasswordResetCodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
 }
@@ -813,6 +840,7 @@ export type CustomerUpdateWithoutPasswordResetCodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
 }
@@ -834,6 +862,111 @@ export type CustomerUncheckedUpdateWithoutPasswordResetCodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
+  sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutPasswordResetAuthorizationsInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  email: string
+  phoneCountryCode: string
+  phoneNumber: string
+  passwordHash?: string | null
+  countryOfResidence: string
+  referralSource?: string | null
+  acceptedTermsAt: Date | string
+  marketingOptIn?: boolean
+  emailVerifiedAt?: Date | string | null
+  status?: $Enums.CustomerStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  email: string
+  phoneCountryCode: string
+  phoneNumber: string
+  passwordHash?: string | null
+  countryOfResidence: string
+  referralSource?: string | null
+  acceptedTermsAt: Date | string
+  marketingOptIn?: boolean
+  emailVerifiedAt?: Date | string | null
+  status?: $Enums.CustomerStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutPasswordResetAuthorizationsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput>
+}
+
+export type CustomerUpsertWithoutPasswordResetAuthorizationsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutPasswordResetAuthorizationsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutPasswordResetAuthorizationsInput, Prisma.CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput>
+}
+
+export type CustomerUpdateWithoutPasswordResetAuthorizationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfResidence?: Prisma.StringFieldUpdateOperationsInput | string
+  referralSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedTermsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  marketingOptIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfResidence?: Prisma.StringFieldUpdateOperationsInput | string
+  referralSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedTermsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  marketingOptIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
 }
@@ -856,6 +989,7 @@ export type CustomerCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
 }
 
@@ -877,6 +1011,7 @@ export type CustomerUncheckedCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
 }
 
@@ -914,6 +1049,7 @@ export type CustomerUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
 }
 
@@ -935,6 +1071,7 @@ export type CustomerUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
@@ -956,6 +1093,7 @@ export type CustomerCreateWithoutOauthAccountsInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
 }
 
@@ -977,6 +1115,7 @@ export type CustomerUncheckedCreateWithoutOauthAccountsInput = {
   updatedAt?: Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
 }
 
@@ -1014,6 +1153,7 @@ export type CustomerUpdateWithoutOauthAccountsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
 }
 
@@ -1035,6 +1175,7 @@ export type CustomerUncheckedUpdateWithoutOauthAccountsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
   passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
@@ -1046,6 +1187,7 @@ export type CustomerUncheckedUpdateWithoutOauthAccountsInput = {
 export type CustomerCountOutputType = {
   emailVerificationCodes: number
   passwordResetCodes: number
+  passwordResetAuthorizations: number
   sessions: number
   oauthAccounts: number
 }
@@ -1053,6 +1195,7 @@ export type CustomerCountOutputType = {
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   emailVerificationCodes?: boolean | CustomerCountOutputTypeCountEmailVerificationCodesArgs
   passwordResetCodes?: boolean | CustomerCountOutputTypeCountPasswordResetCodesArgs
+  passwordResetAuthorizations?: boolean | CustomerCountOutputTypeCountPasswordResetAuthorizationsArgs
   sessions?: boolean | CustomerCountOutputTypeCountSessionsArgs
   oauthAccounts?: boolean | CustomerCountOutputTypeCountOauthAccountsArgs
 }
@@ -1079,6 +1222,13 @@ export type CustomerCountOutputTypeCountEmailVerificationCodesArgs<ExtArgs exten
  */
 export type CustomerCountOutputTypeCountPasswordResetCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CustomerPasswordResetCodeWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountPasswordResetAuthorizationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerPasswordResetAuthorizationWhereInput
 }
 
 /**
@@ -1114,6 +1264,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   emailVerificationCodes?: boolean | Prisma.Customer$emailVerificationCodesArgs<ExtArgs>
   passwordResetCodes?: boolean | Prisma.Customer$passwordResetCodesArgs<ExtArgs>
+  passwordResetAuthorizations?: boolean | Prisma.Customer$passwordResetAuthorizationsArgs<ExtArgs>
   sessions?: boolean | Prisma.Customer$sessionsArgs<ExtArgs>
   oauthAccounts?: boolean | Prisma.Customer$oauthAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
@@ -1177,6 +1328,7 @@ export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   emailVerificationCodes?: boolean | Prisma.Customer$emailVerificationCodesArgs<ExtArgs>
   passwordResetCodes?: boolean | Prisma.Customer$passwordResetCodesArgs<ExtArgs>
+  passwordResetAuthorizations?: boolean | Prisma.Customer$passwordResetAuthorizationsArgs<ExtArgs>
   sessions?: boolean | Prisma.Customer$sessionsArgs<ExtArgs>
   oauthAccounts?: boolean | Prisma.Customer$oauthAccountsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
@@ -1189,6 +1341,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     emailVerificationCodes: Prisma.$CustomerEmailVerificationCodePayload<ExtArgs>[]
     passwordResetCodes: Prisma.$CustomerPasswordResetCodePayload<ExtArgs>[]
+    passwordResetAuthorizations: Prisma.$CustomerPasswordResetAuthorizationPayload<ExtArgs>[]
     sessions: Prisma.$CustomerSessionPayload<ExtArgs>[]
     oauthAccounts: Prisma.$CustomerOAuthAccountPayload<ExtArgs>[]
   }
@@ -1604,6 +1757,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   emailVerificationCodes<T extends Prisma.Customer$emailVerificationCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$emailVerificationCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerEmailVerificationCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetCodes<T extends Prisma.Customer$passwordResetCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$passwordResetCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPasswordResetCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordResetAuthorizations<T extends Prisma.Customer$passwordResetAuthorizationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$passwordResetAuthorizationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPasswordResetAuthorizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.Customer$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   oauthAccounts<T extends Prisma.Customer$oauthAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$oauthAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerOAuthAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2088,6 +2242,30 @@ export type Customer$passwordResetCodesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.CustomerPasswordResetCodeScalarFieldEnum | Prisma.CustomerPasswordResetCodeScalarFieldEnum[]
+}
+
+/**
+ * Customer.passwordResetAuthorizations
+ */
+export type Customer$passwordResetAuthorizationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPasswordResetAuthorization
+   */
+  select?: Prisma.CustomerPasswordResetAuthorizationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPasswordResetAuthorization
+   */
+  omit?: Prisma.CustomerPasswordResetAuthorizationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPasswordResetAuthorizationInclude<ExtArgs> | null
+  where?: Prisma.CustomerPasswordResetAuthorizationWhereInput
+  orderBy?: Prisma.CustomerPasswordResetAuthorizationOrderByWithRelationInput | Prisma.CustomerPasswordResetAuthorizationOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerPasswordResetAuthorizationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerPasswordResetAuthorizationScalarFieldEnum | Prisma.CustomerPasswordResetAuthorizationScalarFieldEnum[]
 }
 
 /**

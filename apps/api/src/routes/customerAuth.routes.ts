@@ -12,7 +12,9 @@ import {
   logoutCustomerController,
   registerCustomerController,
   resendCustomerVerificationCodeController,
+  getPasswordResetSessionController,
   resetPasswordController,
+  verifyPasswordResetCodeController,
   verifyCustomerEmailController,
 } from "../controllers/customerAuth.controller.js";
 import {
@@ -36,6 +38,11 @@ router.post("/login", loginCustomerController);
 router.post("/logout", logoutCustomerController);
 router.get("/me", requireCustomerAuth, getCurrentCustomerController);
 router.post("/forgot-password", forgotPasswordController);
+router.post(
+  "/verify-password-reset-code",
+  verifyPasswordResetCodeController,
+);
+router.get("/password-reset-session", getPasswordResetSessionController);
 router.post("/reset-password", resetPasswordController);
 
 router.get("/google", startGoogleAuthController);
