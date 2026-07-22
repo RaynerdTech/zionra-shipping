@@ -19,6 +19,8 @@ import {
 } from "./googleAuth.js";
 import { env } from "../config/env.js";
 import {
+  CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME,
+  CUSTOMER_LOGIN_CHALLENGE_DURATION_MS,
   CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME,
   CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
 } from "./token.js";
@@ -120,5 +122,23 @@ export function clearCustomerPasswordResetAuthorizationCookie(res: Response) {
   res.clearCookie(CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
     path: "/api/customer/auth",
+  });
+}
+
+export function setCustomerLoginChallengeCookie(
+  res: Response,
+  token: string,
+) {
+  res.cookie(CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: CUSTOMER_LOGIN_CHALLENGE_DURATION_MS,
+    path: "/api/customer/auth/login",
+  });
+}
+
+export function clearCustomerLoginChallengeCookie(res: Response) {
+  res.clearCookie(CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: "/api/customer/auth/login",
   });
 }

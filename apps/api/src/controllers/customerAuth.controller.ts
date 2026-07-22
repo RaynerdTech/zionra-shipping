@@ -8,29 +8,39 @@
 import type { Request, Response } from "express";
 import {
   clearCustomerAuthCookie,
+  clearCustomerLoginChallengeCookie,
   clearCustomerPasswordResetAuthorizationCookie,
   setCustomerAuthCookie,
+  setCustomerLoginChallengeCookie,
   setCustomerPasswordResetAuthorizationCookie,
 } from "../lib/cookies.js";
 import { AUTH_COOKIE_NAME } from "../lib/auth.js";
-import { CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME } from "../lib/token.js";
+import {
+  CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME,
+  CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME,
+} from "../lib/token.js";
 import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import {
+  cancelCustomerLoginChallenge,
   getCurrentCustomer,
+  getCustomerLoginChallenge,
   getCustomerPasswordResetSession,
-  loginCustomer,
   logoutCustomer,
   registerCustomer,
   resendCustomerVerificationCode,
+  resendCustomerLoginCode,
   resetCustomerPassword,
   sendCustomerPasswordResetCode,
+  startCustomerLogin,
   verifyCustomerEmail,
+  verifyCustomerLoginCode,
   verifyCustomerPasswordResetCode,
 } from "../services/customerAuth.service.js";
 import {
   validateEmailCodeInput,
   validateEmailInput,
   validateLoginCustomer,
+  validateLoginVerificationCode,
   validatePasswordResetCode,
   validateRegisterCustomer,
   validateResetPassword,
@@ -149,19 +159,139 @@ export async function loginCustomerController(
       return;
     }
 
-    const result = await loginCustomer(validation.data);
+    const result = await startCustomerLogin(validation.data);
 
-    setCustomerAuthCookie(res, result.sessionToken);
+    clearCustomerAuthCookie(res);
+    setCustomerLoginChallengeCookie(res, result.challengeToken);
 
     res.status(HTTP_STATUS.OK).json({
       message: result.message,
-      customer: result.customer,
+      redirectTo: "/login/verify",
     });
   } catch (error) {
     handleControllerError(
       res,
       error,
       "Something went wrong while signing in.",
+    );
+  }
+}
+
+export async function getLoginChallengeController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const challengeToken = req.cookies?.[
+      CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME
+    ] as string | undefined;
+    const result = await getCustomerLoginChallenge(challengeToken);
+
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    clearCustomerLoginChallengeCookie(res);
+
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while loading sign-in verification.",
+    );
+  }
+}
+
+export async function verifyLoginCodeController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const validation = validateLoginVerificationCode(req.body);
+
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    const challengeToken = req.cookies?.[
+      CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME
+    ] as string | undefined;
+    const result = await verifyCustomerLoginCode(
+      challengeToken,
+      validation.data,
+    );
+
+    clearCustomerLoginChallengeCookie(res);
+    setCustomerAuthCookie(res, result.sessionToken);
+
+    res.status(HTTP_STATUS.OK).json({
+      message: result.message,
+      customer: result.customer,
+      redirectTo: "/dashboard",
+    });
+  } catch (error) {
+    if (
+      error instanceof HttpError &&
+      error.code === "LOGIN_CHALLENGE_EXPIRED"
+    ) {
+      clearCustomerLoginChallengeCookie(res);
+    }
+
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while verifying your sign-in code.",
+    );
+  }
+}
+
+export async function resendLoginCodeController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const challengeToken = req.cookies?.[
+      CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME
+    ] as string | undefined;
+    const result = await resendCustomerLoginCode(challengeToken);
+
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    if (
+      error instanceof HttpError &&
+      (error.code === "LOGIN_CHALLENGE_EXPIRED" ||
+        error.code === "EMAIL_DELIVERY_FAILED")
+    ) {
+      clearCustomerLoginChallengeCookie(res);
+    }
+
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while resending your sign-in code.",
+    );
+  }
+}
+
+export async function cancelLoginChallengeController(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const challengeToken = req.cookies?.[
+      CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME
+    ] as string | undefined;
+
+    const result = await cancelCustomerLoginChallenge(challengeToken);
+
+    clearCustomerLoginChallengeCookie(res);
+
+    res.status(HTTP_STATUS.OK).json(result);
+  } catch (error) {
+    clearCustomerLoginChallengeCookie(res);
+
+    handleControllerError(
+      res,
+      error,
+      "Something went wrong while cancelling sign-in verification.",
     );
   }
 }
@@ -176,6 +306,7 @@ export async function logoutCustomerController(
     await logoutCustomer(token);
 
     clearCustomerAuthCookie(res);
+    clearCustomerLoginChallengeCookie(res);
 
     res.status(HTTP_STATUS.OK).json({
       message: "Signed out successfully.",

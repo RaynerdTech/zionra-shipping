@@ -6,14 +6,18 @@
 
 import { Router } from "express";
 import {
+  cancelLoginChallengeController,
   forgotPasswordController,
   getCurrentCustomerController,
+  getLoginChallengeController,
   loginCustomerController,
   logoutCustomerController,
   registerCustomerController,
   resendCustomerVerificationCodeController,
+  resendLoginCodeController,
   getPasswordResetSessionController,
   resetPasswordController,
+  verifyLoginCodeController,
   verifyPasswordResetCodeController,
   verifyCustomerEmailController,
 } from "../controllers/customerAuth.controller.js";
@@ -35,6 +39,10 @@ router.post(
   resendCustomerVerificationCodeController,
 );
 router.post("/login", loginCustomerController);
+router.get("/login/challenge", getLoginChallengeController);
+router.post("/login/verify-code", verifyLoginCodeController);
+router.post("/login/resend-code", resendLoginCodeController);
+router.post("/login/cancel", cancelLoginChallengeController);
 router.post("/logout", logoutCustomerController);
 router.get("/me", requireCustomerAuth, getCurrentCustomerController);
 router.post("/forgot-password", forgotPasswordController);

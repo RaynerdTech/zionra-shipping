@@ -55,6 +55,10 @@ export type LoginCustomerInput = {
   password: string;
 };
 
+export type LoginVerificationCodeInput = {
+  code: string;
+};
+
 export type EmailInput = {
   email: string;
 };
@@ -290,6 +294,34 @@ export function validateLoginCustomer(
     data: {
       email,
       password,
+    },
+  };
+}
+
+export function validateLoginVerificationCode(
+  requestBody: unknown,
+): ValidationResult<LoginVerificationCodeInput> {
+  const body = toBody(requestBody);
+  const code = getString(body, "code");
+  const errors: FieldErrors = {};
+
+  if (!code) {
+    errors.code = REQUIRED_MESSAGE;
+  } else if (!/^\d{6}$/.test(code)) {
+    errors.code = "Enter the 6 digit verification code.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      success: false,
+      errors,
+    };
+  }
+
+  return {
+    success: true,
+    data: {
+      code,
     },
   };
 }

@@ -8,6 +8,7 @@ import { env } from "../config/env.js";
 import {
   ZIONRA_EMAIL_LOGO_CONTENT_ID,
 } from "../emails/components/ZionraEmailLayout.js";
+import { createLoginVerificationCodeEmail } from "../emails/LoginVerificationCodeEmail.js";
 import { createPasswordChangedEmail } from "../emails/PasswordChangedEmail.js";
 import { createPasswordResetCodeEmail } from "../emails/PasswordResetCodeEmail.js";
 import { createVerificationCodeEmail } from "../emails/VerificationCodeEmail.js";
@@ -189,5 +190,31 @@ export async function sendCustomerPasswordChangedEmail(input: {
     text: content.text,
     idempotencyKey: `customer-password-changed/${input.passwordResetCodeId}`,
     category: "customer_password_changed",
+  });
+}
+
+
+export async function sendCustomerLoginVerificationEmail(input: {
+  customerId: string;
+  loginChallengeId: string;
+  emailSendCount: number;
+  firstName: string;
+  email: string;
+  code: string;
+}) {
+  const content = createLoginVerificationCodeEmail({
+    firstName: input.firstName,
+    code: input.code,
+    supportEmail: env.EMAIL_REPLY_TO,
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `customer-login-verification/${input.loginChallengeId}/${input.emailSendCount}`,
+    category: "customer_login_verification",
   });
 }

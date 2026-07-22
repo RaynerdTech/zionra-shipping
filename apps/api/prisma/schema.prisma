@@ -42,8 +42,9 @@ model Customer {
   emailVerificationCodes CustomerEmailVerificationCode[]
   passwordResetCodes          CustomerPasswordResetCode[]
   passwordResetAuthorizations CustomerPasswordResetAuthorization[]
+  loginChallenges             CustomerLoginChallenge[]
   sessions                    CustomerSession[]
-  oauthAccounts          CustomerOAuthAccount[]
+  oauthAccounts               CustomerOAuthAccount[]
 
   @@index([email])
   @@index([phoneCountryCode, phoneNumber])
@@ -91,6 +92,26 @@ model CustomerPasswordResetAuthorization {
 
   passwordResetCodeId String                    @unique
   passwordResetCode   CustomerPasswordResetCode @relation(fields: [passwordResetCodeId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([expiresAt])
+}
+
+
+model CustomerLoginChallenge {
+  id             String    @id @default(cuid())
+  tokenHash      String    @unique
+  codeHash       String
+  codeExpiresAt  DateTime
+  expiresAt      DateTime
+  failedAttempts Int       @default(0)
+  emailSendCount Int       @default(1)
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
   @@index([expiresAt])

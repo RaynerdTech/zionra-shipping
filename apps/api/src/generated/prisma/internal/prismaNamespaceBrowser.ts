@@ -55,6 +55,7 @@ export const ModelName = {
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
   CustomerPasswordResetAuthorization: 'CustomerPasswordResetAuthorization',
+  CustomerLoginChallenge: 'CustomerLoginChallenge',
   CustomerSession: 'CustomerSession',
   CustomerOAuthAccount: 'CustomerOAuthAccount',
   CustomerOAuthSignup: 'CustomerOAuthSignup'
@@ -133,6 +134,23 @@ export const CustomerPasswordResetAuthorizationScalarFieldEnum = {
 } as const
 
 export type CustomerPasswordResetAuthorizationScalarFieldEnum = (typeof CustomerPasswordResetAuthorizationScalarFieldEnum)[keyof typeof CustomerPasswordResetAuthorizationScalarFieldEnum]
+
+
+export const CustomerLoginChallengeScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  codeHash: 'codeHash',
+  codeExpiresAt: 'codeExpiresAt',
+  expiresAt: 'expiresAt',
+  failedAttempts: 'failedAttempts',
+  emailSendCount: 'emailSendCount',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerLoginChallengeScalarFieldEnum = (typeof CustomerLoginChallengeScalarFieldEnum)[keyof typeof CustomerLoginChallengeScalarFieldEnum]
 
 
 export const CustomerSessionScalarFieldEnum = {

@@ -10,6 +10,7 @@ export const routes = {
     getStarted: "/get-started",
 
     customerLogin: "/login",
+    customerLoginVerification: "/login/verify",
     customerCreateAccount: "/create-account",
     customerVerifyEmail: "/verify-email",
     customerForgotPassword: "/forgot-password",
@@ -35,6 +36,10 @@ export const routes = {
         "/api/customer/auth/resend-verification-code",
 
       login: "/api/customer/auth/login",
+      loginChallenge: "/api/customer/auth/login/challenge",
+      verifyLoginCode: "/api/customer/auth/login/verify-code",
+      resendLoginCode: "/api/customer/auth/login/resend-code",
+      cancelLogin: "/api/customer/auth/login/cancel",
       logout: "/api/customer/auth/logout",
       me: "/api/customer/auth/me",
 

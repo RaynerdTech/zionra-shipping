@@ -388,6 +388,7 @@ export const ModelName = {
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
   CustomerPasswordResetAuthorization: 'CustomerPasswordResetAuthorization',
+  CustomerLoginChallenge: 'CustomerLoginChallenge',
   CustomerSession: 'CustomerSession',
   CustomerOAuthAccount: 'CustomerOAuthAccount',
   CustomerOAuthSignup: 'CustomerOAuthSignup'
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerPasswordResetAuthorizationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerPasswordResetAuthorizationCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerLoginChallenge: {
+      payload: Prisma.$CustomerLoginChallengePayload<ExtArgs>
+      fields: Prisma.CustomerLoginChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerLoginChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerLoginChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerLoginChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerLoginChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerLoginChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerLoginChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerLoginChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerLoginChallengeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerLoginChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        update: {
+          args: Prisma.CustomerLoginChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerLoginChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerLoginChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerLoginChallengeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerLoginChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerLoginChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerLoginChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerLoginChallenge>
+        }
+        groupBy: {
+          args: Prisma.CustomerLoginChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerLoginChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerLoginChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerLoginChallengeCountAggregateOutputType> | number
         }
       }
     }
@@ -1026,6 +1101,23 @@ export const CustomerPasswordResetAuthorizationScalarFieldEnum = {
 export type CustomerPasswordResetAuthorizationScalarFieldEnum = (typeof CustomerPasswordResetAuthorizationScalarFieldEnum)[keyof typeof CustomerPasswordResetAuthorizationScalarFieldEnum]
 
 
+export const CustomerLoginChallengeScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  codeHash: 'codeHash',
+  codeExpiresAt: 'codeExpiresAt',
+  expiresAt: 'expiresAt',
+  failedAttempts: 'failedAttempts',
+  emailSendCount: 'emailSendCount',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerLoginChallengeScalarFieldEnum = (typeof CustomerLoginChallengeScalarFieldEnum)[keyof typeof CustomerLoginChallengeScalarFieldEnum]
+
+
 export const CustomerSessionScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -1304,6 +1396,7 @@ export type GlobalOmitConfig = {
   customerEmailVerificationCode?: Prisma.CustomerEmailVerificationCodeOmit
   customerPasswordResetCode?: Prisma.CustomerPasswordResetCodeOmit
   customerPasswordResetAuthorization?: Prisma.CustomerPasswordResetAuthorizationOmit
+  customerLoginChallenge?: Prisma.CustomerLoginChallengeOmit
   customerSession?: Prisma.CustomerSessionOmit
   customerOAuthAccount?: Prisma.CustomerOAuthAccountOmit
   customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit

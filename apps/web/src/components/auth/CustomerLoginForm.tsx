@@ -30,6 +30,7 @@ type LoginApiResponse = {
   message?: string;
   code?: string;
   errors?: Record<string, string>;
+  redirectTo?: string;
 };
 
 function DecorativeCircles() {
@@ -468,7 +469,10 @@ export default function CustomerLoginForm({
         return;
       }
 
-      router.replace(routes.web.customerDashboard);
+      setPassword("");
+      router.replace(
+        result.redirectTo ?? routes.web.customerLoginVerification,
+      );
     } catch (error) {
       console.error("Customer login failed:", error);
 
