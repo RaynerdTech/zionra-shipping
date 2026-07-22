@@ -20,8 +20,6 @@ import {
 } from "../lib/token.js";
 import { env } from "../config/env.js";
 import {
-  sendCustomerPasswordChangedEmail,
-  sendCustomerPasswordResetCodeEmail,
   sendCustomerVerificationEmail,
   sendCustomerWelcomeEmail,
 } from "./email.service.js";
@@ -115,7 +113,7 @@ async function createPasswordResetCode(customerId: string) {
     },
   });
 
-  const passwordResetCode = await prisma.customerPasswordResetCode.create({
+  await prisma.customerPasswordResetCode.create({
     data: {
       customerId,
       codeHash: hashToken(code),
@@ -123,10 +121,7 @@ async function createPasswordResetCode(customerId: string) {
     },
   });
 
-  return {
-    code,
-    passwordResetCodeId: passwordResetCode.id,
-  };
+  return code;
 }
 
 export async function createCustomerSession(customerId: string) {
@@ -425,45 +420,26 @@ export async function getCurrentCustomer(customerId: string) {
 }
 
 export async function sendCustomerPasswordResetCode(input: EmailInput) {
-  const genericMessage =
-    "If an account exists for this email, a password reset code has been sent.";
   const customer = await prisma.customer.findUnique({
     where: {
       email: input.email,
     },
   });
 
-  if (
-    !customer ||
-    !customer.passwordHash ||
-    !customer.emailVerifiedAt
-  ) {
+  if (!customer) {
     return {
-      message: genericMessage,
+      message:
+        "If an account exists for this email, a password reset code has been sent.",
     };
   }
 
-  const passwordReset = await createPasswordResetCode(customer.id);
+  const code = await createPasswordResetCode(customer.id);
 
-  try {
-    await sendCustomerPasswordResetCodeEmail({
-      customerId: customer.id,
-      passwordResetCodeId: passwordReset.passwordResetCodeId,
-      firstName: customer.firstName,
-      email: customer.email,
-      code: passwordReset.code,
-    });
-  } catch (error) {
-    console.error("Customer password-reset email delivery failed.", {
-      customerId: customer.id,
-      email: customer.email,
-      error,
-    });
-  }
+  console.log(`Customer password reset code for ${input.email}: ${code}`);
 
   return {
-    message: genericMessage,
-    ...developmentCodePayload(passwordReset.code),
+    message: "Password reset code sent.",
+    ...developmentCodePayload(code),
   };
 }
 
@@ -474,11 +450,7 @@ export async function resetCustomerPassword(input: ResetPasswordInput) {
     },
   });
 
-  if (
-    !customer ||
-    !customer.passwordHash ||
-    !customer.emailVerifiedAt
-  ) {
+  if (!customer) {
     throw new HttpError(
       HTTP_STATUS.BAD_REQUEST,
       "Invalid or expired password reset code.",
@@ -535,21 +507,6 @@ export async function resetCustomerPassword(input: ResetPasswordInput) {
       },
     }),
   ]);
-
-  try {
-    await sendCustomerPasswordChangedEmail({
-      customerId: customer.id,
-      passwordResetCodeId: passwordResetCode.id,
-      firstName: customer.firstName,
-      email: customer.email,
-    });
-  } catch (error) {
-    console.error("Customer password-change email delivery failed.", {
-      customerId: customer.id,
-      email: customer.email,
-      error,
-    });
-  }
 
   return {
     message: "Password updated successfully. Please sign in again.",

@@ -36,6 +36,8 @@ type PendingGoogleProfile = {
 };
 
 type FormValues = {
+  firstName: string;
+  lastName: string;
   phoneCountryCode: string;
   phoneNumber: string;
   countryOfResidence: string;
@@ -55,6 +57,8 @@ type ApiResponse = {
 };
 
 const INITIAL_VALUES: FormValues = {
+  firstName: "",
+  lastName: "",
   phoneCountryCode: "+44",
   phoneNumber: "",
   countryOfResidence: "United Kingdom",
@@ -208,6 +212,11 @@ export default function CompleteGoogleProfileForm() {
         }
 
         setProfile(result.profile);
+        setValues((current) => ({
+          ...current,
+          firstName: result.profile?.firstName ?? "",
+          lastName: result.profile?.lastName ?? "",
+        }));
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
@@ -252,6 +261,14 @@ export default function CompleteGoogleProfileForm() {
     const requiredMessage = "This field can't be left empty.";
     const normalizedPhoneNumber = values.phoneNumber.replace(/\D/g, "");
 
+    if (!values.firstName.trim()) {
+      nextErrors.firstName = requiredMessage;
+    }
+
+    if (!values.lastName.trim()) {
+      nextErrors.lastName = requiredMessage;
+    }
+
     if (!values.phoneCountryCode) {
       nextErrors.phoneCountryCode = requiredMessage;
     }
@@ -295,6 +312,8 @@ export default function CompleteGoogleProfileForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            firstName: values.firstName.trim(),
+            lastName: values.lastName.trim(),
             phoneCountryCode: values.phoneCountryCode,
             phoneNumber: values.phoneNumber.replace(/\D/g, ""),
             countryOfResidence: values.countryOfResidence,
@@ -409,7 +428,9 @@ export default function CompleteGoogleProfileForm() {
             <>
               <div className="mt-6 rounded-xl border border-primary-02 bg-primary-01 px-4 py-3">
                 <p className="font-display text-base font-semibold leading-6 text-neutral-10">
-                  {profile.firstName} {profile.lastName}
+                  {[values.firstName, values.lastName]
+                    .filter(Boolean)
+                    .join(" ") || "Google profile"}
                 </p>
                 <p className="mt-1 break-all font-sans text-sm font-normal leading-[22px] text-text-body-light">
                   {profile.email}
@@ -419,7 +440,53 @@ export default function CompleteGoogleProfileForm() {
               <form onSubmit={handleSubmit} noValidate className="mt-6">
                 <SectionLabel>Personal Details</SectionLabel>
 
-                <div className="mt-4">
+                <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6">
+                  <label htmlFor="firstName">
+                    <FieldLabel required>First Name</FieldLabel>
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      autoComplete="given-name"
+                      value={values.firstName}
+                      placeholder="e.g. Jane"
+                      aria-invalid={Boolean(errors.firstName)}
+                      onChange={(event) =>
+                        updateValue("firstName", event.target.value)
+                      }
+                      className="zion-input h-[52px] md:h-12"
+                    />
+                    {errors.firstName ? (
+                      <p className="zion-field-error mt-1">
+                        {errors.firstName}
+                      </p>
+                    ) : null}
+                  </label>
+
+                  <label htmlFor="lastName">
+                    <FieldLabel required>Last Name</FieldLabel>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      autoComplete="family-name"
+                      value={values.lastName}
+                      placeholder="e.g. Okonkwo"
+                      aria-invalid={Boolean(errors.lastName)}
+                      onChange={(event) =>
+                        updateValue("lastName", event.target.value)
+                      }
+                      className="zion-input h-[52px] md:h-12"
+                    />
+                    {errors.lastName ? (
+                      <p className="zion-field-error mt-1">
+                        {errors.lastName}
+                      </p>
+                    ) : null}
+                  </label>
+                </div>
+
+                <div className="mt-5">
                   <FieldLabel required>Mobile Number</FieldLabel>
                   <div className="grid grid-cols-[116px_minmax(0,1fr)] gap-3">
                     <CountrySelect

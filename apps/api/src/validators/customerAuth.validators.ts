@@ -36,6 +36,8 @@ export type RegisterCustomerInput = {
 };
 
 export type CompleteGoogleProfileInput = {
+  firstName: string;
+  lastName: string;
   phoneCountryCode: string;
   phoneNumber: string;
   countryOfResidence: string;
@@ -200,6 +202,16 @@ export function validateCompleteGoogleProfile(
 ): ValidationResult<CompleteGoogleProfileInput> {
   const body = toBody(requestBody);
   const validation = validateProfileCompletionFields(body);
+  const firstName = getString(body, "firstName");
+  const lastName = getString(body, "lastName");
+
+  if (!firstName) {
+    validation.errors.firstName = REQUIRED_MESSAGE;
+  }
+
+  if (!lastName) {
+    validation.errors.lastName = REQUIRED_MESSAGE;
+  }
 
   if (Object.keys(validation.errors).length > 0) {
     return {
@@ -210,7 +222,11 @@ export function validateCompleteGoogleProfile(
 
   return {
     success: true,
-    data: validation.data,
+    data: {
+      firstName,
+      lastName,
+      ...validation.data,
+    },
   };
 }
 

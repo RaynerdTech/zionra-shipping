@@ -8,7 +8,12 @@
 
 import { useState } from "react";
 
-type GoogleStatus = "cancelled" | "expired" | "failed";
+type GoogleStatus =
+  | "cancelled"
+  | "expired"
+  | "email-unverified"
+  | "link-unavailable"
+  | "failed";
 
 type CreateAccountGoogleStatusNoticeProps = {
   status?: string;
@@ -17,6 +22,10 @@ type CreateAccountGoogleStatusNoticeProps = {
 const STATUS_MESSAGES: Record<GoogleStatus, string> = {
   cancelled: "Google sign-in was cancelled. You can try again when ready.",
   expired: "Your Google sign-in session expired. Please start again.",
+  "email-unverified":
+    "Your Google email address must be verified before you can continue.",
+  "link-unavailable":
+    "This account cannot be connected through Google. Sign in using your existing method.",
   failed: "Google sign-in could not be completed. Please try again.",
 };
 

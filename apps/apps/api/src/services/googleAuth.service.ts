@@ -54,13 +54,22 @@ function getGoogleIdentityNames(payload: {
   family_name?: string;
   name?: string;
 }) {
-  const fullNameParts =
-    payload.name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  const fullNameParts = payload.name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  const firstName = payload.given_name?.trim() || fullNameParts[0] || "";
+  const lastName =
+    payload.family_name?.trim() || fullNameParts.slice(1).join(" ") || "";
+
+  if (!firstName || !lastName) {
+    throw googleAuthError(
+      HTTP_STATUS.BAD_REQUEST,
+      "Google did not provide enough profile information to create this account.",
+      "GOOGLE_PROFILE_INCOMPLETE",
+    );
+  }
 
   return {
-    firstName: payload.given_name?.trim() || fullNameParts[0] || "",
-    lastName:
-      payload.family_name?.trim() || fullNameParts.slice(1).join(" ") || "",
+    firstName,
+    lastName,
   };
 }
 
@@ -578,8 +587,8 @@ export async function completeGoogleSignup(
 
     const customer = await transaction.customer.create({
       data: {
-        firstName: input.firstName,
-        lastName: input.lastName,
+        firstName: pendingSignup.firstName,
+        lastName: pendingSignup.lastName,
         email: pendingSignup.email,
         phoneCountryCode: input.phoneCountryCode,
         phoneNumber: input.phoneNumber,

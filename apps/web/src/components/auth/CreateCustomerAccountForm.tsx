@@ -964,7 +964,7 @@ export default function CreateCustomerAccountForm() {
 
             <div className="flex items-center justify-between">
               <span className="text-text-body-light">
-                Are you a shipping agent?
+                Are you a shipping partner?
               </span>
               <Link
                 href={routes.web.partnerApplication}

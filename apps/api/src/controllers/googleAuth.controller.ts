@@ -60,9 +60,16 @@ function buildWebAppUrl(
   return url.toString();
 }
 
+type GoogleRedirectStatus =
+  | "cancelled"
+  | "expired"
+  | "email-unverified"
+  | "link-unavailable"
+  | "failed";
+
 function redirectGoogleStatus(
   res: Response,
-  status: "cancelled" | "expired" | "failed",
+  status: GoogleRedirectStatus,
 ) {
   res.redirect(
     REDIRECT_STATUS,
@@ -70,6 +77,23 @@ function redirectGoogleStatus(
       googleStatus: status,
     }),
   );
+}
+
+
+function getGoogleRedirectStatus(error: unknown): GoogleRedirectStatus {
+  if (!(error instanceof HttpError)) {
+    return "failed";
+  }
+
+  if (error.code === "GOOGLE_EMAIL_NOT_VERIFIED") {
+    return "email-unverified";
+  }
+
+  if (error.code === "GOOGLE_ACCOUNT_LINK_UNAVAILABLE") {
+    return "link-unavailable";
+  }
+
+  return "failed";
 }
 
 function sendValidationError(res: Response, errors: Record<string, string>) {
@@ -206,7 +230,7 @@ export async function googleAuthCallbackController(
     );
   } catch (error) {
     console.error("Google authentication failed.", error);
-    redirectGoogleStatus(res, "failed");
+    redirectGoogleStatus(res, getGoogleRedirectStatus(error));
   }
 }
 
