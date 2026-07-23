@@ -3,8 +3,9 @@
  * Handles HTTP redirects, cookies, validation, and JSON responses for Google auth.
  */
 
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.js";
+import { WEB_ROUTES } from "../config/routes.js";
 import {
   clearGoogleOAuthCookies,
   clearGoogleSignupCookie,
@@ -34,11 +35,6 @@ import {
   validateLinkGoogleAccount,
 } from "../validators/customerAuth.validators.js";
 
-const GOOGLE_CREATE_ACCOUNT_PATH = "/create-account";
-const GOOGLE_VERIFY_EMAIL_PATH = "/verify-email";
-const GOOGLE_LINK_ACCOUNT_PATH = "/link-google-account";
-const GOOGLE_COMPLETE_PROFILE_PATH = "/complete-profile";
-const GOOGLE_AUTH_SUCCESS_PATH = "/dashboard";
 const REDIRECT_STATUS = 302;
 
 function getQueryString(value: unknown) {
@@ -73,7 +69,7 @@ function redirectGoogleStatus(
 ) {
   res.redirect(
     REDIRECT_STATUS,
-    buildWebAppUrl(GOOGLE_CREATE_ACCOUNT_PATH, {
+    buildWebAppUrl(WEB_ROUTES.customerCreateAccount, {
       googleStatus: status,
     }),
   );
@@ -103,8 +99,9 @@ function sendValidationError(res: Response, errors: Record<string, string>) {
   });
 }
 
-function handleJsonControllerError(
+function forwardJsonControllerError(
   res: Response,
+  next: NextFunction,
   error: unknown,
   fallbackMessage: string,
 ) {
@@ -113,20 +110,14 @@ function handleJsonControllerError(
       clearGoogleSignupCookie(res);
     }
 
-    res.status(error.statusCode).json({
-      message: error.message,
-      ...(error.code ? { code: error.code } : {}),
-      ...(error.errors ? { errors: error.errors } : {}),
-    });
-
+    next(error);
     return;
   }
 
   console.error(fallbackMessage, error);
-
-  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-    message: fallbackMessage,
-  });
+  next(
+    new HttpError(HTTP_STATUS.INTERNAL_SERVER_ERROR, fallbackMessage),
+  );
 }
 
 export async function startGoogleAuthController(
@@ -198,7 +189,7 @@ export async function googleAuthCallbackController(
       setCustomerAuthCookie(res, result.sessionToken);
       res.redirect(
         REDIRECT_STATUS,
-        buildWebAppUrl(GOOGLE_AUTH_SUCCESS_PATH),
+        buildWebAppUrl(WEB_ROUTES.customerDashboard),
       );
       return;
     }
@@ -208,7 +199,7 @@ export async function googleAuthCallbackController(
     if (result.outcome === "verification_required") {
       res.redirect(
         REDIRECT_STATUS,
-        buildWebAppUrl(GOOGLE_VERIFY_EMAIL_PATH, {
+        buildWebAppUrl(WEB_ROUTES.customerVerifyEmail, {
           email: result.email,
           source: "google",
         }),
@@ -219,14 +210,14 @@ export async function googleAuthCallbackController(
     if (result.outcome === "link_required") {
       res.redirect(
         REDIRECT_STATUS,
-        buildWebAppUrl(GOOGLE_LINK_ACCOUNT_PATH),
+        buildWebAppUrl(WEB_ROUTES.customerLinkGoogleAccount),
       );
       return;
     }
 
     res.redirect(
       REDIRECT_STATUS,
-      buildWebAppUrl(GOOGLE_COMPLETE_PROFILE_PATH),
+      buildWebAppUrl(WEB_ROUTES.customerCompleteProfile),
     );
   } catch (error) {
     console.error("Google authentication failed.", error);
@@ -237,6 +228,7 @@ export async function googleAuthCallbackController(
 export async function getPendingGoogleProfileController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const signupToken = req.cookies?.[GOOGLE_SIGNUP_COOKIE_NAME] as
@@ -246,8 +238,9 @@ export async function getPendingGoogleProfileController(
 
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    handleJsonControllerError(
+    forwardJsonControllerError(
       res,
+      next,
       error,
       "Something went wrong while loading your Google profile.",
     );
@@ -257,6 +250,7 @@ export async function getPendingGoogleProfileController(
 export async function linkGoogleAccountController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateLinkGoogleAccount(req.body);
@@ -279,11 +273,12 @@ export async function linkGoogleAccountController(
 
     res.status(HTTP_STATUS.OK).json({
       message: result.message,
-      redirectTo: GOOGLE_AUTH_SUCCESS_PATH,
+      redirectTo: WEB_ROUTES.customerDashboard,
     });
   } catch (error) {
-    handleJsonControllerError(
+    forwardJsonControllerError(
       res,
+      next,
       error,
       "Something went wrong while connecting your Google Account.",
     );
@@ -293,6 +288,7 @@ export async function linkGoogleAccountController(
 export async function completeGoogleProfileController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateCompleteGoogleProfile(req.body);
@@ -312,11 +308,12 @@ export async function completeGoogleProfileController(
 
     res.status(HTTP_STATUS.CREATED).json({
       message: result.message,
-      redirectTo: GOOGLE_AUTH_SUCCESS_PATH,
+      redirectTo: WEB_ROUTES.customerDashboard,
     });
   } catch (error) {
-    handleJsonControllerError(
+    forwardJsonControllerError(
       res,
+      next,
       error,
       "Something went wrong while completing your account.",
     );

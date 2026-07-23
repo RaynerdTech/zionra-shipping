@@ -10,7 +10,9 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "test": "tsx --test tests/token.test.ts tests/customerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts",
+    "test:watch": "tsx --test --watch tests/token.test.ts tests/customerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",

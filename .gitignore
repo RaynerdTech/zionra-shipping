@@ -29,3 +29,9 @@ pnpm-debug.log*
 # system
 .DS_Store
 Thumbs.db
+# generated Prisma client
+apps/api/src/generated/prisma/
+
+# test output
+coverage/
+apps/*/coverage/

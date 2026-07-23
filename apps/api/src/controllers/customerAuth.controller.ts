@@ -5,7 +5,7 @@
  * and return consistent API responses.
  */
 
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import {
   clearCustomerAuthCookie,
   clearCustomerLoginChallengeCookie,
@@ -20,6 +20,7 @@ import {
   CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME,
 } from "../lib/token.js";
 import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
+import { WEB_ROUTES } from "../config/routes.js";
 import {
   cancelCustomerLoginChallenge,
   getCurrentCustomer,
@@ -53,31 +54,26 @@ function sendValidationError(res: Response, errors: Record<string, string>) {
   });
 }
 
-function handleControllerError(
-  res: Response,
+function forwardControllerError(
+  next: NextFunction,
   error: unknown,
   fallbackMessage: string,
 ) {
   if (error instanceof HttpError) {
-    res.status(error.statusCode).json({
-      message: error.message,
-      ...(error.code ? { code: error.code } : {}),
-      ...(error.errors ? { errors: error.errors } : {}),
-    });
-
+    next(error);
     return;
   }
 
   console.error(fallbackMessage, error);
-
-  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-    message: fallbackMessage,
-  });
+  next(
+    new HttpError(HTTP_STATUS.INTERNAL_SERVER_ERROR, fallbackMessage),
+  );
 }
 
 export async function registerCustomerController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateRegisterCustomer(req.body);
@@ -91,8 +87,8 @@ export async function registerCustomerController(
 
     res.status(HTTP_STATUS.CREATED).json(result);
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while creating your account.",
     );
@@ -102,6 +98,7 @@ export async function registerCustomerController(
 export async function verifyCustomerEmailController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateEmailCodeInput(req.body);
@@ -115,8 +112,8 @@ export async function verifyCustomerEmailController(
 
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while verifying your email.",
     );
@@ -126,6 +123,7 @@ export async function verifyCustomerEmailController(
 export async function resendCustomerVerificationCodeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateEmailInput(req.body);
@@ -139,8 +137,8 @@ export async function resendCustomerVerificationCodeController(
 
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while sending the verification code.",
     );
@@ -150,6 +148,7 @@ export async function resendCustomerVerificationCodeController(
 export async function loginCustomerController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateLoginCustomer(req.body);
@@ -166,11 +165,11 @@ export async function loginCustomerController(
 
     res.status(HTTP_STATUS.OK).json({
       message: result.message,
-      redirectTo: "/login/verify",
+      redirectTo: WEB_ROUTES.customerLoginVerification,
     });
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while signing in.",
     );
@@ -180,6 +179,7 @@ export async function loginCustomerController(
 export async function getLoginChallengeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const challengeToken = req.cookies?.[
@@ -191,8 +191,8 @@ export async function getLoginChallengeController(
   } catch (error) {
     clearCustomerLoginChallengeCookie(res);
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while loading sign-in verification.",
     );
@@ -202,6 +202,7 @@ export async function getLoginChallengeController(
 export async function verifyLoginCodeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateLoginVerificationCode(req.body);
@@ -225,7 +226,7 @@ export async function verifyLoginCodeController(
     res.status(HTTP_STATUS.OK).json({
       message: result.message,
       customer: result.customer,
-      redirectTo: "/dashboard",
+      redirectTo: WEB_ROUTES.customerDashboard,
     });
   } catch (error) {
     if (
@@ -235,8 +236,8 @@ export async function verifyLoginCodeController(
       clearCustomerLoginChallengeCookie(res);
     }
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while verifying your sign-in code.",
     );
@@ -246,6 +247,7 @@ export async function verifyLoginCodeController(
 export async function resendLoginCodeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const challengeToken = req.cookies?.[
@@ -263,8 +265,8 @@ export async function resendLoginCodeController(
       clearCustomerLoginChallengeCookie(res);
     }
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while resending your sign-in code.",
     );
@@ -274,6 +276,7 @@ export async function resendLoginCodeController(
 export async function cancelLoginChallengeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const challengeToken = req.cookies?.[
@@ -288,8 +291,8 @@ export async function cancelLoginChallengeController(
   } catch (error) {
     clearCustomerLoginChallengeCookie(res);
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while cancelling sign-in verification.",
     );
@@ -299,6 +302,7 @@ export async function cancelLoginChallengeController(
 export async function logoutCustomerController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const token = req.cookies?.[AUTH_COOKIE_NAME] as string | undefined;
@@ -312,8 +316,8 @@ export async function logoutCustomerController(
       message: "Signed out successfully.",
     });
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while signing out.",
     );
@@ -323,6 +327,7 @@ export async function logoutCustomerController(
 export async function getCurrentCustomerController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const customerId = req.customerAuth?.customerId;
@@ -343,8 +348,8 @@ export async function getCurrentCustomerController(
       clearCustomerAuthCookie(res);
     }
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while loading your account.",
     );
@@ -354,6 +359,7 @@ export async function getCurrentCustomerController(
 export async function forgotPasswordController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateEmailInput(req.body);
@@ -369,8 +375,8 @@ export async function forgotPasswordController(
 
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while sending the password reset code.",
     );
@@ -380,6 +386,7 @@ export async function forgotPasswordController(
 export async function verifyPasswordResetCodeController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validatePasswordResetCode(req.body);
@@ -398,11 +405,11 @@ export async function verifyPasswordResetCodeController(
 
     res.status(HTTP_STATUS.OK).json({
       message: result.message,
-      redirectTo: "/reset-password",
+      redirectTo: WEB_ROUTES.customerResetPassword,
     });
   } catch (error) {
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while verifying the password reset code.",
     );
@@ -412,6 +419,7 @@ export async function verifyPasswordResetCodeController(
 export async function getPasswordResetSessionController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const resetAuthorizationToken = req.cookies?.[
@@ -425,8 +433,8 @@ export async function getPasswordResetSessionController(
   } catch (error) {
     clearCustomerPasswordResetAuthorizationCookie(res);
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while loading your password reset session.",
     );
@@ -436,6 +444,7 @@ export async function getPasswordResetSessionController(
 export async function resetPasswordController(
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<void> {
   try {
     const validation = validateResetPassword(req.body);
@@ -464,8 +473,8 @@ export async function resetPasswordController(
       clearCustomerPasswordResetAuthorizationCookie(res);
     }
 
-    handleControllerError(
-      res,
+    forwardControllerError(
+      next,
       error,
       "Something went wrong while resetting your password.",
     );

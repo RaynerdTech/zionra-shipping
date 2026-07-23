@@ -5,6 +5,7 @@
 
 import { readFileSync } from "node:fs";
 import { env } from "../config/env.js";
+import { WEB_ROUTES } from "../config/routes.js";
 import {
   ZIONRA_EMAIL_LOGO_CONTENT_ID,
 } from "../emails/components/ZionraEmailLayout.js";
@@ -122,7 +123,9 @@ export async function sendCustomerWelcomeEmail(input: {
   accountMethod: "password" | "google";
 }) {
   const destination =
-    input.accountMethod === "google" ? "/dashboard" : "/login";
+    input.accountMethod === "google"
+      ? WEB_ROUTES.customerDashboard
+      : WEB_ROUTES.customerLogin;
   const actionUrl = new URL(destination, env.WEB_APP_URL).toString();
   const content = createWelcomeEmail({
     firstName: input.firstName,
@@ -173,7 +176,7 @@ export async function sendCustomerPasswordChangedEmail(input: {
   email: string;
 }) {
   const secureAccountUrl = new URL(
-    `/forgot-password?email=${encodeURIComponent(input.email)}`,
+    `${WEB_ROUTES.customerForgotPassword}?email=${encodeURIComponent(input.email)}`,
     env.WEB_APP_URL,
   ).toString();
   const content = createPasswordChangedEmail({

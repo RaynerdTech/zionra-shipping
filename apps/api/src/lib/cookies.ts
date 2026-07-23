@@ -18,6 +18,7 @@ import {
   GOOGLE_SIGNUP_DURATION_MS,
 } from "./googleAuth.js";
 import { env } from "../config/env.js";
+import { API_ROUTES } from "../config/routes.js";
 import {
   CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME,
   CUSTOMER_LOGIN_CHALLENGE_DURATION_MS,
@@ -26,7 +27,6 @@ import {
 } from "./token.js";
 
 const GOOGLE_OAUTH_COOKIE_PATH = "/";
-const GOOGLE_SIGNUP_COOKIE_PATH = "/api/customer/auth/google";
 
 function getSensitiveCookieOptions(): Pick<
   CookieOptions,
@@ -96,14 +96,14 @@ export function setGoogleSignupCookie(res: Response, token: string) {
   res.cookie(GOOGLE_SIGNUP_COOKIE_NAME, token, {
     ...getSensitiveCookieOptions(),
     maxAge: GOOGLE_SIGNUP_DURATION_MS,
-    path: GOOGLE_SIGNUP_COOKIE_PATH,
+    path: API_ROUTES.customerGoogleBase,
   });
 }
 
 export function clearGoogleSignupCookie(res: Response) {
   res.clearCookie(GOOGLE_SIGNUP_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
-    path: GOOGLE_SIGNUP_COOKIE_PATH,
+    path: API_ROUTES.customerGoogleBase,
   });
 }
 
@@ -114,14 +114,14 @@ export function setCustomerPasswordResetAuthorizationCookie(
   res.cookie(CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME, token, {
     ...getSensitiveCookieOptions(),
     maxAge: CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
-    path: "/api/customer/auth",
+    path: API_ROUTES.customerAuthBase,
   });
 }
 
 export function clearCustomerPasswordResetAuthorizationCookie(res: Response) {
   res.clearCookie(CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
-    path: "/api/customer/auth",
+    path: API_ROUTES.customerAuthBase,
   });
 }
 
@@ -132,13 +132,13 @@ export function setCustomerLoginChallengeCookie(
   res.cookie(CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME, token, {
     ...getSensitiveCookieOptions(),
     maxAge: CUSTOMER_LOGIN_CHALLENGE_DURATION_MS,
-    path: "/api/customer/auth/login",
+    path: API_ROUTES.customerLoginBase,
   });
 }
 
 export function clearCustomerLoginChallengeCookie(res: Response) {
   res.clearCookie(CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
-    path: "/api/customer/auth/login",
+    path: API_ROUTES.customerLoginBase,
   });
 }
