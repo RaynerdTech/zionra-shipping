@@ -11,6 +11,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import NavigationButtonContent from "../ui/NavigationButtonContent";
+import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 
 type AccountType = "customer" | "partner";
 
@@ -22,25 +24,6 @@ const ROUTES = {
   partnerApplication: "/partner/apply",
   learnDifference: "/learn-the-difference",
 } as const;
-
-function BackArrowIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-6 w-6 shrink-0"
-    >
-      <path
-        d="M19 12H5M11 18L5 12L11 6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function RightArrowIcon() {
   return (
@@ -230,45 +213,6 @@ function DesktopPartnerIcon() {
   );
 }
 
-function DecorativeCircles() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:right-0 md:-top-[56px] md:h-[240px] md:w-[240px]"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-20px] top-0 h-[136px] w-[136px] md:h-[240px] md:w-[240px]"
-        viewBox="0 0 220 160"
-        fill="none"
-      >
-        <circle
-          cx="120"
-          cy="40"
-          r="120"
-          fill="#286BDC"
-          fillOpacity="0.05"
-        />
-      </svg>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-6px] top-[-6px] h-[95.2px] w-[95.2px] md:right-0 md:top-0 md:h-[150px] md:w-[150px]"
-        viewBox="0 0 150 150"
-        fill="none"
-      >
-        <circle
-          cx="75"
-          cy="75"
-          r="75"
-          fill="#286BDC"
-          fillOpacity="0.04"
-        />
-      </svg>
-    </div>
-  );
-}
-
 function DesktopBottomCircle() {
   return (
     <div
@@ -451,7 +395,7 @@ export default function AccountTypeSelector() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-01 pt-6 lg:flex lg:items-center lg:justify-center lg:p-8">
-      <DecorativeCircles />
+      <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:right-0 md:-top-[56px] md:h-[240px] md:w-[240px]" />
       <DesktopBottomCircle />
 
       <section
@@ -465,7 +409,7 @@ export default function AccountTypeSelector() {
           href={ROUTES.home}
           className="z-[1] -m-2 mb-7 ml-1 inline-flex w-fit items-center gap-2 rounded-md bg-transparent p-2 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:absolute md:left-9 md:top-11 md:m-0"
         >
-          <BackArrowIcon />
+          <AuthBackArrowIcon className="h-6 w-6 shrink-0" />
           <span>Back to home</span>
         </Link>
 

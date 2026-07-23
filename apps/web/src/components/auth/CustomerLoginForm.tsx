@@ -14,6 +14,10 @@ import { type FormEvent, useEffect, useState } from "react";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
+import AuthPasswordField from "./shared/AuthPasswordField";
+import GoogleAuthButton from "./shared/GoogleAuthButton";
 
 type CustomerLoginFormProps = {
   initialEmail?: string;
@@ -33,65 +37,6 @@ type LoginApiResponse = {
   redirectTo?: string;
 };
 
-function DecorativeCircles() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] xl:fixed xl:right-0 xl:-top-[56px]"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-20px] top-0 h-[136px] w-[136px] md:h-[240px] md:w-[240px]"
-        viewBox="0 0 220 160"
-        fill="none"
-      >
-        <circle
-          cx="120"
-          cy="40"
-          r="120"
-          fill="#286BDC"
-          fillOpacity="0.05"
-        />
-      </svg>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-6px] top-[-6px] h-[95.2px] w-[95.2px] md:right-0 md:top-0 md:h-[150px] md:w-[150px]"
-        viewBox="0 0 150 150"
-        fill="none"
-      >
-        <circle
-          cx="75"
-          cy="75"
-          r="75"
-          fill="#286BDC"
-          fillOpacity="0.04"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function BackArrowIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <path
-        d="M19 12H5M11 18L5 12L11 6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function ForwardArrowIcon() {
   return (
     <svg
@@ -107,86 +52,6 @@ function ForwardArrowIcon() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function GoogleLogoIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-    >
-      <path
-        d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.702-1.567 2.684-3.875 2.684-6.613Z"
-        fill="#4285F4"
-      />
-      <path
-        d="M9 18c2.43 0 4.467-.806 5.956-2.182l-2.91-2.258c-.805.54-1.835.86-3.046.86-2.344 0-4.328-1.585-5.037-3.715H.956v2.332A9 9 0 0 0 9 18Z"
-        fill="#34A853"
-      />
-      <path
-        d="M3.963 10.705A5.42 5.42 0 0 1 3.68 9c0-.592.102-1.168.283-1.705V4.963H.956A9 9 0 0 0 0 9c0 1.45.347 2.824.956 4.037l3.007-2.332Z"
-        fill="#FBBC05"
-      />
-      <path
-        d="M9 3.58c1.321 0 2.507.454 3.441 1.345l2.582-2.582C13.463.89 11.426 0 9 0A9 9 0 0 0 .956 4.963l3.007 2.332C4.672 5.165 6.656 3.58 9 3.58Z"
-        fill="#EA4335"
-      />
-    </svg>
-  );
-}
-
-function HiddenPasswordIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M8.44021 9.14625L10.5224 11.2285C10.7177 11.4238 11.0342 11.4238 11.2295 11.2285C11.4247 11.0332 11.4247 10.7167 11.2295 10.5215L1.22946 0.521445C1.03419 0.326185 0.717687 0.326185 0.522422 0.521445C0.327161 0.71671 0.327161 1.03322 0.522422 1.22848L2.45183 3.15789C2.28212 3.29113 2.12537 3.42989 1.98096 3.57081C1.59315 3.94923 1.2943 4.3432 1.07223 4.68746C0.882362 4.98181 0.746592 5.24315 0.657677 5.4321C0.613222 5.52655 0.580242 5.6034 0.558067 5.6577C0.547002 5.68475 0.538542 5.7063 0.532677 5.72165C0.530657 5.72695 0.528972 5.7316 0.527572 5.73545L0.525842 5.7402L0.522912 5.7485C0.493827 5.83 0.493827 5.91945 0.522912 6.00095C0.534872 6.0325 0.524387 6.00685 0.524387 6.00685C0.524387 6.00685 0.527937 6.0159 0.541957 6.05125C0.553532 6.0807 0.570157 6.1227 0.592737 6.17475C0.637867 6.27885 0.706002 6.42495 0.799277 6.5991C0.985512 6.9467 1.27511 7.4104 1.6899 7.87495C2.52309 8.8081 3.86838 9.74995 5.87596 9.74995C6.61071 9.74995 7.25866 9.62345 7.82621 9.41605C8.04241 9.337 8.24701 9.24625 8.44021 9.14625ZM4.24452 4.95058C4.0896 5.22335 4.00094 5.53895 4.00094 5.87495C4.00094 6.9105 4.84041 7.74995 5.87596 7.74995C6.21196 7.74995 6.52756 7.6613 6.80031 7.5064L6.23531 6.9414L4.80951 5.51555L4.24452 4.95058Z"
-        fill="#174184"
-      />
-      <path
-        d="M10.0619 3.87549C9.22873 2.94233 7.88348 2 5.87588 2C5.68548 2 5.36258 2.02907 5.02968 2.08252C4.69933 2.13557 4.32237 2.2185 4.0365 2.33838C4.01209 2.34863 3.98909 2.36131 3.96777 2.3761L9.77588 8.1842C9.78698 8.17605 9.79768 8.16725 9.80798 8.1577C10.2596 7.7408 10.6127 7.2 10.849 6.7783C10.9686 6.5649 11.0613 6.3761 11.1244 6.24025C11.156 6.17225 11.1805 6.11725 11.1971 6.0786C11.2037 6.0633 11.2091 6.05045 11.2132 6.0404L11.2162 6.0332L11.2216 6.0205L11.2235 6.01515C11.2573 5.93115 11.2604 5.82775 11.2269 5.74365C11.2263 5.74175 11.2244 5.73585 11.2235 5.7334L11.22 5.72445L11.2162 5.71475L11.2098 5.69875C11.1983 5.66925 11.1816 5.62725 11.1591 5.5752C11.1139 5.47115 11.0458 5.325 10.9525 5.1509C10.7663 4.8033 10.4766 4.34 10.0619 3.87549Z"
-        fill="#141B34"
-      />
-    </svg>
-  );
-}
-
-function VisiblePasswordIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-    >
-      <path
-        d="M.75 6s1.75-3.25 5.25-3.25S11.25 6 11.25 6 9.5 9.25 6 9.25.75 6 .75 6Z"
-        stroke="#174184"
-        strokeWidth="1.15"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="6"
-        cy="6"
-        r="1.65"
-        stroke="#174184"
-        strokeWidth="1.15"
       />
     </svg>
   );
@@ -515,14 +380,14 @@ export default function CustomerLoginForm({
       <PromotionalPanel />
 
       <section className="relative min-h-screen overflow-x-hidden bg-white px-[22px] pb-8 pt-4 md:flex md:items-start md:justify-center md:overflow-y-auto md:bg-neutral-01 md:px-8 md:py-10 xl:h-screen xl:min-h-0 xl:items-center xl:px-8 xl:py-8">
-        <DecorativeCircles />
+        <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] xl:fixed xl:right-0 xl:-top-[56px]" />
 
         <div className="relative z-[20] mx-auto w-full max-w-[424px] md:max-w-[628px] md:rounded-[20px] md:bg-white md:px-10 md:pb-10 md:pt-8 xl:w-[628px] xl:max-w-[628px] xl:min-h-[742px] xl:px-5 xl:pb-[18px] xl:pt-[18px]">
           <Link
             href={routes.web.getStarted}
             className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0"
           >
-            <BackArrowIcon />
+            <AuthBackArrowIcon />
 
             <span className="md:hidden">Back</span>
             <span className="hidden md:inline">Back to home</span>
@@ -582,53 +447,26 @@ export default function CustomerLoginForm({
                 ) : null}
               </label>
 
-              <label htmlFor="password" className="mt-4 block md:mt-5">
-                <span className="mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10">
-                  Password <span className="text-error">*</span>
-                </span>
+              <AuthPasswordField
+                id="password"
+                className="mt-4 block md:mt-5"
+                label="Password"
+                value={password}
+                placeholder="Min. 8 characters"
+                visible={showPassword}
+                error={errors.password}
+                autoComplete="current-password"
+                onChange={(value) => {
+                  setPassword(value);
 
-                <span
-                  className={`zion-input-shell h-[52px] md:h-12 ${
-                    errors.password ? "zion-input-shell-error" : ""
-                  }`}
-                >
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    value={password}
-                    placeholder="Min. 8 characters"
-                    onChange={(event) => {
-                      setPassword(event.target.value);
-
-                      setErrors((current) => ({
-                        ...current,
-                        password: undefined,
-                        form: undefined,
-                      }));
-                    }}
-                    className="zion-input-shell-control"
-                  />
-
-                  <button
-                    type="button"
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-primary-01 p-0 text-primary-08 transition-colors hover:bg-primary-02 focus-visible:outline-2 focus-visible:outline-primary-03"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    onClick={() => setShowPassword((current) => !current)}
-                  >
-                    {showPassword ? (
-                      <VisiblePasswordIcon />
-                    ) : (
-                      <HiddenPasswordIcon />
-                    )}
-                  </button>
-                </span>
-
-                {errors.password ? (
-                  <p className="zion-field-error mt-1">{errors.password}</p>
-                ) : null}
-              </label>
+                  setErrors((current) => ({
+                    ...current,
+                    password: undefined,
+                    form: undefined,
+                  }));
+                }}
+                onToggle={() => setShowPassword((current) => !current)}
+              />
 
               {errors.form ? (
                 <div
@@ -665,25 +503,12 @@ export default function CustomerLoginForm({
               </button>
             </form>
 
-            <button
-              type="button"
+            <GoogleAuthButton
               onClick={handleGoogleLogin}
               disabled={isStartingGoogle || isSubmitting}
-              aria-busy={isStartingGoogle}
+              loading={isStartingGoogle}
               className="zion-btn zion-btn-md zion-btn-outline-blue mt-5 w-full min-w-0"
-            >
-              {isStartingGoogle ? (
-                <>
-                  <LoadingSpinner />
-                  <span className="sr-only">Starting Google sign in</span>
-                </>
-              ) : (
-                <>
-                  <GoogleLogoIcon />
-                  <span>Continue with Google</span>
-                </>
-              )}
-            </button>
+            />
 
             <div className="mt-5 text-center">
               <Link

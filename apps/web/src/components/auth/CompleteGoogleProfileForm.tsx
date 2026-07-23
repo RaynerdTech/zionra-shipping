@@ -19,6 +19,7 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 
 const REFERRAL_OPTIONS = [
   "Search Engine",
@@ -66,45 +67,6 @@ const INITIAL_VALUES: FormValues = {
   acceptedTerms: false,
   marketingOptIn: false,
 };
-
-function DecorativeCircles() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] md:right-0 md:-top-[56px]"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-20px] top-0 h-[136px] w-[136px] md:h-[240px] md:w-[240px]"
-        viewBox="0 0 220 160"
-        fill="none"
-      >
-        <circle
-          cx="120"
-          cy="40"
-          r="120"
-          fill="#286BDC"
-          fillOpacity="0.05"
-        />
-      </svg>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute right-[-6px] top-[-6px] h-[95.2px] w-[95.2px] md:right-0 md:top-0 md:h-[150px] md:w-[150px]"
-        viewBox="0 0 150 150"
-        fill="none"
-      >
-        <circle
-          cx="75"
-          cy="75"
-          r="75"
-          fill="#286BDC"
-          fillOpacity="0.04"
-        />
-      </svg>
-    </div>
-  );
-}
 
 function ChevronIcon() {
   return (
@@ -362,7 +324,7 @@ export default function CompleteGoogleProfileForm() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-01 px-0 pt-3 md:flex md:items-center md:justify-center md:p-8">
-      <DecorativeCircles />
+      <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:right-0 md:-top-[56px] md:h-[240px] md:w-[240px]" />
 
       <section className="relative min-h-[calc(100vh-12px)] w-full overflow-hidden rounded-t-[24px] bg-white px-6 pb-8 pt-7 shadow-[0_4px_4px_rgba(0,0,0,0.25)] md:min-h-0 md:max-w-[660px] md:rounded-2xl md:px-12 md:py-10 md:shadow-none">
         <div className="relative z-[1] mx-auto w-full max-w-[520px]">
