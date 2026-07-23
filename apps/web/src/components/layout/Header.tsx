@@ -41,7 +41,7 @@ function Header() {
         </nav>
 
         <div className="ml-auto hidden items-center gap-[10px] md:flex">
-          <a href="#" className="zion-btn zion-btn-sm zion-btn-outline-blue">
+          <a href="/get-started" className="zion-btn zion-btn-sm zion-btn-outline-blue">
             Log In
           </a>
 
@@ -114,7 +114,7 @@ function Header() {
 
           <div className="mt-4 grid grid-cols-1 gap-3">
             <a
-              href="#"
+              href="/get-started"
               onClick={() => setIsOpen(false)}
               className="zion-btn zion-btn-sm zion-btn-outline-blue w-full"
             >
