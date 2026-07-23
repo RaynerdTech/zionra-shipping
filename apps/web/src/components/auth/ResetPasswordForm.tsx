@@ -12,6 +12,7 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthRecoveryShell from "./AuthRecoveryShell";
+import AuthPasswordField from "./shared/AuthPasswordField";
 
 type ResetErrors = {
   password?: string;
@@ -27,99 +28,19 @@ type ApiResponse = {
 
 type SessionState = "loading" | "valid" | "invalid";
 
-function HiddenPasswordIcon() {
-  return (
-    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path
-        d="M1 1l10 10M4.17 4.17A2.5 2.5 0 0 0 7.83 7.83M3.25 2.76A5.8 5.8 0 0 1 6 2c3.5 0 5.25 4 5.25 4a9.8 9.8 0 0 1-1.6 2.18M7.03 9.15A5.7 5.7 0 0 1 6 9.25C2.5 9.25.75 6 .75 6a9.5 9.5 0 0 1 1.3-1.88"
-        stroke="#174184"
-        strokeWidth="1.15"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function VisiblePasswordIcon() {
-  return (
-    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M.75 6s1.75-3.25 5.25-3.25S11.25 6 11.25 6 9.5 9.25 6 9.25.75 6 .75 6Z" stroke="#174184" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="6" cy="6" r="1.65" stroke="#174184" strokeWidth="1.15" />
-    </svg>
-  );
-}
-
 function PasswordUpdatedIcon() {
   return (
     <div className="relative h-[88px] w-[88px]" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" width="88" height="88" viewBox="0 0 88 88" fill="none" className="absolute inset-0">
-        <circle cx="44" cy="44" r="44" fill="#286BDC" />
+        <circle cx="44" cy="44" r="44" fill="var(--color-primary-06)" />
       </svg>
       <svg xmlns="http://www.w3.org/2000/svg" width="68" height="68" viewBox="0 0 68 68" fill="none" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <circle cx="34" cy="34" r="34" fill="#2EC4B6" fillOpacity="0.3" />
+        <circle cx="34" cy="34" r="34" fill="var(--color-tertiary-06)" fillOpacity="0.3" />
       </svg>
       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <path fillRule="evenodd" clipRule="evenodd" d="M29.292 5.95471C30.4122 4.72249 32.335 4.67673 33.5125 5.85428L36.9313 9.27313C38.0703 10.4122 38.0703 12.2589 36.9313 13.3979L16.7883 33.541C15.6494 34.68 13.8026 34.68 12.6636 33.541L4.18727 25.0646C3.04825 23.9256 3.04825 22.0788 4.18727 20.9398L6.83025 18.2968C7.96929 17.1578 9.81602 17.1578 10.955 18.2968L14.6829 22.0246L29.292 5.95471Z" fill="white" />
       </svg>
     </div>
-  );
-}
-
-type PasswordFieldProps = {
-  id: "password" | "confirmPassword";
-  label: string;
-  value: string;
-  placeholder: string;
-  visible: boolean;
-  error?: string;
-  disabled: boolean;
-  onChange: (value: string) => void;
-  onToggle: () => void;
-};
-
-function PasswordField({
-  id,
-  label,
-  value,
-  placeholder,
-  visible,
-  error,
-  disabled,
-  onChange,
-  onToggle,
-}: PasswordFieldProps) {
-  return (
-    <label htmlFor={id} className="block">
-      <span className="mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10">
-        {label} <span className="text-error">*</span>
-      </span>
-
-      <span className={`zion-input-shell h-[52px] md:h-12 ${error ? "zion-input-shell-error" : ""}`}>
-        <input
-          id={id}
-          name={id}
-          type={visible ? "text" : "password"}
-          autoComplete="new-password"
-          value={value}
-          placeholder={placeholder}
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.value)}
-          className="zion-input-shell-control"
-        />
-        <button
-          type="button"
-          disabled={disabled}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-primary-01 p-0 text-primary-08 transition-colors hover:bg-primary-02 focus-visible:outline-2 focus-visible:outline-primary-03 disabled:cursor-not-allowed"
-          aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
-          onClick={onToggle}
-        >
-          {visible ? <VisiblePasswordIcon /> : <HiddenPasswordIcon />}
-        </button>
-      </span>
-
-      {error ? <p className="zion-field-error mt-1">{error}</p> : null}
-    </label>
   );
 }
 
@@ -292,7 +213,7 @@ export default function ResetPasswordForm() {
         ) : (
           <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-[560px]">
             <div className="space-y-5">
-              <PasswordField
+              <AuthPasswordField
                 id="password"
                 label="Password"
                 value={password}
@@ -300,6 +221,8 @@ export default function ResetPasswordForm() {
                 visible={showPassword}
                 error={errors.password}
                 disabled={isSubmitting}
+                autoComplete="new-password"
+                visibilityLabel="password"
                 onChange={(value) => {
                   setPassword(value);
                   setErrors((current) => ({ ...current, password: undefined, form: undefined }));
@@ -307,7 +230,7 @@ export default function ResetPasswordForm() {
                 onToggle={() => setShowPassword((current) => !current)}
               />
 
-              <PasswordField
+              <AuthPasswordField
                 id="confirmPassword"
                 label="Confirm Password"
                 value={confirmPassword}
@@ -315,6 +238,8 @@ export default function ResetPasswordForm() {
                 visible={showConfirmPassword}
                 error={errors.confirmPassword}
                 disabled={isSubmitting}
+                autoComplete="new-password"
+                visibilityLabel="confirm password"
                 onChange={(value) => {
                   setConfirmPassword(value);
                   setErrors((current) => ({ ...current, confirmPassword: undefined, form: undefined }));

@@ -9,10 +9,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  type ChangeEvent,
-  type ClipboardEvent,
   type FormEvent,
-  type KeyboardEvent,
   useEffect,
   useMemo,
   useRef,
@@ -21,10 +18,13 @@ import {
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import AuthOtpInput, {
+  AUTH_OTP_LENGTH,
+  type AuthOtpInputHandle,
+  createEmptyAuthOtp,
+} from "./shared/AuthOtpInput";
 
-const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 60;
-const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
 type ApiResponse = {
   message?: string;
@@ -53,8 +53,8 @@ function CloseIcon() {
 function EmailIcon() {
   return (
     <svg aria-hidden="true" width="60" height="60" viewBox="0 0 64 64" fill="none">
-      <rect x="4" y="12" width="56" height="40" rx="6" fill="#1B2F4E" stroke="#9BC0F2" strokeWidth="2" />
-      <path d="M4 20 32 38 60 20" stroke="#9BC0F2" strokeWidth="2" strokeLinecap="round" />
+      <rect x="4" y="12" width="56" height="40" rx="6" fill="#1B2F4E" stroke="var(--color-primary-03)" strokeWidth="2" />
+      <path d="M4 20 32 38 60 20" stroke="var(--color-primary-03)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -99,13 +99,13 @@ export default function VerifyPasswordResetCodeForm({
   email,
 }: VerifyPasswordResetCodeFormProps) {
   const router = useRouter();
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const normalizedEmail = email.trim().toLowerCase();
   const hasEmail = normalizedEmail.length > 0;
 
-  const [code, setCode] = useState<string[]>(EMPTY_CODE);
+  const [code, setCode] = useState<string[]>(() => createEmptyAuthOtp());
   const [error, setError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -116,7 +116,7 @@ export default function VerifyPasswordResetCodeForm({
   const [resendNotice, setResendNotice] = useState("");
 
   const verificationCode = useMemo(() => code.join(""), [code]);
-  const codeIsComplete = verificationCode.length === CODE_LENGTH;
+  const codeIsComplete = verificationCode.length === AUTH_OTP_LENGTH;
   const hasFailure = Boolean(error);
   const fieldsAreLocked = isVerifying || isVerified;
 
@@ -140,99 +140,8 @@ export default function VerifyPasswordResetCodeForm({
     return () => window.clearInterval(timer);
   }, [cooldownSeconds]);
 
-  function focusInput(index: number) {
-    inputRefs.current[index]?.focus();
-  }
-
   function clearFailure() {
     setError("");
-  }
-
-  function replaceDigits(startIndex: number, rawValue: string) {
-    const digits = rawValue.replace(/\D/g, "").slice(0, CODE_LENGTH);
-
-    if (!digits || fieldsAreLocked) {
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-
-      digits.split("").forEach((digit, offset) => {
-        const targetIndex = startIndex + offset;
-
-        if (targetIndex < CODE_LENGTH) {
-          next[targetIndex] = digit;
-        }
-      });
-
-      return next;
-    });
-
-    clearFailure();
-    focusInput(Math.min(startIndex + digits.length, CODE_LENGTH - 1));
-  }
-
-  function handleInputChange(index: number, event: ChangeEvent<HTMLInputElement>) {
-    const digits = event.target.value.replace(/\D/g, "");
-
-    if (digits.length > 1) {
-      replaceDigits(index, digits);
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-      next[index] = digits.slice(-1);
-      return next;
-    });
-
-    clearFailure();
-
-    if (digits && index < CODE_LENGTH - 1) {
-      focusInput(index + 1);
-    }
-  }
-
-  function handleKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
-    if (fieldsAreLocked) {
-      return;
-    }
-
-    if (event.key === "Backspace") {
-      if (code[index]) {
-        setCode((current) => {
-          const next = [...current];
-          next[index] = "";
-          return next;
-        });
-      } else if (index > 0) {
-        setCode((current) => {
-          const next = [...current];
-          next[index - 1] = "";
-          return next;
-        });
-        focusInput(index - 1);
-      }
-
-      clearFailure();
-      return;
-    }
-
-    if (event.key === "ArrowLeft" && index > 0) {
-      event.preventDefault();
-      focusInput(index - 1);
-    }
-
-    if (event.key === "ArrowRight" && index < CODE_LENGTH - 1) {
-      event.preventDefault();
-      focusInput(index + 1);
-    }
-  }
-
-  function handlePaste(index: number, event: ClipboardEvent<HTMLInputElement>) {
-    event.preventDefault();
-    replaceDigits(index, event.clipboardData.getData("text"));
   }
 
   async function handleVerify(event: FormEvent<HTMLFormElement>) {
@@ -330,12 +239,12 @@ export default function VerifyPasswordResetCodeForm({
         return;
       }
 
-      setCode([...EMPTY_CODE]);
+      setCode(createEmptyAuthOtp());
       setCooldownSeconds(RESEND_COOLDOWN_SECONDS);
       setResendNotice(
         "If an account exists, a new reset code has been sent.",
       );
-      requestAnimationFrame(() => focusInput(0));
+      requestAnimationFrame(() => otpInputRef.current?.focus());
     } catch (requestError) {
       console.error("Password-reset code resend failed:", requestError);
       setError("Unable to reach the server. Please try again.");
@@ -364,11 +273,11 @@ export default function VerifyPasswordResetCodeForm({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-01 px-4 py-10">
-      <section className="relative flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-[#0F2C58] px-6 py-10 text-center sm:px-10">
+      <section className="relative flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <Link
           href={routes.web.customerForgotPassword}
           aria-label="Close password-reset verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(155,192,242,0.15)] text-[#9BC0F2] transition-colors hover:bg-[rgba(155,192,242,0.28)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9BC0F2]"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >
           <CloseIcon />
         </Link>
@@ -403,49 +312,28 @@ export default function VerifyPasswordResetCodeForm({
         </div>
 
         <form onSubmit={handleVerify} noValidate className="mt-6 w-full">
-          <div className="mx-auto grid w-fit grid-cols-3 gap-4 sm:grid-cols-6">
-            {code.map((digit, index) => {
-              const stateClass = isVerified
-                ? "border-[#34C759] bg-[#C3D9F7]"
+          <AuthOtpInput
+            ref={otpInputRef}
+            value={code}
+            idPrefix="password-reset-code"
+            digitLabel="Password reset code"
+            disabled={fieldsAreLocked}
+            state={
+              isVerified
+                ? "success"
                 : hasFailure
-                  ? "border-[#B3261E] bg-[#C3D9F7]"
-                  : digit
-                    ? "border-transparent bg-[#C3D9F7] focus:border-white"
-                    : "border-transparent bg-[#9BC0F2] focus:border-white";
-
-              return (
-                <input
-                  key={index}
-                  ref={(element) => {
-                    inputRefs.current[index] = element;
-                  }}
-                  id={`password-reset-code-${index + 1}`}
-                  name={`password-reset-code-${index + 1}`}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete={index === 0 ? "one-time-code" : "off"}
-                  autoFocus={index === 0}
-                  maxLength={index === 0 ? CODE_LENGTH : 1}
-                  value={digit}
-                  aria-label={`Password reset code digit ${index + 1}`}
-                  aria-invalid={hasFailure}
-                  disabled={fieldsAreLocked}
-                  onChange={(event) => handleInputChange(index, event)}
-                  onKeyDown={(event) => handleKeyDown(index, event)}
-                  onPaste={(event) => handlePaste(index, event)}
-                  onFocus={(event) => event.currentTarget.select()}
-                  className={`h-[53px] w-14 rounded-[10px] border-2 text-center font-display text-[22px] font-semibold leading-none text-primary-10 caret-primary-10 outline-none transition-[background-color,border-color,transform] duration-200 hover:scale-105 disabled:cursor-default disabled:opacity-100 disabled:hover:scale-100 ${stateClass}`}
-                />
-              );
-            })}
-          </div>
+                  ? "failure"
+                  : "default"
+            }
+            onChange={setCode}
+            onEdit={clearFailure}
+          />
 
           <div aria-live="polite" className="mx-auto mt-4 min-h-[22px] max-w-[390px] font-sans text-sm leading-[22px]">
             {error ? <p className="text-[#FF8A82]">{error}</p> : null}
             {isVerified ? <p className="text-[#34C759]">Code verified securely.</p> : null}
             {resendNotice && !error && !isVerified ? (
-              <p className="text-[#9BC0F2]">{resendNotice}</p>
+              <p className="text-primary-03">{resendNotice}</p>
             ) : null}
           </div>
 
@@ -456,7 +344,7 @@ export default function VerifyPasswordResetCodeForm({
             className={`mt-3 inline-flex h-12 w-[193px] items-center justify-center rounded-md font-sans text-base transition-colors ${
               codeIsComplete && !isVerified
                 ? "bg-primary-06 text-white hover:bg-primary-07"
-                : "cursor-not-allowed bg-[#E2E7F0] text-[#8BA3BF]"
+                : "cursor-not-allowed bg-neutral-02 text-neutral-05"
             }`}
           >
             {isVerifying || isVerified ? (
@@ -478,7 +366,7 @@ export default function VerifyPasswordResetCodeForm({
             type="button"
             disabled={isResending || isVerifying || isVerified || cooldownSeconds > 0}
             onClick={handleResend}
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-[#9BC0F2] transition-colors hover:text-[#C3D9F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>

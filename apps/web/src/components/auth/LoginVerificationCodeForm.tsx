@@ -9,10 +9,7 @@
 
 import { useRouter } from "next/navigation";
 import {
-  type ChangeEvent,
-  type ClipboardEvent,
   type FormEvent,
-  type KeyboardEvent,
   useEffect,
   useMemo,
   useRef,
@@ -21,11 +18,14 @@ import {
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import AuthOtpInput, {
+  AUTH_OTP_LENGTH,
+  type AuthOtpInputHandle,
+  createEmptyAuthOtp,
+} from "./shared/AuthOtpInput";
 
-const CODE_LENGTH = 6;
 const FALLBACK_RESEND_COOLDOWN_SECONDS = 30;
 const SUCCESS_REDIRECT_DELAY_MS = 800;
-const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
 type VerificationOutcome = "success" | "failure" | null;
 
@@ -54,12 +54,12 @@ function MailIcon() {
         height="40"
         rx="6"
         fill="#1B2F4E"
-        stroke="#9BC0F2"
+        stroke="var(--color-primary-03)"
         strokeWidth="2"
       />
       <path
         d="M4 20L32 38L60 20"
-        stroke="#9BC0F2"
+        stroke="var(--color-primary-03)"
         strokeWidth="2"
         strokeLinecap="round"
       />
@@ -76,7 +76,7 @@ function SuccessIcon() {
       viewBox="0 0 64 64"
       fill="none"
     >
-      <circle cx="32" cy="32" r="24" fill="#124E49" />
+      <circle cx="32" cy="32" r="24" fill="var(--color-tertiary-09)" />
       <path
         d="M20 32L28 40L44 24"
         stroke="white"
@@ -97,7 +97,7 @@ function FailureIcon() {
       viewBox="0 0 64 64"
       fill="none"
     >
-      <circle cx="32" cy="32" r="24" fill="#B3261E" fillOpacity="0.2" />
+      <circle cx="32" cy="32" r="24" fill="var(--color-error)" fillOpacity="0.2" />
       <path
         d="M24 24L40 40M40 24L24 40"
         stroke="#FF3B30"
@@ -167,10 +167,10 @@ function getCooldownSeconds(resendAvailableAt?: string) {
 
 export default function LoginVerificationCodeForm() {
   const router = useRouter();
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [code, setCode] = useState<string[]>(EMPTY_CODE);
+  const [code, setCode] = useState<string[]>(() => createEmptyAuthOtp());
   const [maskedEmail, setMaskedEmail] = useState("");
   const [feedback, setFeedback] = useState("");
   const [outcome, setOutcome] = useState<VerificationOutcome>(null);
@@ -181,7 +181,7 @@ export default function LoginVerificationCodeForm() {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   const verificationCode = useMemo(() => code.join(""), [code]);
-  const codeIsComplete = verificationCode.length === CODE_LENGTH;
+  const codeIsComplete = verificationCode.length === AUTH_OTP_LENGTH;
   const inputsAreLocked =
     isLoadingChallenge ||
     isVerifying ||
@@ -251,118 +251,9 @@ export default function LoginVerificationCodeForm() {
     return () => window.clearInterval(timer);
   }, [cooldownSeconds]);
 
-  function focusInput(index: number) {
-    inputRefs.current[index]?.focus();
-  }
-
   function clearFailure() {
     setOutcome(null);
     setFeedback("");
-  }
-
-  function replaceDigits(startIndex: number, rawValue: string) {
-    if (inputsAreLocked) {
-      return;
-    }
-
-    const digits = rawValue.replace(/\D/g, "").slice(0, CODE_LENGTH);
-
-    if (!digits) {
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-
-      digits.split("").forEach((digit, offset) => {
-        const targetIndex = startIndex + offset;
-
-        if (targetIndex < CODE_LENGTH) {
-          next[targetIndex] = digit;
-        }
-      });
-
-      return next;
-    });
-
-    clearFailure();
-    focusInput(Math.min(startIndex + digits.length, CODE_LENGTH - 1));
-  }
-
-  function handleInputChange(
-    index: number,
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    if (inputsAreLocked) {
-      return;
-    }
-
-    const digits = event.target.value.replace(/\D/g, "");
-
-    if (digits.length > 1) {
-      replaceDigits(index, digits);
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-      next[index] = digits.slice(-1);
-      return next;
-    });
-
-    clearFailure();
-
-    if (digits && index < CODE_LENGTH - 1) {
-      focusInput(index + 1);
-    }
-  }
-
-  function handleKeyDown(
-    index: number,
-    event: KeyboardEvent<HTMLInputElement>,
-  ) {
-    if (inputsAreLocked) {
-      return;
-    }
-
-    if (event.key === "Backspace") {
-      if (code[index]) {
-        setCode((current) => {
-          const next = [...current];
-          next[index] = "";
-          return next;
-        });
-      } else if (index > 0) {
-        setCode((current) => {
-          const next = [...current];
-          next[index - 1] = "";
-          return next;
-        });
-
-        focusInput(index - 1);
-      }
-
-      clearFailure();
-      return;
-    }
-
-    if (event.key === "ArrowLeft" && index > 0) {
-      event.preventDefault();
-      focusInput(index - 1);
-    }
-
-    if (event.key === "ArrowRight" && index < CODE_LENGTH - 1) {
-      event.preventDefault();
-      focusInput(index + 1);
-    }
-  }
-
-  function handlePaste(
-    index: number,
-    event: ClipboardEvent<HTMLInputElement>,
-  ) {
-    event.preventDefault();
-    replaceDigits(index, event.clipboardData.getData("text"));
   }
 
   async function handleVerify(event: FormEvent<HTMLFormElement>) {
@@ -469,13 +360,13 @@ export default function LoginVerificationCodeForm() {
         return;
       }
 
-      setCode([...EMPTY_CODE]);
+      setCode(createEmptyAuthOtp());
       setCooldownSeconds(
         getCooldownSeconds(result.resendAvailableAt),
       );
       setFeedback(result.message ?? "A new sign-in code has been sent.");
 
-      requestAnimationFrame(() => focusInput(0));
+      requestAnimationFrame(() => otpInputRef.current?.focus());
     } catch (error) {
       console.error("Login-code resend failed:", error);
       setOutcome("failure");
@@ -519,13 +410,13 @@ export default function LoginVerificationCodeForm() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-primary-10 px-4 py-12 sm:px-6">
-      <section className="relative flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-[#0F2C58] px-6 py-10 text-center sm:px-10">
+      <section className="relative flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <button
           type="button"
           onClick={handleCancel}
           disabled={isCancelling}
           aria-label="Cancel sign-in verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-[rgba(155,192,242,0.15)] text-[#9BC0F2] transition-colors hover:bg-[rgba(155,192,242,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isCancelling ? <LoadingSpinner /> : <CloseIcon />}
         </button>
@@ -561,45 +452,24 @@ export default function LoginVerificationCodeForm() {
         </div>
 
         <form onSubmit={handleVerify} noValidate className="mt-6 w-full">
-          <div className="mx-auto grid w-fit grid-cols-3 gap-4 sm:grid-cols-6">
-            {code.map((digit, index) => {
-              const stateClass =
-                outcome === "success"
-                  ? "border-[#34C759] bg-[#C3D9F7]"
-                  : outcome === "failure"
-                    ? "border-[#B3261E] bg-[#C3D9F7]"
-                    : digit
-                      ? "border-transparent bg-[#C3D9F7] focus:border-white"
-                      : "border-transparent bg-[#9BC0F2] focus:border-white";
-
-              return (
-                <input
-                  key={index}
-                  ref={(element) => {
-                    inputRefs.current[index] = element;
-                  }}
-                  id={`login-code-${index + 1}`}
-                  name={`login-code-${index + 1}`}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete={index === 0 ? "one-time-code" : "off"}
-                  autoFocus={index === 0}
-                  enterKeyHint={index === CODE_LENGTH - 1 ? "done" : "next"}
-                  maxLength={index === 0 ? CODE_LENGTH : 1}
-                  value={digit}
-                  aria-label={`Sign-in code digit ${index + 1}`}
-                  aria-invalid={outcome === "failure"}
-                  disabled={inputsAreLocked}
-                  onChange={(event) => handleInputChange(index, event)}
-                  onKeyDown={(event) => handleKeyDown(index, event)}
-                  onPaste={(event) => handlePaste(index, event)}
-                  onFocus={(event) => event.currentTarget.select()}
-                  className={`h-[53px] w-14 rounded-[10px] border-2 text-center font-display text-[22px] font-semibold leading-none tracking-[-0.5px] text-primary-10 caret-primary-10 outline-none transition-[background-color,border-color,transform] duration-200 hover:scale-105 disabled:cursor-default disabled:opacity-100 disabled:hover:scale-100 ${stateClass}`}
-                />
-              );
-            })}
-          </div>
+          <AuthOtpInput
+            ref={otpInputRef}
+            value={code}
+            idPrefix="login-code"
+            digitLabel="Sign-in code"
+            disabled={inputsAreLocked}
+            state={
+              outcome === "success"
+                ? "success"
+                : outcome === "failure"
+                  ? "failure"
+                  : "default"
+            }
+            useEnterKeyHints
+            inputClassName="tracking-[-0.5px]"
+            onChange={setCode}
+            onEdit={clearFailure}
+          />
 
           <div
             aria-live="polite"
@@ -612,7 +482,7 @@ export default function LoginVerificationCodeForm() {
                     ? "text-[#FF8A82]"
                     : outcome === "success"
                       ? "text-[#34C759]"
-                      : "text-[#9BC0F2]"
+                      : "text-primary-03"
                 }
               >
                 {feedback}
@@ -640,7 +510,7 @@ export default function LoginVerificationCodeForm() {
                 ? "bg-primary-06 text-white hover:bg-primary-07"
                 : outcome === "success" || isVerifying
                   ? "cursor-wait bg-primary-06 text-white"
-                  : "cursor-not-allowed bg-[#E2E7F0] text-[#8BA3BF]"
+                  : "cursor-not-allowed bg-neutral-02 text-neutral-05"
             }`}
           >
             {isVerifying || outcome === "success" ? (
@@ -672,7 +542,7 @@ export default function LoginVerificationCodeForm() {
               cooldownSeconds > 0 ||
               outcome === "success"
             }
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-[#9BC0F2] transition-colors hover:text-[#C3D9F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>{resendLabel}</span>

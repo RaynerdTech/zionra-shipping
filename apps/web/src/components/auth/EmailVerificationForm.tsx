@@ -10,10 +10,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  type ChangeEvent,
-  type ClipboardEvent,
   type FormEvent,
-  type KeyboardEvent,
   useEffect,
   useMemo,
   useRef,
@@ -22,12 +19,15 @@ import {
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import AuthOtpInput, {
+  AUTH_OTP_LENGTH,
+  type AuthOtpInputHandle,
+  createEmptyAuthOtp,
+} from "./shared/AuthOtpInput";
 
-const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 30;
 const RESEND_NOTICE_DURATION_MS = 2400;
 const SUCCESS_REDIRECT_DELAY_MS = 900;
-const EMPTY_CODE = Array.from({ length: CODE_LENGTH }, () => "");
 
 type FeedbackState = {
   type: "error" | "success";
@@ -66,12 +66,12 @@ function EmailIcon() {
         height="40"
         rx="6"
         fill="#1B2F4E"
-        stroke="#9BC0F2"
+        stroke="var(--color-primary-03)"
         strokeWidth="2"
       />
       <path
         d="M4 20L32 38L60 20"
-        stroke="#9BC0F2"
+        stroke="var(--color-primary-03)"
         strokeWidth="2"
         strokeLinecap="round"
       />
@@ -184,7 +184,7 @@ export default function EmailVerificationForm({
   source,
 }: EmailVerificationFormProps) {
   const router = useRouter();
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resendNoticeTimeoutRef =
     useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -193,7 +193,7 @@ export default function EmailVerificationForm({
   const hasEmail = normalizedEmail.length > 0;
   const isGoogleLinkFlow = source === "google";
 
-  const [code, setCode] = useState<string[]>(EMPTY_CODE);
+  const [code, setCode] = useState<string[]>(() => createEmptyAuthOtp());
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [verificationOutcome, setVerificationOutcome] =
     useState<VerificationOutcome>(null);
@@ -203,7 +203,7 @@ export default function EmailVerificationForm({
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   const verificationCode = useMemo(() => code.join(""), [code]);
-  const codeIsComplete = verificationCode.length === CODE_LENGTH;
+  const codeIsComplete = verificationCode.length === AUTH_OTP_LENGTH;
 
   const visualState: VerificationVisualState =
     verificationOutcome === "success"
@@ -243,112 +243,9 @@ export default function EmailVerificationForm({
     return () => window.clearInterval(timer);
   }, [cooldownSeconds]);
 
-  function focusInput(index: number) {
-    inputRefs.current[index]?.focus();
-  }
-
   function clearVerificationFeedback() {
     setVerificationOutcome(null);
     setFeedback(null);
-  }
-
-  function replaceDigits(startIndex: number, rawValue: string) {
-    const digits = rawValue.replace(/\D/g, "").slice(0, CODE_LENGTH);
-
-    if (!digits || inputsAreLocked) {
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-
-      digits.split("").forEach((digit, offset) => {
-        const targetIndex = startIndex + offset;
-
-        if (targetIndex < CODE_LENGTH) {
-          next[targetIndex] = digit;
-        }
-      });
-
-      return next;
-    });
-
-    clearVerificationFeedback();
-    focusInput(Math.min(startIndex + digits.length, CODE_LENGTH - 1));
-  }
-
-  function handleInputChange(
-    index: number,
-    event: ChangeEvent<HTMLInputElement>,
-  ) {
-    if (inputsAreLocked) {
-      return;
-    }
-
-    const rawValue = event.target.value;
-    const digits = rawValue.replace(/\D/g, "");
-
-    if (digits.length > 1) {
-      replaceDigits(index, digits);
-      return;
-    }
-
-    setCode((current) => {
-      const next = [...current];
-      next[index] = digits.slice(-1);
-      return next;
-    });
-
-    clearVerificationFeedback();
-
-    if (digits && index < CODE_LENGTH - 1) {
-      focusInput(index + 1);
-    }
-  }
-
-  function handleKeyDown(
-    index: number,
-    event: KeyboardEvent<HTMLInputElement>,
-  ) {
-    if (inputsAreLocked) {
-      return;
-    }
-
-    if (event.key === "Backspace") {
-      if (code[index]) {
-        setCode((current) => {
-          const next = [...current];
-          next[index] = "";
-          return next;
-        });
-      } else if (index > 0) {
-        setCode((current) => {
-          const next = [...current];
-          next[index - 1] = "";
-          return next;
-        });
-
-        focusInput(index - 1);
-      }
-
-      clearVerificationFeedback();
-      return;
-    }
-
-    if (event.key === "ArrowLeft" && index > 0) {
-      event.preventDefault();
-      focusInput(index - 1);
-    }
-
-    if (event.key === "ArrowRight" && index < CODE_LENGTH - 1) {
-      event.preventDefault();
-      focusInput(index + 1);
-    }
-  }
-
-  function handlePaste(index: number, event: ClipboardEvent<HTMLInputElement>) {
-    event.preventDefault();
-    replaceDigits(index, event.clipboardData.getData("text"));
   }
 
   function showResendNotice(message: string) {
@@ -515,10 +412,10 @@ export default function EmailVerificationForm({
         return;
       }
 
-      setCode([...EMPTY_CODE]);
+      setCode(createEmptyAuthOtp());
       setCooldownSeconds(RESEND_COOLDOWN_SECONDS);
       showResendNotice(`New code sent to ${maskEmail(normalizedEmail)}`);
-      requestAnimationFrame(() => focusInput(0));
+      requestAnimationFrame(() => otpInputRef.current?.focus());
     } catch (error) {
       console.error("Verification-code resend failed:", error);
       setFeedback({
@@ -548,15 +445,15 @@ export default function EmailVerificationForm({
       ? "bg-primary-06 text-white hover:bg-primary-07"
       : visualState === "loading" || visualState === "success"
         ? "cursor-wait bg-primary-06 text-white"
-        : "cursor-not-allowed bg-[#E2E7F0] text-[#8BA3BF]";
+        : "cursor-not-allowed bg-neutral-02 text-neutral-05";
 
   return (
     <main className="min-h-screen overflow-hidden bg-primary-10 px-4 pb-20 pt-20 sm:flex sm:items-center sm:justify-center sm:px-6 sm:py-16">
-      <section className="relative mx-auto flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-[#0F2C58] px-6 py-10 text-center sm:px-10">
+      <section className="relative mx-auto flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <Link
           href={routes.web.customerCreateAccount}
           aria-label="Close email verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(155,192,242,0.15)] text-[#9BC0F2] transition-colors hover:bg-[rgba(155,192,242,0.28)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9BC0F2]"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >
           <CloseIcon />
         </Link>
@@ -588,45 +485,24 @@ export default function EmailVerificationForm({
         </div>
 
         <form onSubmit={handleVerify} noValidate className="mt-6 w-full">
-          <div className="mx-auto grid w-fit grid-cols-3 gap-4 sm:grid-cols-6">
-            {code.map((digit, index) => {
-              const stateClass =
-                visualState === "success"
-                  ? "border-[#34C759] bg-[#C3D9F7]"
-                  : visualState === "failure"
-                    ? "border-[#B3261E] bg-[#C3D9F7]"
-                    : digit
-                      ? "border-transparent bg-[#C3D9F7] focus:border-white"
-                      : "border-transparent bg-[#9BC0F2] focus:border-white";
-
-              return (
-                <input
-                  key={index}
-                  ref={(element) => {
-                    inputRefs.current[index] = element;
-                  }}
-                  id={`verification-code-${index + 1}`}
-                  name={`verification-code-${index + 1}`}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  autoComplete={index === 0 ? "one-time-code" : "off"}
-                  autoFocus={index === 0}
-                  enterKeyHint={index === CODE_LENGTH - 1 ? "done" : "next"}
-                  maxLength={index === 0 ? CODE_LENGTH : 1}
-                  value={digit}
-                  aria-label={`Verification code digit ${index + 1}`}
-                  aria-invalid={visualState === "failure"}
-                  disabled={inputsAreLocked}
-                  onChange={(event) => handleInputChange(index, event)}
-                  onKeyDown={(event) => handleKeyDown(index, event)}
-                  onPaste={(event) => handlePaste(index, event)}
-                  onFocus={(event) => event.currentTarget.select()}
-                  className={`h-[53px] w-14 rounded-[10px] border-2 text-center font-display text-[22px] font-semibold leading-none tracking-[-0.5px] text-primary-10 caret-primary-10 outline-none transition-[background-color,border-color,transform] duration-200 hover:scale-105 disabled:cursor-default disabled:opacity-100 disabled:hover:scale-100 ${stateClass}`}
-                />
-              );
-            })}
-          </div>
+          <AuthOtpInput
+            ref={otpInputRef}
+            value={code}
+            idPrefix="verification-code"
+            digitLabel="Verification code"
+            disabled={inputsAreLocked}
+            state={
+              visualState === "success"
+                ? "success"
+                : visualState === "failure"
+                  ? "failure"
+                  : "default"
+            }
+            useEnterKeyHints
+            inputClassName="tracking-[-0.5px]"
+            onChange={setCode}
+            onEdit={clearVerificationFeedback}
+          />
 
           <div
             aria-live="polite"
@@ -680,7 +556,7 @@ export default function EmailVerificationForm({
               !hasEmail || isResending || isVerifying || cooldownSeconds > 0
             }
             onClick={handleResend}
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-[#9BC0F2] transition-colors hover:text-[#C3D9F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>{resendLabel}</span>
@@ -691,7 +567,7 @@ export default function EmailVerificationForm({
         {resendNotice ? (
           <div
             role="status"
-            className="absolute bottom-[-44px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#1B2F4E] px-[18px] py-2 font-sans text-[13px] text-[#9BC0F2] shadow-lg"
+            className="absolute bottom-[-44px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#1B2F4E] px-[18px] py-2 font-sans text-[13px] text-primary-03 shadow-lg"
           >
             {resendNotice}
           </div>

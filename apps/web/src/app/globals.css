@@ -85,6 +85,14 @@
   /* Form text */
   --color-text-body-light: #3e5775;
 
+
+
+  --color-auth-surface: #1b2f4e;
+--color-success: #34c759;
+--color-error-bright: #ff3b30;
+--color-error-on-dark: #ff8a82;
+--color-text-on-dark-muted: #d4dae0;
+
   /* ======================================================
      OLD HOMEPAGE TOKEN MIGRATION MAP
      These are intentionally commented out.
