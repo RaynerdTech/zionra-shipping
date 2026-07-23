@@ -13,8 +13,9 @@ import { useRouter } from "next/navigation";
 import {
   type FormEvent,
   type ReactNode,
-  useState,
   useEffect,
+  useRef,
+  useState,
 } from "react";
 import type { CountryCode } from "libphonenumber-js";
 import { routes } from "@/config/routes";
@@ -186,6 +187,127 @@ function ChevronIcon() {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+type ReferralSourceSelectProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function ReferralSourceSelect({
+  value,
+  onChange,
+}: ReferralSourceSelectProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  function selectOption(option: string) {
+    onChange(option);
+    setIsOpen(false);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  }
+
+  return (
+    <div ref={containerRef} className="relative min-w-0">
+      <button
+        ref={triggerRef}
+        id="referralSource"
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls="referralSourceOptions"
+        onClick={() => setIsOpen((current) => !current)}
+        className={`zion-input flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
+          value ? "text-neutral-10" : "text-neutral-05"
+        }`}
+      >
+        <span className="min-w-0 flex-1 truncate">
+          {value || "Select an option"}
+        </span>
+
+        <span
+          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        >
+          <ChevronIcon />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div
+          id="referralSourceOptions"
+          role="listbox"
+          aria-label="How did you hear about us?"
+          className="mt-2 w-full min-w-0 overflow-hidden rounded-lg border border-neutral-03 bg-white shadow-[0_10px_30px_rgba(7,22,44,0.14)] md:absolute md:left-0 md:right-0 md:top-full md:z-50"
+        >
+          <div className="max-h-56 overflow-y-auto overflow-x-hidden py-1">
+            <button
+              type="button"
+              role="option"
+              aria-selected={!value}
+              onClick={() => selectOption("")}
+              className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
+                !value
+                  ? "bg-primary-06 text-white"
+                  : "text-neutral-10 hover:bg-primary-01"
+              }`}
+            >
+              <span className="block break-words">Select an option</span>
+            </button>
+
+            {REFERRAL_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="option"
+                aria-selected={value === option}
+                onClick={() => selectOption(option)}
+                className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
+                  value === option
+                    ? "bg-primary-06 text-white"
+                    : "text-neutral-10 hover:bg-primary-01"
+                }`}
+              >
+                <span className="block break-words">{option}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -731,7 +853,7 @@ export default function CreateCustomerAccountForm() {
           <form onSubmit={handleSubmit} noValidate className="mt-5 md:mt-6">
             <SectionLabel>Personal Details</SectionLabel>
 
-            <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
+            <div className="mt-4 grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
               <TextField
                 id="firstName"
                 label="First Name"
@@ -798,7 +920,7 @@ export default function CreateCustomerAccountForm() {
               <SectionLabel>Account Security</SectionLabel>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
+            <div className="mt-4 grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
               <PasswordField
                 id="password"
                 label="Password"
@@ -828,7 +950,7 @@ export default function CreateCustomerAccountForm() {
               <SectionLabel>Your Location</SectionLabel>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
+            <div className="mt-4 grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-4">
               <div>
                 <FieldLabel required>Country of Residence</FieldLabel>
                 <CountrySelect
@@ -848,34 +970,13 @@ export default function CreateCustomerAccountForm() {
                 ) : null}
               </div>
 
-              <label htmlFor="referralSource">
+              <div className="min-w-0">
                 <FieldLabel>How did you hear about us?</FieldLabel>
-                <div className="relative">
-                  <select
-                    id="referralSource"
-                    name="referralSource"
-                    value={values.referralSource}
-                    onChange={(event) =>
-                      updateValue("referralSource", event.target.value)
-                    }
-                    className={`zion-input h-[52px] appearance-none pr-10 md:h-12 ${
-                      values.referralSource
-                        ? "text-neutral-10"
-                        : "text-neutral-05"
-                    }`}
-                  >
-                    <option value="">Select an option</option>
-                    {REFERRAL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-primary-01 text-primary-08">
-                    <ChevronIcon />
-                  </span>
-                </div>
-              </label>
+                <ReferralSourceSelect
+                  value={values.referralSource}
+                  onChange={(value) => updateValue("referralSource", value)}
+                />
+              </div>
             </div>
 
             <div className="mt-5 space-y-3 md:mt-4">
