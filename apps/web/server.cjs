@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 /**
  * Responsibility:
  * Starts the self-hosted Zionra Next.js application through the port supplied
