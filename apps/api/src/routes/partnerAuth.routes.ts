@@ -8,6 +8,7 @@ import {
   completePartnerGoogleProfileController,
   getCurrentShippingPartnerController,
   getPendingPartnerGoogleProfileController,
+  linkPartnerGoogleAccountController,
   registerShippingPartnerController,
   resendShippingPartnerVerificationCodeController,
   startPartnerGoogleAuthController,
@@ -25,6 +26,10 @@ router.post(
 router.get("/me", getCurrentShippingPartnerController);
 router.get("/google", startPartnerGoogleAuthController);
 router.get("/google/pending-profile", getPendingPartnerGoogleProfileController);
+router.post(
+  "/google/link-existing-account",
+  linkPartnerGoogleAccountController,
+);
 router.post(
   "/google/complete-profile",
   completePartnerGoogleProfileController,

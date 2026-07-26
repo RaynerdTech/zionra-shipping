@@ -30,6 +30,7 @@ export type CompleteGoogleShippingPartnerProfileInput = Omit<
   "email" | "password"
 >;
 
+export type LinkGoogleShippingPartnerAccountInput = { password: string };
 export type PartnerEmailInput = { email: string };
 export type PartnerEmailCodeInput = { email: string; code: string };
 
@@ -140,6 +141,24 @@ export function validateCompleteGoogleShippingPartnerProfile(
   }
 
   return { success: true, data: validation.data };
+}
+
+
+export function validateLinkGoogleShippingPartnerAccount(
+  requestBody: unknown,
+): ValidationResult<LinkGoogleShippingPartnerAccountInput> {
+  const password = getString(toBody(requestBody), "password");
+  const errors: FieldErrors = {};
+
+  if (!password) {
+    errors.password = REQUIRED_MESSAGE;
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { success: false, errors };
+  }
+
+  return { success: true, data: { password } };
 }
 
 export function validatePartnerEmail(

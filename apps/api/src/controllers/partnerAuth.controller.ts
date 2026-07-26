@@ -24,6 +24,7 @@ import {
   completePartnerGoogleSignup,
   getPartnerFromOnboardingToken,
   getPendingPartnerGoogleProfile,
+  linkGoogleToExistingPartner,
   registerShippingPartner,
   resendShippingPartnerVerificationCode,
   verifyShippingPartnerEmail,
@@ -31,6 +32,7 @@ import {
 import { createGoogleAuthorizationRequest } from "../services/googleAuth.service.js";
 import {
   validateCompleteGoogleShippingPartnerProfile,
+  validateLinkGoogleShippingPartnerAccount,
   validatePartnerEmail,
   validatePartnerEmailCode,
   validateRegisterShippingPartner,
@@ -177,6 +179,39 @@ export async function getPendingPartnerGoogleProfileController(
     res.status(HTTP_STATUS.OK).json(await getPendingPartnerGoogleProfile(token));
   } catch (error) {
     forwardError(next, error, "Unable to load the partner Google profile.");
+  }
+}
+
+
+export async function linkPartnerGoogleAccountController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const validation = validateLinkGoogleShippingPartnerAccount(req.body);
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    const token = req.cookies?.[PARTNER_GOOGLE_SIGNUP_COOKIE_NAME] as
+      | string
+      | undefined;
+    const result = await linkGoogleToExistingPartner(
+      token,
+      validation.data,
+    );
+
+    clearPartnerGoogleSignupCookie(res);
+    setPartnerOnboardingCookie(res, result.sessionToken);
+
+    res.status(HTTP_STATUS.OK).json({
+      message: result.message,
+      redirectTo: WEB_ROUTES.partnerBusinessInformation,
+    });
+  } catch (error) {
+    forwardError(next, error, "Unable to connect the partner Google Account.");
   }
 }
 

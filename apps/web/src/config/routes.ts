@@ -24,6 +24,7 @@ export const routes = {
     partnerApplication: "/partner/apply",
     partnerVerifyEmail: "/partner/verify-email",
     partnerCompleteProfile: "/partner/complete-profile",
+    partnerLinkGoogleAccount: "/partner/link-google-account",
     partnerBusinessInformation:
       "/partner/application/business-information",
 
@@ -42,6 +43,8 @@ export const routes = {
       google: "/api/partner/auth/google",
       googlePendingProfile:
         "/api/partner/auth/google/pending-profile",
+      googleLinkExistingAccount:
+        "/api/partner/auth/google/link-existing-account",
       googleCompleteProfile:
         "/api/partner/auth/google/complete-profile",
     },
