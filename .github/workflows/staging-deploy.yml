@@ -39,31 +39,32 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
-          set -euo pipefail
+          set -eo pipefail
 
           API_ROOT="/home/zionraco/zionra-staging/apps/api"
           WEB_ROOT="/home/zionraco/zionra-staging/apps/web"
           API_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/api/22/bin/activate"
           WEB_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/web/22/bin/activate"
 
-          # Allow the existing DirectAdmin webhook time to fetch and deploy the push.
+          # Allow the DirectAdmin webhook time to fetch and deploy the push.
           sleep 60
 
-          source "$API_ACTIVATE"
-          cd "$API_ROOT"
-          npm install --include=dev --no-audit --no-fund
-          npm run prisma:generate
-          npm run build
+          (
+            source "$API_ACTIVATE"
+            cd "$API_ROOT"
+            npm install --include=dev --no-audit --no-fund
+            npm run prisma:generate
+            npm run prisma:deploy
+            npm run build
+          )
 
-          source "$WEB_ACTIVATE"
-          cd "$WEB_ROOT"
-          npm install --include=dev --no-audit --no-fund
-          rm -rf .next
-          RAYON_NUM_THREADS=1 UV_THREADPOOL_SIZE=1 npm run build
-
-          source "$API_ACTIVATE"
-          cd "$API_ROOT"
-          npm run prisma:deploy
+          (
+            source "$WEB_ACTIVATE"
+            cd "$WEB_ROOT"
+            npm install --include=dev --no-audit --no-fund
+            rm -rf .next
+            RAYON_NUM_THREADS=1 UV_THREADPOOL_SIZE=1 npm run build
+          )
 
           restart_node_app() {
             local app_root="$1"
