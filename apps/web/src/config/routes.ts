@@ -22,6 +22,10 @@ export const routes = {
 
     partnerLogin: "/partner/login",
     partnerApplication: "/partner/apply",
+    partnerVerifyEmail: "/partner/verify-email",
+    partnerCompleteProfile: "/partner/complete-profile",
+    partnerBusinessInformation:
+      "/partner/application/business-information",
 
     learnDifference: "/learn-the-difference",
     terms: "/terms",
@@ -29,6 +33,19 @@ export const routes = {
   },
 
   api: {
+    partnerAuth: {
+      register: "/api/partner/auth/register",
+      verifyEmail: "/api/partner/auth/verify-email",
+      resendVerificationCode:
+        "/api/partner/auth/resend-verification-code",
+      me: "/api/partner/auth/me",
+      google: "/api/partner/auth/google",
+      googlePendingProfile:
+        "/api/partner/auth/google/pending-profile",
+      googleCompleteProfile:
+        "/api/partner/auth/google/complete-profile",
+    },
+
     customerAuth: {
       register: "/api/customer/auth/register",
       verifyEmail: "/api/customer/auth/verify-email",

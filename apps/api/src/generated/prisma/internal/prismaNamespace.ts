@@ -391,7 +391,12 @@ export const ModelName = {
   CustomerLoginChallenge: 'CustomerLoginChallenge',
   CustomerSession: 'CustomerSession',
   CustomerOAuthAccount: 'CustomerOAuthAccount',
-  CustomerOAuthSignup: 'CustomerOAuthSignup'
+  CustomerOAuthSignup: 'CustomerOAuthSignup',
+  ShippingPartner: 'ShippingPartner',
+  ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
+  ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
+  ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
+  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1008,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ShippingPartner: {
+      payload: Prisma.$ShippingPartnerPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartner>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerEmailVerificationCode: {
+      payload: Prisma.$ShippingPartnerEmailVerificationCodePayload<ExtArgs>
+      fields: Prisma.ShippingPartnerEmailVerificationCodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerEmailVerificationCodePayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerEmailVerificationCode>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerEmailVerificationCodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerEmailVerificationCodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerEmailVerificationCodeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerOnboardingSession: {
+      payload: Prisma.$ShippingPartnerOnboardingSessionPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerOnboardingSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerOnboardingSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerOnboardingSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerOnboardingSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerOnboardingSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerOnboardingSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerOnboardingSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerOnboardingSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerOnboardingSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerOnboardingSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerOnboardingSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerOnboardingSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerOnboardingSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerOnboardingSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerOnboardingSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOnboardingSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerOnboardingSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerOnboardingSession>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerOnboardingSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOnboardingSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerOnboardingSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOnboardingSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerOAuthAccount: {
+      payload: Prisma.$ShippingPartnerOAuthAccountPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerOAuthAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerOAuthAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerOAuthAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerOAuthAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerOAuthAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerOAuthAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerOAuthAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerOAuthAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerOAuthAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerOAuthAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerOAuthAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerOAuthAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerOAuthAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerOAuthAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerOAuthAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerOAuthAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerOAuthAccount>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerOAuthAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOAuthAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerOAuthAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOAuthAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerOAuthSignup: {
+      payload: Prisma.$ShippingPartnerOAuthSignupPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerOAuthSignupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerOAuthSignupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerOAuthSignupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerOAuthSignupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerOAuthSignupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerOAuthSignupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerOAuthSignupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerOAuthSignupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerOAuthSignupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerOAuthSignupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerOAuthSignupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerOAuthSignupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerOAuthSignupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerOAuthSignupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerOAuthSignupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerOAuthSignupPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerOAuthSignupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerOAuthSignup>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerOAuthSignupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOAuthSignupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerOAuthSignupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerOAuthSignupCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1162,6 +1537,83 @@ export const CustomerOAuthSignupScalarFieldEnum = {
 export type CustomerOAuthSignupScalarFieldEnum = (typeof CustomerOAuthSignupScalarFieldEnum)[keyof typeof CustomerOAuthSignupScalarFieldEnum]
 
 
+export const ShippingPartnerScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phoneCountryCode: 'phoneCountryCode',
+  phoneNumber: 'phoneNumber',
+  passwordHash: 'passwordHash',
+  countryOfResidence: 'countryOfResidence',
+  referralSource: 'referralSource',
+  acceptedTermsAt: 'acceptedTermsAt',
+  marketingOptIn: 'marketingOptIn',
+  emailVerifiedAt: 'emailVerifiedAt',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingPartnerScalarFieldEnum = (typeof ShippingPartnerScalarFieldEnum)[keyof typeof ShippingPartnerScalarFieldEnum]
+
+
+export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
+  id: 'id',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerEmailVerificationCodeScalarFieldEnum = (typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum)[keyof typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum]
+
+
+export const ShippingPartnerOnboardingSessionScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastSeenAt: 'lastSeenAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerOnboardingSessionScalarFieldEnum = (typeof ShippingPartnerOnboardingSessionScalarFieldEnum)[keyof typeof ShippingPartnerOnboardingSessionScalarFieldEnum]
+
+
+export const ShippingPartnerOAuthAccountScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerOAuthAccountScalarFieldEnum = (typeof ShippingPartnerOAuthAccountScalarFieldEnum)[keyof typeof ShippingPartnerOAuthAccountScalarFieldEnum]
+
+
+export const ShippingPartnerOAuthSignupScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  tokenHash: 'tokenHash',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingPartnerOAuthSignupScalarFieldEnum = (typeof ShippingPartnerOAuthSignupScalarFieldEnum)[keyof typeof ShippingPartnerOAuthSignupScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1266,6 +1718,20 @@ export type EnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'OAuthProvider[]'
  */
 export type ListEnumOAuthProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OAuthProvider[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingPartnerStatus'
+ */
+export type EnumShippingPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingPartnerStatus[]'
+ */
+export type ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerStatus[]'>
     
 
 
@@ -1400,6 +1866,11 @@ export type GlobalOmitConfig = {
   customerSession?: Prisma.CustomerSessionOmit
   customerOAuthAccount?: Prisma.CustomerOAuthAccountOmit
   customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit
+  shippingPartner?: Prisma.ShippingPartnerOmit
+  shippingPartnerEmailVerificationCode?: Prisma.ShippingPartnerEmailVerificationCodeOmit
+  shippingPartnerOnboardingSession?: Prisma.ShippingPartnerOnboardingSessionOmit
+  shippingPartnerOAuthAccount?: Prisma.ShippingPartnerOAuthAccountOmit
+  shippingPartnerOAuthSignup?: Prisma.ShippingPartnerOAuthSignupOmit
 }
 
 /* Types for Logging */

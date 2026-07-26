@@ -10,6 +10,8 @@ export const API_ROUTES = {
   customerAuthBase: "/api/customer/auth",
   customerLoginBase: "/api/customer/auth/login",
   customerGoogleBase: "/api/customer/auth/google",
+  partnerAuthBase: "/api/partner/auth",
+  partnerGoogleBase: "/api/partner/auth/google",
 } as const;
 
 export const WEB_ROUTES = {
@@ -22,4 +24,9 @@ export const WEB_ROUTES = {
   customerCompleteProfile: "/complete-profile",
   customerLinkGoogleAccount: "/link-google-account",
   customerDashboard: "/dashboard",
+  partnerApply: "/partner/apply",
+  partnerVerifyEmail: "/partner/verify-email",
+  partnerCompleteProfile: "/partner/complete-profile",
+  partnerBusinessInformation:
+    "/partner/application/business-information",
 } as const;

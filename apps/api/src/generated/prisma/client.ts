@@ -81,3 +81,28 @@ export type CustomerOAuthAccount = Prisma.CustomerOAuthAccountModel
  * 
  */
 export type CustomerOAuthSignup = Prisma.CustomerOAuthSignupModel
+/**
+ * Model ShippingPartner
+ * 
+ */
+export type ShippingPartner = Prisma.ShippingPartnerModel
+/**
+ * Model ShippingPartnerEmailVerificationCode
+ * 
+ */
+export type ShippingPartnerEmailVerificationCode = Prisma.ShippingPartnerEmailVerificationCodeModel
+/**
+ * Model ShippingPartnerOnboardingSession
+ * 
+ */
+export type ShippingPartnerOnboardingSession = Prisma.ShippingPartnerOnboardingSessionModel
+/**
+ * Model ShippingPartnerOAuthAccount
+ * 
+ */
+export type ShippingPartnerOAuthAccount = Prisma.ShippingPartnerOAuthAccountModel
+/**
+ * Model ShippingPartnerOAuthSignup
+ * 
+ */
+export type ShippingPartnerOAuthSignup = Prisma.ShippingPartnerOAuthSignupModel

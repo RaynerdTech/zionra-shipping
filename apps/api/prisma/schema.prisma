@@ -166,3 +166,102 @@ model CustomerOAuthSignup {
   @@index([email])
   @@index([expiresAt])
 }
+
+enum ShippingPartnerStatus {
+  ONBOARDING
+  APPLICATION_SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+model ShippingPartner {
+  id                 String                @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String                @unique
+  phoneCountryCode   String
+  phoneNumber        String
+  passwordHash       String?
+  countryOfResidence String
+  referralSource     String?
+  acceptedTermsAt    DateTime
+  marketingOptIn     Boolean               @default(false)
+  emailVerifiedAt    DateTime?
+  status             ShippingPartnerStatus @default(ONBOARDING)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  emailVerificationCodes ShippingPartnerEmailVerificationCode[]
+  onboardingSessions     ShippingPartnerOnboardingSession[]
+  oauthAccounts          ShippingPartnerOAuthAccount[]
+
+  @@index([email])
+  @@index([phoneCountryCode, phoneNumber])
+  @@index([status])
+}
+
+model ShippingPartnerEmailVerificationCode {
+  id        String    @id @default(cuid())
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([codeHash])
+}
+
+model ShippingPartnerOnboardingSession {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([expiresAt])
+}
+
+model ShippingPartnerOAuthAccount {
+  id                String        @id @default(cuid())
+  provider          OAuthProvider
+  providerAccountId String
+  email             String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@unique([provider, partnerId])
+  @@index([email])
+}
+
+model ShippingPartnerOAuthSignup {
+  id                String        @id @default(cuid())
+  provider          OAuthProvider
+  providerAccountId String
+  tokenHash         String        @unique
+  email             String
+  firstName         String
+  lastName          String
+  expiresAt         DateTime
+  usedAt            DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([email])
+  @@index([expiresAt])
+}

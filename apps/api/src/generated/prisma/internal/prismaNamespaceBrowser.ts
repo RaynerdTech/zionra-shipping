@@ -58,7 +58,12 @@ export const ModelName = {
   CustomerLoginChallenge: 'CustomerLoginChallenge',
   CustomerSession: 'CustomerSession',
   CustomerOAuthAccount: 'CustomerOAuthAccount',
-  CustomerOAuthSignup: 'CustomerOAuthSignup'
+  CustomerOAuthSignup: 'CustomerOAuthSignup',
+  ShippingPartner: 'ShippingPartner',
+  ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
+  ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
+  ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
+  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -195,6 +200,83 @@ export const CustomerOAuthSignupScalarFieldEnum = {
 } as const
 
 export type CustomerOAuthSignupScalarFieldEnum = (typeof CustomerOAuthSignupScalarFieldEnum)[keyof typeof CustomerOAuthSignupScalarFieldEnum]
+
+
+export const ShippingPartnerScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phoneCountryCode: 'phoneCountryCode',
+  phoneNumber: 'phoneNumber',
+  passwordHash: 'passwordHash',
+  countryOfResidence: 'countryOfResidence',
+  referralSource: 'referralSource',
+  acceptedTermsAt: 'acceptedTermsAt',
+  marketingOptIn: 'marketingOptIn',
+  emailVerifiedAt: 'emailVerifiedAt',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingPartnerScalarFieldEnum = (typeof ShippingPartnerScalarFieldEnum)[keyof typeof ShippingPartnerScalarFieldEnum]
+
+
+export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
+  id: 'id',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerEmailVerificationCodeScalarFieldEnum = (typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum)[keyof typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum]
+
+
+export const ShippingPartnerOnboardingSessionScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastSeenAt: 'lastSeenAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerOnboardingSessionScalarFieldEnum = (typeof ShippingPartnerOnboardingSessionScalarFieldEnum)[keyof typeof ShippingPartnerOnboardingSessionScalarFieldEnum]
+
+
+export const ShippingPartnerOAuthAccountScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  email: 'email',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerOAuthAccountScalarFieldEnum = (typeof ShippingPartnerOAuthAccountScalarFieldEnum)[keyof typeof ShippingPartnerOAuthAccountScalarFieldEnum]
+
+
+export const ShippingPartnerOAuthSignupScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  providerAccountId: 'providerAccountId',
+  tokenHash: 'tokenHash',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShippingPartnerOAuthSignupScalarFieldEnum = (typeof ShippingPartnerOAuthSignupScalarFieldEnum)[keyof typeof ShippingPartnerOAuthSignupScalarFieldEnum]
 
 
 export const SortOrder = {

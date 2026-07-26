@@ -30,7 +30,7 @@ import type {
 
 const GOOGLE_PROVIDER = "GOOGLE" as const;
 
-type GoogleIdentity = {
+export type GoogleIdentity = {
   providerAccountId: string;
   email: string;
   firstName: string;
@@ -64,7 +64,7 @@ function getGoogleIdentityNames(payload: {
   };
 }
 
-async function exchangeCodeForGoogleIdentity(
+export async function exchangeCodeForGoogleIdentity(
   code: string,
   codeVerifier: string,
   expectedNonce: string,

@@ -11,10 +11,12 @@ import {
 } from "./auth.js";
 import {
   GOOGLE_OAUTH_COOKIE_DURATION_MS,
+  GOOGLE_OAUTH_FLOW_COOKIE_NAME,
   GOOGLE_OAUTH_NONCE_COOKIE_NAME,
   GOOGLE_OAUTH_PKCE_COOKIE_NAME,
   GOOGLE_OAUTH_STATE_COOKIE_NAME,
   GOOGLE_SIGNUP_COOKIE_NAME,
+  PARTNER_GOOGLE_SIGNUP_COOKIE_NAME,
   GOOGLE_SIGNUP_DURATION_MS,
 } from "./googleAuth.js";
 import { env } from "../config/env.js";
@@ -25,6 +27,10 @@ import {
   CUSTOMER_PASSWORD_RESET_AUTH_COOKIE_NAME,
   CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
 } from "./token.js";
+import {
+  PARTNER_ONBOARDING_COOKIE_NAME,
+  PARTNER_ONBOARDING_DURATION_MS,
+} from "./partnerAuth.js";
 
 const GOOGLE_OAUTH_COOKIE_PATH = "/";
 
@@ -81,6 +87,25 @@ export function setGoogleOAuthNonceCookie(res: Response, nonce: string) {
   });
 }
 
+
+export function setGoogleOAuthFlowCookie(
+  res: Response,
+  flow: "customer" | "partner",
+) {
+  res.cookie(GOOGLE_OAUTH_FLOW_COOKIE_NAME, flow, {
+    ...getSensitiveCookieOptions(),
+    maxAge: GOOGLE_OAUTH_COOKIE_DURATION_MS,
+    path: GOOGLE_OAUTH_COOKIE_PATH,
+  });
+}
+
+export function clearGoogleOAuthFlowCookie(res: Response) {
+  res.clearCookie(GOOGLE_OAUTH_FLOW_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: GOOGLE_OAUTH_COOKIE_PATH,
+  });
+}
+
 export function clearGoogleOAuthCookies(res: Response) {
   const options = {
     ...getSensitiveCookieOptions(),
@@ -104,6 +129,37 @@ export function clearGoogleSignupCookie(res: Response) {
   res.clearCookie(GOOGLE_SIGNUP_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
     path: API_ROUTES.customerGoogleBase,
+  });
+}
+
+
+export function setPartnerGoogleSignupCookie(res: Response, token: string) {
+  res.cookie(PARTNER_GOOGLE_SIGNUP_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: GOOGLE_SIGNUP_DURATION_MS,
+    path: API_ROUTES.partnerGoogleBase,
+  });
+}
+
+export function clearPartnerGoogleSignupCookie(res: Response) {
+  res.clearCookie(PARTNER_GOOGLE_SIGNUP_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: API_ROUTES.partnerGoogleBase,
+  });
+}
+
+export function setPartnerOnboardingCookie(res: Response, token: string) {
+  res.cookie(PARTNER_ONBOARDING_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: PARTNER_ONBOARDING_DURATION_MS,
+    path: "/",
+  });
+}
+
+export function clearPartnerOnboardingCookie(res: Response) {
+  res.clearCookie(PARTNER_ONBOARDING_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: "/",
   });
 }
 
