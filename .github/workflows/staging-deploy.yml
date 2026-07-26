@@ -1,0 +1,103 @@
+name: Deploy staging
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zionra-staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and restart staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Build and deploy on WhoGoHost
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
+          set -eo pipefail
+
+          API_ROOT="/home/zionraco/zionra-staging/apps/api"
+          WEB_ROOT="/home/zionraco/zionra-staging/apps/web"
+          API_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/api/22/bin/activate"
+          WEB_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/web/22/bin/activate"
+
+          # Allow the DirectAdmin webhook time to fetch and deploy the push.
+          sleep 60
+
+          (
+            source "$API_ACTIVATE"
+            cd "$API_ROOT"
+            npm install --include=dev --no-audit --no-fund
+            npm run prisma:generate
+            npm run prisma:deploy
+            npm run build
+          )
+
+          (
+            source "$WEB_ACTIVATE"
+            cd "$WEB_ROOT"
+            npm install --include=dev --no-audit --no-fund
+            rm -rf .next
+            RAYON_NUM_THREADS=1 UV_THREADPOOL_SIZE=1 npm run build
+          )
+
+          restart_node_app() {
+            local app_root="$1"
+            local absolute_root="$2"
+
+            if command -v cloudlinux-selector >/dev/null 2>&1; then
+              if cloudlinux-selector restart --json --interpreter nodejs --user zionraco --app-root "$app_root"; then
+                return 0
+              fi
+            fi
+
+            mkdir -p "$absolute_root/tmp"
+            touch "$absolute_root/tmp/restart.txt"
+          }
+
+          restart_node_app "zionra-staging/apps/api" "$API_ROOT"
+          restart_node_app "zionra-staging/apps/web" "$WEB_ROOT"
+
+          check_url() {
+            local url="$1"
+
+            for attempt in $(seq 1 12); do
+              if curl --fail --silent --show-error "$url" >/dev/null; then
+                return 0
+              fi
+
+              sleep 5
+            done
+
+            echo "Health check failed: $url" >&2
+            return 1
+          }
+
+          check_url "https://api-staging.zionra.com/health"
+          check_url "https://staging.zionra.com/"
+          REMOTE

@@ -8,14 +8,20 @@ import { env } from "../config/env.js";
 import { WEB_ROUTES } from "../config/routes.js";
 import {
   clearGoogleOAuthCookies,
+  clearGoogleOAuthFlowCookie,
   clearGoogleSignupCookie,
+  clearPartnerGoogleSignupCookie,
   setCustomerAuthCookie,
+  setGoogleOAuthFlowCookie,
   setGoogleOAuthNonceCookie,
   setGoogleOAuthPkceCookie,
   setGoogleOAuthStateCookie,
   setGoogleSignupCookie,
+  setPartnerGoogleSignupCookie,
+  setPartnerOnboardingCookie,
 } from "../lib/cookies.js";
 import {
+  GOOGLE_OAUTH_FLOW_COOKIE_NAME,
   GOOGLE_OAUTH_NONCE_COOKIE_NAME,
   GOOGLE_OAUTH_PKCE_COOKIE_NAME,
   GOOGLE_OAUTH_STATE_COOKIE_NAME,
@@ -26,10 +32,12 @@ import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import {
   completeGoogleSignup,
   createGoogleAuthorizationRequest,
+  exchangeCodeForGoogleIdentity,
   getPendingGoogleProfile,
   linkGoogleToExistingCustomer,
   processGoogleCallback,
 } from "../services/googleAuth.service.js";
+import { processPartnerGoogleIdentity } from "../services/partnerAuth.service.js";
 import {
   validateCompleteGoogleProfile,
   validateLinkGoogleAccount,
@@ -66,12 +74,16 @@ type GoogleRedirectStatus =
 function redirectGoogleStatus(
   res: Response,
   status: GoogleRedirectStatus,
+  flow: "customer" | "partner" = "customer",
 ) {
   res.redirect(
     REDIRECT_STATUS,
-    buildWebAppUrl(WEB_ROUTES.customerCreateAccount, {
-      googleStatus: status,
-    }),
+    buildWebAppUrl(
+      flow === "partner"
+        ? WEB_ROUTES.partnerApply
+        : WEB_ROUTES.customerCreateAccount,
+      { googleStatus: status },
+    ),
   );
 }
 
@@ -126,7 +138,10 @@ export async function startGoogleAuthController(
 ): Promise<void> {
   try {
     clearGoogleOAuthCookies(res);
+    clearGoogleOAuthFlowCookie(res);
     clearGoogleSignupCookie(res);
+
+    setGoogleOAuthFlowCookie(res, "customer");
 
     const authorization = await createGoogleAuthorizationRequest();
 
@@ -157,11 +172,16 @@ export async function googleAuthCallbackController(
   const expectedNonce = req.cookies?.[GOOGLE_OAUTH_NONCE_COOKIE_NAME] as
     | string
     | undefined;
+  const flow =
+    req.cookies?.[GOOGLE_OAUTH_FLOW_COOKIE_NAME] === "partner"
+      ? "partner"
+      : "customer";
 
   clearGoogleOAuthCookies(res);
+  clearGoogleOAuthFlowCookie(res);
 
   if (providerError) {
-    redirectGoogleStatus(res, "cancelled");
+    redirectGoogleStatus(res, "cancelled", flow);
     return;
   }
 
@@ -173,11 +193,37 @@ export async function googleAuthCallbackController(
     !expectedNonce ||
     !securelyMatches(state, storedState)
   ) {
-    redirectGoogleStatus(res, "expired");
+    redirectGoogleStatus(res, "expired", flow);
     return;
   }
 
   try {
+    if (flow === "partner") {
+      const identity = await exchangeCodeForGoogleIdentity(
+        code,
+        codeVerifier,
+        expectedNonce,
+      );
+      const partnerResult = await processPartnerGoogleIdentity(identity);
+
+      if (partnerResult.outcome === "authenticated") {
+        clearPartnerGoogleSignupCookie(res);
+        setPartnerOnboardingCookie(res, partnerResult.sessionToken);
+        res.redirect(
+          REDIRECT_STATUS,
+          buildWebAppUrl(WEB_ROUTES.partnerBusinessInformation),
+        );
+        return;
+      }
+
+      setPartnerGoogleSignupCookie(res, partnerResult.signupToken);
+      res.redirect(
+        REDIRECT_STATUS,
+        buildWebAppUrl(WEB_ROUTES.partnerCompleteProfile),
+      );
+      return;
+    }
+
     const result = await processGoogleCallback({
       code,
       codeVerifier,
@@ -221,7 +267,7 @@ export async function googleAuthCallbackController(
     );
   } catch (error) {
     console.error("Google authentication failed.", error);
-    redirectGoogleStatus(res, getGoogleRedirectStatus(error));
+    redirectGoogleStatus(res, getGoogleRedirectStatus(error), flow);
   }
 }
 

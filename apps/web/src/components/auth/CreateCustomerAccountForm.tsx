@@ -450,19 +450,6 @@ function PromotionalPanel() {
 
 export default function CreateCustomerAccountForm() {
   const router = useRouter();
-
-  useEffect(() => {
-  function resetGoogleLoadingState() {
-    setIsStartingGoogle(false);
-  }
-
-  window.addEventListener("pageshow", resetGoogleLoadingState);
-
-  return () => {
-    window.removeEventListener("pageshow", resetGoogleLoadingState);
-  };
-}, []);
-
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -472,6 +459,18 @@ export default function CreateCustomerAccountForm() {
   const [phoneCountry, setPhoneCountry] = useState<CountryCode>("GB");
   const [residenceCountry, setResidenceCountry] =
     useState<CountryCode>("GB");
+
+  useEffect(() => {
+    function resetGoogleLoadingState() {
+      setIsStartingGoogle(false);
+    }
+
+    window.addEventListener("pageshow", resetGoogleLoadingState);
+
+    return () => {
+      window.removeEventListener("pageshow", resetGoogleLoadingState);
+    };
+  }, []);
 
   function updateValue(field: keyof FormValues, value: string | boolean) {
     setValues((current) => ({

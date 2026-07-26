@@ -48,7 +48,7 @@ function CustomerReviews() {
           </h2>
 
           <p className="mt-[10px] max-w-[760px] font-sans text-[14px] font-light leading-[1.45] text-neutral-08/80 lg:text-[18px]">
-            Real reviews from real customers who've shipped with Zionra
+            Real reviews from real customers who&apos;ve shipped with Zionra
           </p>
         </div>
 

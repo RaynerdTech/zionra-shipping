@@ -1,8 +1,8 @@
 /**
  * Responsibility:
  * Renders the responsive Zionra customer/partner account selector.
- * It preserves the existing mobile interaction while providing the approved
- * desktop role-selection card and role-specific actions.
+ * It preserves the existing mobile interaction while using the tablet
+ * role-selection layout across both tablet and desktop breakpoints.
  */
 
 "use client";
@@ -138,89 +138,6 @@ function ShippingPartnerIcon() {
   );
 }
 
-function DesktopCustomerIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="40"
-      height="40"
-      viewBox="0 0 40 40"
-      fill="none"
-      className="h-11 w-11 shrink-0"
-    >
-      <rect width="40" height="40" rx="10" fill="#EBF2FC" />
-
-      <rect
-        x="8"
-        y="12"
-        width="24"
-        height="16"
-        rx="3"
-        fill="#174184"
-        fillOpacity="0.8"
-      />
-
-      <rect
-        x="12"
-        y="17"
-        width="16"
-        height="6"
-        rx="2"
-        fill="#174184"
-        fillOpacity="0.6"
-      />
-    </svg>
-  );
-}
-
-function DesktopPartnerIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="40"
-      height="40"
-      viewBox="0 0 40 40"
-      fill="none"
-      className="h-11 w-11 shrink-0"
-    >
-      <rect width="40" height="40" rx="10" fill="#FFF0D6" />
-
-      <rect
-        x="4"
-        y="12"
-        width="22"
-        height="14"
-        rx="2"
-        fill="#99631D"
-        fillOpacity="0.8"
-      />
-
-      <rect
-        x="24"
-        y="16"
-        width="12"
-        height="10"
-        rx="2"
-        fill="#99631D"
-        fillOpacity="0.7"
-      />
-
-      <circle cx="11" cy="27" r="5" fill="#99631D" fillOpacity="0.9" />
-      <circle cx="27" cy="27" r="5" fill="#99631D" fillOpacity="0.9" />
-    </svg>
-  );
-}
-
-function DesktopBottomCircle() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute -bottom-[58px] -left-[58px] hidden h-[160px] w-[160px] rounded-full bg-[rgba(255,166,48,0.035)] lg:block"
-    />
-  );
-}
 
 type ActionPanelProps = {
   type: AccountType;
@@ -266,123 +183,11 @@ function ActionPanel({ type }: ActionPanelProps) {
   );
 }
 
-function DesktopActionPanel({ type }: ActionPanelProps) {
-  const isCustomer = type === "customer";
-
-  return (
-    <div
-      className={`mt-4 rounded-r-[13px] border border-primary-02 border-l-4 bg-primary-01/50 px-[14px] pb-5 pt-[9px] ${
-        isCustomer ? "border-l-primary-06" : "border-l-secondary-06"
-      }`}
-    >
-      <p className="m-0 text-center font-sans text-base font-normal leading-6 text-primary-08">
-        Continue as {isCustomer ? "a customer" : "a shipping agent"}
-      </p>
-
-      <div className="mx-auto mt-[13px] grid w-[592px] max-w-full grid-cols-2 gap-1">
-        <Link
-          href={isCustomer ? ROUTES.customerLogin : ROUTES.partnerLogin}
-          prefetch={false}
-          className={`inline-flex h-[50px] items-center justify-center rounded-lg border px-4 font-sans text-base font-normal no-underline transition-colors ${
-            isCustomer
-              ? "border-primary-06 bg-primary-06 text-white hover:bg-primary-07"
-              : "border-secondary-06 bg-secondary-06 text-primary-10 hover:bg-secondary-07"
-          }`}
-        >
-          Log in
-        </Link>
-
-        <Link
-          href={
-            isCustomer
-              ? ROUTES.customerCreateAccount
-              : ROUTES.partnerApplication
-          }
-          prefetch={false}
-          className={`inline-flex h-[50px] items-center justify-center rounded-lg border bg-white px-4 font-sans text-base font-normal no-underline transition-colors ${
-            isCustomer
-              ? "border-primary-06 text-primary-06 hover:bg-primary-01"
-              : "border-secondary-06 text-secondary-07 hover:bg-secondary-01"
-          }`}
-        >
-          {isCustomer ? "Create account" : "Start application"}
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-type DesktopRoleOptionProps = {
-  type: AccountType;
-  selected: boolean;
-  title: string;
-  description: string;
-  onSelect: (type: AccountType) => void;
-};
-
-function DesktopRoleOption({
-  type,
-  selected,
-  title,
-  description,
-  onSelect,
-}: DesktopRoleOptionProps) {
-  const isCustomer = type === "customer";
-
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      onClick={() => onSelect(type)}
-      className={`flex h-[72px] min-w-0 items-center gap-[10px] rounded-[13px] border bg-white pl-4 pr-2 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-03 focus-visible:ring-offset-2 ${
-        selected
-          ? isCustomer
-            ? "border-2 border-primary-06 bg-primary-01/40"
-            : "border-2 border-secondary-06 bg-secondary-01/30"
-          : "border-neutral-03 hover:border-primary-03"
-      }`}
-    >
-      {isCustomer ? <DesktopCustomerIcon /> : <DesktopPartnerIcon />}
-
-      <span className="min-w-0 flex-1">
-        <span className="block truncate font-display text-base font-semibold leading-6 text-neutral-10">
-          {title}
-        </span>
-
-        <span className="block truncate font-sans text-xs font-normal leading-[18px] text-text-body-light">
-          {description}
-        </span>
-      </span>
-
-      <span
-        aria-hidden="true"
-        className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
-          selected
-            ? isCustomer
-              ? "border-primary-06"
-              : "border-secondary-06"
-            : "border-neutral-04"
-        }`}
-      >
-        {selected ? (
-          <span
-            className={`h-[14px] w-[14px] rounded-full ${
-              isCustomer ? "bg-primary-06" : "bg-secondary-06"
-            }`}
-          />
-        ) : null}
-      </span>
-    </button>
-  );
-}
 
 export default function AccountTypeSelector() {
   const [mobileOpenType, setMobileOpenType] =
     useState<AccountType | null>(null);
 
-  const [desktopSelectedType, setDesktopSelectedType] =
-    useState<AccountType>("customer");
 
   function toggleMobileType(type: AccountType) {
     setMobileOpenType((currentType) =>
@@ -396,10 +201,9 @@ export default function AccountTypeSelector() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-neutral-01 pt-6 lg:flex lg:items-center lg:justify-center lg:p-8">
       <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:right-0 md:-top-[56px] md:h-[240px] md:w-[240px]" />
-      <DesktopBottomCircle />
 
       <section
-        className={`relative mx-auto flex min-h-[calc(100dvh-24px)] w-full flex-col overflow-hidden rounded-[16px] bg-white px-6 pb-6 pt-4 lg:hidden ${
+        className={`relative mx-auto flex min-h-[calc(100dvh-24px)] w-full flex-col overflow-hidden rounded-[16px] bg-white px-6 pb-6 pt-4 ${
           mobileOpenType
             ? "md:h-auto md:min-h-[638px]"
             : "md:h-[638px] md:min-h-0"
@@ -526,72 +330,6 @@ export default function AccountTypeSelector() {
         </p>
       </section>
 
-      <section className="relative z-[20] hidden min-h-[596px] w-full max-w-[752px] flex-col rounded-[18px] border border-neutral-03 bg-white px-[52px] pb-[42px] pt-11 lg:flex">
-        <header className="text-center">
-          <div className="mx-auto flex w-fit items-center gap-2">
-            <Image
-              src="/images/logo-zionra.png"
-              alt=""
-              width={28}
-              height={28}
-              priority
-              className="h-7 w-7 object-contain"
-            />
-
-            <span className="font-display text-xl font-bold leading-7 tracking-[-0.5px] text-primary-10">
-              zionra
-            </span>
-          </div>
-
-          <h1 className="mt-3 font-display text-[28px] font-semibold leading-[38px] tracking-[-0.6px] text-neutral-10">
-            Welcome to Zionra
-          </h1>
-
-          <p className="m-0 font-sans text-[17px] font-normal leading-[26px] text-text-body-light">
-            Choose your account type to get started
-          </p>
-
-          <div className="mt-4 h-px w-full bg-neutral-02" />
-        </header>
-
-        <div
-          className="mt-7"
-          role="radiogroup"
-          aria-label="Choose your account type"
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <DesktopRoleOption
-              type="customer"
-              selected={desktopSelectedType === "customer"}
-              title="Customer"
-              description="Send packages"
-              onSelect={setDesktopSelectedType}
-            />
-
-            <DesktopRoleOption
-              type="partner"
-              selected={desktopSelectedType === "partner"}
-              title="Shipping agent"
-              description="Manage shipments"
-              onSelect={setDesktopSelectedType}
-            />
-          </div>
-
-          <DesktopActionPanel type={desktopSelectedType} />
-        </div>
-
-        <p className="mx-auto mt-auto flex items-center justify-center gap-1 font-sans text-sm font-normal leading-5 text-[#8FA3BF]">
-          <span>Not sure which one?</span>
-
-          <Link
-            href={ROUTES.learnDifference}
-            className="inline-flex items-center gap-[2px] rounded text-primary-06 no-underline hover:text-primary-07 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
-          >
-            Learn the difference
-            <RightArrowIcon />
-          </Link>
-        </p>
-      </section>
     </main>
   );
 }

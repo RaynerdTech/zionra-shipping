@@ -515,17 +515,17 @@ function LocationAutocomplete({
   }, []);
 
   useEffect(() => {
-    if (trimmedQuery.length < 2) {
-      setResults([]);
-      setIsLoading(false);
-      setActiveIndex(-1);
-      return;
-    }
-
     let isActive = true;
     const controller = new AbortController();
 
     const timeoutId = window.setTimeout(async () => {
+      if (trimmedQuery.length < 2) {
+        setResults([]);
+        setIsLoading(false);
+        setActiveIndex(-1);
+        return;
+      }
+
       try {
         setIsLoading(true);
 
@@ -556,7 +556,7 @@ function LocationAutocomplete({
           setIsLoading(false);
         }
       }
-    }, 280);
+    }, trimmedQuery.length < 2 ? 0 : 280);
 
     return () => {
       isActive = false;

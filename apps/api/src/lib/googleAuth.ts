@@ -10,6 +10,9 @@ export const GOOGLE_OAUTH_STATE_COOKIE_NAME = "zionra_google_oauth_state";
 export const GOOGLE_OAUTH_PKCE_COOKIE_NAME = "zionra_google_oauth_pkce";
 export const GOOGLE_OAUTH_NONCE_COOKIE_NAME = "zionra_google_oauth_nonce";
 export const GOOGLE_SIGNUP_COOKIE_NAME = "zionra_google_signup";
+export const PARTNER_GOOGLE_SIGNUP_COOKIE_NAME =
+  "zionra_partner_google_signup";
+export const GOOGLE_OAUTH_FLOW_COOKIE_NAME = "zionra_google_oauth_flow";
 
 export const GOOGLE_OAUTH_COOKIE_DURATION_MS = 10 * 60 * 1000;
 export const GOOGLE_SIGNUP_DURATION_MS = 15 * 60 * 1000;

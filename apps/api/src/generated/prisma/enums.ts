@@ -22,3 +22,15 @@ export const OAuthProvider = {
 } as const
 
 export type OAuthProvider = (typeof OAuthProvider)[keyof typeof OAuthProvider]
+
+
+export const ShippingPartnerStatus = {
+  ONBOARDING: 'ONBOARDING',
+  APPLICATION_SUBMITTED: 'APPLICATION_SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  SUSPENDED: 'SUSPENDED'
+} as const
+
+export type ShippingPartnerStatus = (typeof ShippingPartnerStatus)[keyof typeof ShippingPartnerStatus]

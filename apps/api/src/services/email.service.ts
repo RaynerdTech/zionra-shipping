@@ -221,3 +221,26 @@ export async function sendCustomerLoginVerificationEmail(input: {
     category: "customer_login_verification",
   });
 }
+export async function sendPartnerVerificationEmail(input: {
+  partnerId: string;
+  verificationCodeId: string;
+  firstName: string;
+  email: string;
+  code: string;
+}) {
+  const content = createVerificationCodeEmail({
+    firstName: input.firstName,
+    code: input.code,
+    supportEmail: env.EMAIL_REPLY_TO,
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `partner-verification/${input.verificationCodeId}`,
+    category: "partner_verification",
+  });
+}

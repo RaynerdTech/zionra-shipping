@@ -209,6 +209,23 @@ export type EnumOAuthProviderWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
 }
 
+export type EnumShippingPartnerStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShippingPartnerStatus | Prisma.EnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel> | $Enums.ShippingPartnerStatus
+}
+
+export type EnumShippingPartnerStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShippingPartnerStatus | Prisma.EnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShippingPartnerStatusWithAggregatesFilter<$PrismaModel> | $Enums.ShippingPartnerStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -415,6 +432,23 @@ export type NestedEnumOAuthProviderWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
   _max?: Prisma.NestedEnumOAuthProviderFilter<$PrismaModel>
+}
+
+export type NestedEnumShippingPartnerStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShippingPartnerStatus | Prisma.EnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel> | $Enums.ShippingPartnerStatus
+}
+
+export type NestedEnumShippingPartnerStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShippingPartnerStatus | Prisma.EnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShippingPartnerStatus[] | Prisma.ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShippingPartnerStatusWithAggregatesFilter<$PrismaModel> | $Enums.ShippingPartnerStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShippingPartnerStatusFilter<$PrismaModel>
 }
 
 
