@@ -416,7 +416,7 @@ export default function PartnerCreateAccountForm() {
             <div className="mt-[24px] space-y-[12px] md:mt-[28px] md:space-y-[12px]">
               <label className="flex cursor-pointer items-start gap-2">
                 <input type="checkbox" checked={values.acceptedTerms} onChange={(event) => updateValue("acceptedTerms", event.target.checked)} className="mt-[2px] h-[14px] w-[14px] shrink-0 accent-primary-06 lg:h-5 lg:w-5" />
-                <span className="font-sans text-[14px] font-normal leading-[16px] text-neutral-10 sm:text-xs sm:leading-[18px] lg:text-sm lg:leading-6">
+                <span className="font-sans text-[14px] font-normal text-neutral-10 sm:text-xs leading-[22px] lg:text-sm lg:leading-6">
                   I agree to Zionra&apos;s <Link href={routes.web.terms} className="text-primary-06">Terms of Service</Link> and <Link href={routes.web.privacy} className="text-primary-06">Privacy Policy</Link>
                 </span>
               </label>
@@ -424,7 +424,7 @@ export default function PartnerCreateAccountForm() {
 
               <label className="flex cursor-pointer items-start gap-2">
                 <input type="checkbox" checked={values.marketingOptIn} onChange={(event) => updateValue("marketingOptIn", event.target.checked)} className="mt-[2px] h-[14px] w-[14px] shrink-0 accent-primary-06 lg:h-5 lg:w-5" />
-                <span className="font-sans text-[14px] font-normal leading-[16px] text-text-body-light sm:text-xs sm:leading-[18px] lg:text-sm lg:leading-6">Send me Zionra news, shipping tips and exclusive offers</span>
+                <span className="font-sans text-[14px] font-normal leading-[22px] text-text-body-light lg:text-sm lg:leading-6">Send me Zionra news, shipping tips and exclusive offers</span>
               </label>
             </div>
 
