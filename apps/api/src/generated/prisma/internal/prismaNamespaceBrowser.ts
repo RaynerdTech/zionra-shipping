@@ -63,7 +63,9 @@ export const ModelName = {
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
   ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
   ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
-  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup'
+  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup',
+  ShippingPartnerApplication: 'ShippingPartnerApplication',
+  ShippingPartnerApplicationContact: 'ShippingPartnerApplicationContact'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -277,6 +279,61 @@ export const ShippingPartnerOAuthSignupScalarFieldEnum = {
 } as const
 
 export type ShippingPartnerOAuthSignupScalarFieldEnum = (typeof ShippingPartnerOAuthSignupScalarFieldEnum)[keyof typeof ShippingPartnerOAuthSignupScalarFieldEnum]
+
+
+export const ShippingPartnerApplicationScalarFieldEnum = {
+  id: 'id',
+  currentStep: 'currentStep',
+  registeredBusinessName: 'registeredBusinessName',
+  companyEmailAddress: 'companyEmailAddress',
+  businessAddress: 'businessAddress',
+  companyHouseNumber: 'companyHouseNumber',
+  companyPhoneCountryCode: 'companyPhoneCountryCode',
+  companyPhoneNumber: 'companyPhoneNumber',
+  website: 'website',
+  collectionCities: 'collectionCities',
+  itemsHandled: 'itemsHandled',
+  operationalBusinessAddress: 'operationalBusinessAddress',
+  shippingMethod: 'shippingMethod',
+  shipmentFrequency: 'shipmentFrequency',
+  airCargoPricePerKg: 'airCargoPricePerKg',
+  seaCargoPricePerKg: 'seaCargoPricePerKg',
+  pricePerBarrel: 'pricePerBarrel',
+  insuranceAvailable: 'insuranceAvailable',
+  upfrontImmigrationCharge: 'upfrontImmigrationCharge',
+  companyLogoUrl: 'companyLogoUrl',
+  companyLogoPublicId: 'companyLogoPublicId',
+  companyLogoFormat: 'companyLogoFormat',
+  companyLogoBytes: 'companyLogoBytes',
+  companyBio: 'companyBio',
+  responseTime: 'responseTime',
+  collectionMethod: 'collectionMethod',
+  deliveryMethod: 'deliveryMethod',
+  applicationReference: 'applicationReference',
+  submittedAt: 'submittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerApplicationScalarFieldEnum = (typeof ShippingPartnerApplicationScalarFieldEnum)[keyof typeof ShippingPartnerApplicationScalarFieldEnum]
+
+
+export const ShippingPartnerApplicationContactScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  email: 'email',
+  phoneCountryCode: 'phoneCountryCode',
+  phoneNumber: 'phoneNumber',
+  isPrimary: 'isPrimary',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  applicationId: 'applicationId'
+} as const
+
+export type ShippingPartnerApplicationContactScalarFieldEnum = (typeof ShippingPartnerApplicationContactScalarFieldEnum)[keyof typeof ShippingPartnerApplicationContactScalarFieldEnum]
 
 
 export const SortOrder = {

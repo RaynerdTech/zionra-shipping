@@ -396,7 +396,9 @@ export const ModelName = {
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
   ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
   ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
-  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup'
+  ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup',
+  ShippingPartnerApplication: 'ShippingPartnerApplication',
+  ShippingPartnerApplicationContact: 'ShippingPartnerApplicationContact'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup" | "shippingPartnerApplication" | "shippingPartnerApplicationContact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1380,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ShippingPartnerApplication: {
+      payload: Prisma.$ShippingPartnerApplicationPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerApplicationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerApplicationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerApplicationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerApplicationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerApplicationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerApplicationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerApplicationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerApplicationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerApplicationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerApplicationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerApplicationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerApplicationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerApplicationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerApplicationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerApplicationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerApplicationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerApplication>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerApplicationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerApplicationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerApplicationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerApplicationCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerApplicationContact: {
+      payload: Prisma.$ShippingPartnerApplicationContactPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerApplicationContactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerApplicationContactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerApplicationContactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerApplicationContactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerApplicationContactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerApplicationContactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerApplicationContactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerApplicationContactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerApplicationContactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerApplicationContactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerApplicationContactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerApplicationContactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerApplicationContactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerApplicationContactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerApplicationContactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerApplicationContactPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerApplicationContactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerApplicationContact>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerApplicationContactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerApplicationContactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerApplicationContactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerApplicationContactCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1614,6 +1764,61 @@ export const ShippingPartnerOAuthSignupScalarFieldEnum = {
 export type ShippingPartnerOAuthSignupScalarFieldEnum = (typeof ShippingPartnerOAuthSignupScalarFieldEnum)[keyof typeof ShippingPartnerOAuthSignupScalarFieldEnum]
 
 
+export const ShippingPartnerApplicationScalarFieldEnum = {
+  id: 'id',
+  currentStep: 'currentStep',
+  registeredBusinessName: 'registeredBusinessName',
+  companyEmailAddress: 'companyEmailAddress',
+  businessAddress: 'businessAddress',
+  companyHouseNumber: 'companyHouseNumber',
+  companyPhoneCountryCode: 'companyPhoneCountryCode',
+  companyPhoneNumber: 'companyPhoneNumber',
+  website: 'website',
+  collectionCities: 'collectionCities',
+  itemsHandled: 'itemsHandled',
+  operationalBusinessAddress: 'operationalBusinessAddress',
+  shippingMethod: 'shippingMethod',
+  shipmentFrequency: 'shipmentFrequency',
+  airCargoPricePerKg: 'airCargoPricePerKg',
+  seaCargoPricePerKg: 'seaCargoPricePerKg',
+  pricePerBarrel: 'pricePerBarrel',
+  insuranceAvailable: 'insuranceAvailable',
+  upfrontImmigrationCharge: 'upfrontImmigrationCharge',
+  companyLogoUrl: 'companyLogoUrl',
+  companyLogoPublicId: 'companyLogoPublicId',
+  companyLogoFormat: 'companyLogoFormat',
+  companyLogoBytes: 'companyLogoBytes',
+  companyBio: 'companyBio',
+  responseTime: 'responseTime',
+  collectionMethod: 'collectionMethod',
+  deliveryMethod: 'deliveryMethod',
+  applicationReference: 'applicationReference',
+  submittedAt: 'submittedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerApplicationScalarFieldEnum = (typeof ShippingPartnerApplicationScalarFieldEnum)[keyof typeof ShippingPartnerApplicationScalarFieldEnum]
+
+
+export const ShippingPartnerApplicationContactScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  jobTitle: 'jobTitle',
+  email: 'email',
+  phoneCountryCode: 'phoneCountryCode',
+  phoneNumber: 'phoneNumber',
+  isPrimary: 'isPrimary',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  applicationId: 'applicationId'
+} as const
+
+export type ShippingPartnerApplicationContactScalarFieldEnum = (typeof ShippingPartnerApplicationContactScalarFieldEnum)[keyof typeof ShippingPartnerApplicationContactScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1732,6 +1937,34 @@ export type EnumShippingPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'ShippingPartnerStatus[]'
  */
 export type ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingPartnerApplicationStep'
+ */
+export type EnumShippingPartnerApplicationStepFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerApplicationStep'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingPartnerApplicationStep[]'
+ */
+export type ListEnumShippingPartnerApplicationStepFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerApplicationStep[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -1871,6 +2104,8 @@ export type GlobalOmitConfig = {
   shippingPartnerOnboardingSession?: Prisma.ShippingPartnerOnboardingSessionOmit
   shippingPartnerOAuthAccount?: Prisma.ShippingPartnerOAuthAccountOmit
   shippingPartnerOAuthSignup?: Prisma.ShippingPartnerOAuthSignupOmit
+  shippingPartnerApplication?: Prisma.ShippingPartnerApplicationOmit
+  shippingPartnerApplicationContact?: Prisma.ShippingPartnerApplicationContactOmit
 }
 
 /* Types for Logging */

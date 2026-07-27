@@ -1,0 +1,53 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { routes } from "@/config/routes";
+import { ApplicationLoadError, ApplicationLoading } from "./PartnerApplicationUI";
+import { usePartnerApplication } from "./usePartnerApplication";
+
+const NEXT_STEPS = [
+  { title: "Application review", description: "Our team reviews your submitted details and documents (2–3 business days)." },
+  { title: "Verification call", description: "A Zionra partner specialist may contact you to verify your details." },
+  { title: "Account activation", description: "Once approved, you’ll receive an email to activate your partner account." },
+] as const;
+
+export default function PartnerApplicationSubmitted() {
+  const router = useRouter();
+  const { data, error, isLoading } = usePartnerApplication();
+
+  useEffect(() => {
+    if (!data) return;
+    if (data.application.currentStep !== "SUBMITTED") router.replace(routes.web.partnerApplicationReview);
+  }, [data, router]);
+
+  if (isLoading || !data) return error ? <ApplicationLoadError message={error} /> : <ApplicationLoading />;
+
+  return (
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-01 px-4 py-9">
+      <span aria-hidden="true" className="absolute -right-16 top-0 h-44 w-44 rounded-full bg-tertiary-06/[0.05]" />
+      <span aria-hidden="true" className="absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-primary-06/[0.05]" />
+      <section className="relative w-full max-w-[560px] overflow-hidden rounded-[20px] border border-neutral-03/60 bg-white px-6 py-8 md:px-10 md:py-10">
+        <div className="pointer-events-none absolute inset-x-0 top-5 flex justify-around px-8" aria-hidden="true">
+          {["bg-primary-04", "bg-tertiary-04", "bg-secondary-04", "bg-error", "bg-primary-06"].map((color, index) => <span key={index} className={`h-2 w-2 rounded-full ${color}`} />)}
+        </div>
+        <div className="mx-auto mt-3 flex h-20 w-20 items-center justify-center rounded-full border-[5px] border-primary-06 bg-white"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-tertiary-09 text-3xl font-bold text-white">✓</span></div>
+        <h1 className="mt-6 text-center font-display text-[26px] font-bold leading-8 text-primary-10">Application Submitted!</h1>
+        <p className="mx-auto mt-2 max-w-[430px] text-center font-sans text-sm leading-6 text-text-body-light">Thank you for applying to become a Zionra Shipping Partner.</p>
+        <div className="mt-6 h-1.5 overflow-hidden rounded bg-neutral-03"><div className="h-full w-[72%] rounded bg-primary-06" /></div>
+        <h2 className="mt-6 text-center font-display text-base font-bold text-primary-10">What happens next?</h2>
+        <div className="mt-2">
+          {NEXT_STEPS.map((step, index) => (
+            <div key={step.title} className="flex gap-3 border-b border-neutral-02 py-4 last:border-b-0">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-02 font-sans text-xs text-neutral-06">{index + 1}</span>
+              <div><h3 className="font-display text-sm font-bold text-primary-10">{step.title}</h3><p className="mt-1 font-sans text-xs leading-5 text-text-body-light">{step.description}</p></div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-primary-03 bg-primary-01 px-3 py-2 font-sans text-xs"><span className="text-neutral-06">📋 Application reference:</span><span className="font-medium text-primary-06">{data.application.applicationReference}</span></div>
+      </section>
+      <Link href={routes.web.partnerDashboard} className="zion-btn zion-btn-blue zion-btn-md mt-8 min-w-[190px]">Go to Dashboard <span aria-hidden="true">→</span></Link>
+    </main>
+  );
+}

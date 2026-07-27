@@ -27,6 +27,17 @@ export const routes = {
     partnerLinkGoogleAccount: "/partner/link-google-account",
     partnerBusinessInformation:
       "/partner/application/business-information",
+    partnerOperationalDetails:
+      "/partner/application/operational-details",
+    partnerAccountInformation:
+      "/partner/application/account-information",
+    partnerApplicationReview:
+      "/partner/application/review",
+    partnerApplicationProcessing:
+      "/partner/application/processing",
+    partnerApplicationSubmitted:
+      "/partner/application/submitted",
+    partnerDashboard: "/partner/dashboard",
 
     learnDifference: "/learn-the-difference",
     terms: "/terms",
@@ -47,6 +58,15 @@ export const routes = {
         "/api/partner/auth/google/link-existing-account",
       googleCompleteProfile:
         "/api/partner/auth/google/complete-profile",
+      application: "/api/partner/auth/application",
+      businessInformation:
+        "/api/partner/auth/application/business-information",
+      operationalDetails:
+        "/api/partner/auth/application/operational-details",
+      accountInformation:
+        "/api/partner/auth/application/account-information",
+      companyLogo: "/api/partner/auth/application/logo",
+      submitApplication: "/api/partner/auth/application/submit",
     },
 
     customerAuth: {

@@ -82,3 +82,13 @@ export type ShippingPartnerOAuthAccount = Prisma.ShippingPartnerOAuthAccountMode
  * 
  */
 export type ShippingPartnerOAuthSignup = Prisma.ShippingPartnerOAuthSignupModel
+/**
+ * Model ShippingPartnerApplication
+ * 
+ */
+export type ShippingPartnerApplication = Prisma.ShippingPartnerApplicationModel
+/**
+ * Model ShippingPartnerApplicationContact
+ * 
+ */
+export type ShippingPartnerApplicationContact = Prisma.ShippingPartnerApplicationContactModel
