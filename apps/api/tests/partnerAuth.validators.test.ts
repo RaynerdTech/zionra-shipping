@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  validateLinkGoogleShippingPartnerAccount,
   validatePartnerEmailCode,
   validateRegisterShippingPartner,
 } from "../src/validators/partnerAuth.validators.js";
@@ -55,5 +56,18 @@ test("partner verification accepts six digits and normalizes email", () => {
       success: true,
       data: { email: "partner@example.com", code: "001234" },
     },
+  );
+});
+
+
+test("partner Google linking requires the existing account password", () => {
+  assert.deepEqual(validateLinkGoogleShippingPartnerAccount({ password: "" }), {
+    success: false,
+    errors: { password: "This field can't be left empty." },
+  });
+
+  assert.deepEqual(
+    validateLinkGoogleShippingPartnerAccount({ password: " secure-password " }),
+    { success: true, data: { password: "secure-password" } },
   );
 });

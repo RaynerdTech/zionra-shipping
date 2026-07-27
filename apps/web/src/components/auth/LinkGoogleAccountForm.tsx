@@ -1,7 +1,7 @@
 /**
  * Responsibility:
- * Confirms an existing customer's password before linking a pending Google
- * identity, creating the customer session, and continuing to the dashboard.
+ * Confirms an existing Zionra account password before linking a pending Google
+ * identity and continuing to the correct customer or partner destination.
  */
 
 "use client";
@@ -29,8 +29,32 @@ type ApiResponse = {
   redirectTo?: string;
 };
 
-export default function LinkGoogleAccountForm() {
+type LinkGoogleAccountFormProps = {
+  accountType?: "customer" | "partner";
+};
+
+const LINK_CONFIG = {
+  customer: {
+    pendingProfile: routes.api.customerAuth.googlePendingProfile,
+    linkAccount: routes.api.customerAuth.googleLinkExistingAccount,
+    startGoogle: routes.api.customerAuth.google,
+    defaultRedirect: routes.web.customerDashboard,
+    accountDescription: "Zionra account",
+  },
+  partner: {
+    pendingProfile: routes.api.partnerAuth.googlePendingProfile,
+    linkAccount: routes.api.partnerAuth.googleLinkExistingAccount,
+    startGoogle: routes.api.partnerAuth.google,
+    defaultRedirect: routes.web.partnerBusinessInformation,
+    accountDescription: "Zionra shipping-partner account",
+  },
+} as const;
+
+export default function LinkGoogleAccountForm({
+  accountType = "customer",
+}: LinkGoogleAccountFormProps) {
   const router = useRouter();
+  const config = LINK_CONFIG[accountType];
 
   const [profile, setProfile] = useState<PendingGoogleProfile | null>(null);
   const [password, setPassword] = useState("");
@@ -47,15 +71,12 @@ export default function LinkGoogleAccountForm() {
 
     async function loadProfile() {
       try {
-        const response = await fetch(
-          buildApiUrl(routes.api.customerAuth.googlePendingProfile),
-          {
-            method: "GET",
-            credentials: "include",
-            cache: "no-store",
-            signal: controller.signal,
-          },
-        );
+        const response = await fetch(buildApiUrl(config.pendingProfile), {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
@@ -85,7 +106,7 @@ export default function LinkGoogleAccountForm() {
     void loadProfile();
 
     return () => controller.abort();
-  }, []);
+  }, [config.pendingProfile]);
 
   useEffect(() => {
     function resetRestoredLoadingState() {
@@ -119,19 +140,16 @@ export default function LinkGoogleAccountForm() {
     setFormError("");
 
     try {
-      const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.googleLinkExistingAccount),
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            password: normalizedPassword,
-          }),
+      const response = await fetch(buildApiUrl(config.linkAccount), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          password: normalizedPassword,
+        }),
+      });
 
       const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
@@ -156,7 +174,7 @@ export default function LinkGoogleAccountForm() {
         return;
       }
 
-      router.replace(result.redirectTo ?? routes.web.customerDashboard);
+      router.replace(result.redirectTo ?? config.defaultRedirect);
       router.refresh();
     } catch (error) {
       console.error("Google account linking failed:", error);
@@ -172,7 +190,7 @@ export default function LinkGoogleAccountForm() {
     }
 
     setIsRestartingGoogle(true);
-    window.location.replace(buildApiUrl(routes.api.customerAuth.google));
+    window.location.replace(buildApiUrl(config.startGoogle));
   }
 
   return (
@@ -200,7 +218,8 @@ export default function LinkGoogleAccountForm() {
               Connect your Google Account
             </h1>
             <p className="mx-auto mt-2 max-w-[390px] font-sans text-sm font-normal leading-[22px] text-text-body-light md:text-base md:leading-[26px]">
-              Enter your Zionra password to confirm this account belongs to you.
+              Enter your password to confirm this {config.accountDescription}
+              belongs to you.
             </p>
             <div className="mx-auto mt-4 h-px w-full bg-primary-06" />
           </header>
@@ -282,7 +301,8 @@ export default function LinkGoogleAccountForm() {
               </form>
 
               <p className="mt-5 text-center font-sans text-xs font-normal leading-[18px] text-primary-04">
-                Google will only be connected after your Zionra password is confirmed.
+                Google will only be connected after your Zionra password is
+                confirmed.
               </p>
             </>
           ) : null}

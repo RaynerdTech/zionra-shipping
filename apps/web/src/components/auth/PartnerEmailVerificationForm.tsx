@@ -176,10 +176,12 @@ function getApiMessage(result: ApiResponse, fallback: string) {
 
 type PartnerEmailVerificationFormProps = {
   email: string;
+  source?: string;
 };
 
 export default function PartnerEmailVerificationForm({
   email,
+  source,
 }: PartnerEmailVerificationFormProps) {
   const router = useRouter();
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
@@ -189,6 +191,7 @@ export default function PartnerEmailVerificationForm({
 
   const normalizedEmail = email.trim().toLowerCase();
   const hasEmail = normalizedEmail.length > 0;
+  const isGoogleLinkFlow = source === "google";
 
   const [code, setCode] = useState<string[]>(() => createEmptyAuthOtp());
   const [feedback, setFeedback] = useState<FeedbackState>(null);
@@ -265,7 +268,11 @@ export default function PartnerEmailVerificationForm({
     });
 
     redirectTimeoutRef.current = setTimeout(() => {
-      router.replace(routes.web.partnerBusinessInformation);
+      router.replace(
+        isGoogleLinkFlow
+          ? routes.web.partnerLinkGoogleAccount
+          : routes.web.partnerBusinessInformation,
+      );
     }, SUCCESS_REDIRECT_DELAY_MS);
   }
 

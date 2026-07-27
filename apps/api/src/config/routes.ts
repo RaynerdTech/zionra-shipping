@@ -27,6 +27,7 @@ export const WEB_ROUTES = {
   partnerApply: "/partner/apply",
   partnerVerifyEmail: "/partner/verify-email",
   partnerCompleteProfile: "/partner/complete-profile",
+  partnerLinkGoogleAccount: "/partner/link-google-account",
   partnerBusinessInformation:
     "/partner/application/business-information",
 } as const;

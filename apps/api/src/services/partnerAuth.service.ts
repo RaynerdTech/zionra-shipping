@@ -16,7 +16,7 @@ import {
   getPartnerOnboardingExpiresAt,
   hashPartnerOnboardingToken,
 } from "../lib/partnerAuth.js";
-import { hashPassword } from "../lib/password.js";
+import { hashPassword, verifyPassword } from "../lib/password.js";
 import { prisma } from "../lib/prisma.js";
 import {
   createSixDigitCode,
@@ -25,6 +25,7 @@ import {
 } from "../lib/token.js";
 import type {
   CompleteGoogleShippingPartnerProfileInput,
+  LinkGoogleShippingPartnerAccountInput,
   PartnerEmailCodeInput,
   PartnerEmailInput,
   RegisterShippingPartnerInput,
@@ -334,6 +335,13 @@ export async function processPartnerGoogleIdentity(identity: GoogleIdentity) {
   });
 
   if (linked) {
+    if (linked.email !== identity.email) {
+      await prisma.shippingPartnerOAuthAccount.update({
+        where: { id: linked.id },
+        data: { email: identity.email },
+      });
+    }
+
     return {
       outcome: "authenticated" as const,
       sessionToken: await createPartnerOnboardingSession(linked.partnerId),
@@ -343,18 +351,34 @@ export async function processPartnerGoogleIdentity(identity: GoogleIdentity) {
   const existingPartner = await prisma.shippingPartner.findUnique({
     where: { email: identity.email },
   });
+  const signupToken = await createPendingPartnerGoogleHandoff(identity);
 
-  if (existingPartner) {
+  if (!existingPartner) {
+    return {
+      outcome: "profile_required" as const,
+      signupToken,
+    };
+  }
+
+  if (!existingPartner.emailVerifiedAt) {
+    return {
+      outcome: "verification_required" as const,
+      signupToken,
+      email: identity.email,
+    };
+  }
+
+  if (!existingPartner.passwordHash) {
     throw new HttpError(
       HTTP_STATUS.CONFLICT,
-      "A shipping-partner account already exists with this email.",
+      "This shipping-partner account cannot be linked with a password.",
       { code: "GOOGLE_ACCOUNT_LINK_UNAVAILABLE" },
     );
   }
 
   return {
-    outcome: "profile_required" as const,
-    signupToken: await createPendingPartnerGoogleHandoff(identity),
+    outcome: "link_required" as const,
+    signupToken,
   };
 }
 
@@ -395,6 +419,163 @@ export async function getPendingPartnerGoogleProfile(
       lastName: pending.lastName,
       email: pending.email,
     },
+  };
+}
+
+export async function linkGoogleToExistingPartner(
+  signupToken: string | undefined,
+  input: LinkGoogleShippingPartnerAccountInput,
+) {
+  if (!signupToken) {
+    throw new HttpError(
+      HTTP_STATUS.UNAUTHORIZED,
+      "Your Google sign-in session has expired. Start again with Google.",
+      { code: "GOOGLE_SIGNUP_EXPIRED" },
+    );
+  }
+
+  const pending = await findValidPendingPartnerGoogleSignup(signupToken);
+
+  if (!pending) {
+    throw new HttpError(
+      HTTP_STATUS.UNAUTHORIZED,
+      "Your Google sign-in session has expired. Start again with Google.",
+      { code: "GOOGLE_SIGNUP_EXPIRED" },
+    );
+  }
+
+  const partner = await prisma.shippingPartner.findUnique({
+    where: { email: pending.email },
+  });
+
+  if (!partner) {
+    throw new HttpError(
+      HTTP_STATUS.NOT_FOUND,
+      "The shipping-partner account connected to this email no longer exists.",
+      { code: "PARTNER_NOT_FOUND" },
+    );
+  }
+
+  if (!partner.emailVerifiedAt) {
+    throw new HttpError(
+      HTTP_STATUS.FORBIDDEN,
+      "Verify your shipping-partner email address before connecting Google.",
+      { code: "EMAIL_NOT_VERIFIED" },
+    );
+  }
+
+  if (!partner.passwordHash) {
+    throw new HttpError(
+      HTTP_STATUS.CONFLICT,
+      "This shipping-partner account does not use password sign-in.",
+      { code: "PASSWORD_SIGN_IN_UNAVAILABLE" },
+    );
+  }
+
+  if (!(await verifyPassword(input.password, partner.passwordHash))) {
+    throw new HttpError(
+      HTTP_STATUS.UNAUTHORIZED,
+      "The password you entered is incorrect.",
+      {
+        code: "INVALID_PASSWORD",
+        errors: { password: "The password you entered is incorrect." },
+      },
+    );
+  }
+
+  const partnerId = await prisma.$transaction(async (transaction) => {
+    const currentPending =
+      await transaction.shippingPartnerOAuthSignup.findFirst({
+        where: {
+          id: pending.id,
+          tokenHash: hashGoogleSignupToken(signupToken),
+          usedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+      });
+
+    if (!currentPending) {
+      throw new HttpError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Your Google sign-in session has expired. Start again with Google.",
+        { code: "GOOGLE_SIGNUP_EXPIRED" },
+      );
+    }
+
+    const providerAccount =
+      await transaction.shippingPartnerOAuthAccount.findUnique({
+        where: {
+          provider_providerAccountId: {
+            provider: GOOGLE_PROVIDER,
+            providerAccountId: currentPending.providerAccountId,
+          },
+        },
+      });
+
+    if (providerAccount && providerAccount.partnerId !== partner.id) {
+      throw new HttpError(
+        HTTP_STATUS.CONFLICT,
+        "This Google Account is already linked to another shipping-partner account.",
+        { code: "GOOGLE_ACCOUNT_ALREADY_LINKED" },
+      );
+    }
+
+    const partnerGoogleAccount =
+      await transaction.shippingPartnerOAuthAccount.findUnique({
+        where: {
+          provider_partnerId: {
+            provider: GOOGLE_PROVIDER,
+            partnerId: partner.id,
+          },
+        },
+      });
+
+    if (
+      partnerGoogleAccount &&
+      partnerGoogleAccount.providerAccountId !== currentPending.providerAccountId
+    ) {
+      throw new HttpError(
+        HTTP_STATUS.CONFLICT,
+        "A different Google Account is already linked to this shipping-partner account.",
+        { code: "GOOGLE_ACCOUNT_ALREADY_LINKED" },
+      );
+    }
+
+    const consumed =
+      await transaction.shippingPartnerOAuthSignup.updateMany({
+        where: {
+          id: currentPending.id,
+          usedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        data: { usedAt: new Date() },
+      });
+
+    if (consumed.count !== 1) {
+      throw new HttpError(
+        HTTP_STATUS.UNAUTHORIZED,
+        "Your Google sign-in session has expired. Start again with Google.",
+        { code: "GOOGLE_SIGNUP_EXPIRED" },
+      );
+    }
+
+    if (!providerAccount && !partnerGoogleAccount) {
+      await transaction.shippingPartnerOAuthAccount.create({
+        data: {
+          provider: GOOGLE_PROVIDER,
+          providerAccountId: currentPending.providerAccountId,
+          email: currentPending.email,
+          partnerId: partner.id,
+        },
+      });
+    }
+
+    return partner.id;
+  });
+
+  return {
+    message: "Google Account connected successfully.",
+    sessionToken: await createPartnerOnboardingSession(partnerId),
   };
 }
 

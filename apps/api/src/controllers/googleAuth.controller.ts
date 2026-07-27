@@ -217,6 +217,26 @@ export async function googleAuthCallbackController(
       }
 
       setPartnerGoogleSignupCookie(res, partnerResult.signupToken);
+
+      if (partnerResult.outcome === "verification_required") {
+        res.redirect(
+          REDIRECT_STATUS,
+          buildWebAppUrl(WEB_ROUTES.partnerVerifyEmail, {
+            email: partnerResult.email,
+            source: "google",
+          }),
+        );
+        return;
+      }
+
+      if (partnerResult.outcome === "link_required") {
+        res.redirect(
+          REDIRECT_STATUS,
+          buildWebAppUrl(WEB_ROUTES.partnerLinkGoogleAccount),
+        );
+        return;
+      }
+
       res.redirect(
         REDIRECT_STATUS,
         buildWebAppUrl(WEB_ROUTES.partnerCompleteProfile),
