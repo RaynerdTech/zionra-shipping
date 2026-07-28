@@ -240,7 +240,11 @@ export function PartnerApplicationShell({
           </div>
           <h1 className="mt-4 font-display text-[24px] font-semibold leading-8 tracking-[-0.5px] md:mt-5 md:text-[34px] md:leading-[44px]">{headerTitle}</h1>
           <div className="mt-2 h-[3px] w-14 rounded-full bg-secondary-06 md:w-[72px]" />
-          {headerDescription ? <p className="mt-3 max-w-[520px] font-sans text-xs leading-5 text-neutral-03 md:text-sm md:leading-6">{headerDescription}</p> : null}
+          {headerDescription ? (
+            <p className="mt-3 max-w-[520px] font-sans text-base font-normal leading-[26px] text-[#D4DAE0]">
+              {headerDescription}
+            </p>
+          ) : null}
         </div>
       </header>
 
@@ -445,8 +449,18 @@ export function PhoneField({
   error?: boolean;
 }) {
   return (
-    <div className="grid min-w-0 grid-cols-[96px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]">
-      <CountrySelect id={`${id}Country`} value={country} compact ariaLabel="Phone country code" onChange={(selected) => onCountryChange(selected.code, selected.callingCode)} className="h-12 rounded-lg px-2.5 text-sm md:h-[52px]" menuClassName="max-w-[calc(100vw-32px)]" />
+    <div className="grid min-w-0 grid-cols-[132px_minmax(0,1fr)] gap-2 sm:grid-cols-[144px_minmax(0,1fr)] md:grid-cols-[152px_minmax(0,1fr)] md:gap-3">
+      <CountrySelect
+        id={`${id}Country`}
+        value={country}
+        compact
+        ariaLabel="Phone country code"
+        onChange={(selected) =>
+          onCountryChange(selected.code, selected.callingCode)
+        }
+        className="h-12 w-full min-w-0 rounded-lg text-sm md:h-[52px]"
+        menuClassName="max-w-[calc(100vw-32px)]"
+      />
       <input id={id} type="tel" value={phoneNumber} onChange={(event) => onPhoneChange(event.target.value)} placeholder={placeholder} className="zion-input h-12 min-w-0 rounded-lg px-3 text-sm placeholder:text-neutral-05 md:h-[52px]" aria-invalid={error || undefined} />
     </div>
   );
