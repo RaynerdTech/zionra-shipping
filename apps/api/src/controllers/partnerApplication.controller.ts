@@ -13,6 +13,7 @@ import {
   cancelPartnerApplication,
   getPartnerApplication,
   removePartnerCompanyLogo,
+  revokeCurrentPartnerSession,
   savePartnerAccountInformation,
   savePartnerBusinessInformation,
   savePartnerCompanyLogo,
@@ -213,5 +214,19 @@ export async function cancelPartnerApplicationController(
     res.status(HTTP_STATUS.OK).json(result);
   } catch (error) {
     forwardError(next, error, "Unable to cancel the partner application.");
+  }
+}
+
+export async function logoutPartnerController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    await revokeCurrentPartnerSession(getToken(req));
+    clearPartnerOnboardingCookie(res);
+    res.status(HTTP_STATUS.OK).json({ message: "Logged out successfully." });
+  } catch (error) {
+    forwardError(next, error, "Unable to log out the shipping partner.");
   }
 }

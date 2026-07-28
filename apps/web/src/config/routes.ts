@@ -51,6 +51,7 @@ export const routes = {
       resendVerificationCode:
         "/api/partner/auth/resend-verification-code",
       me: "/api/partner/auth/me",
+      logout: "/api/partner/auth/logout",
       google: "/api/partner/auth/google",
       googlePendingProfile:
         "/api/partner/auth/google/pending-profile",

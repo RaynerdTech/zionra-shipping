@@ -19,6 +19,7 @@ import {
 import {
   cancelPartnerApplicationController,
   getPartnerApplicationController,
+  logoutPartnerController,
   removePartnerCompanyLogoController,
   savePartnerAccountInformationController,
   savePartnerBusinessInformationController,
@@ -56,6 +57,7 @@ router.post(
   resendShippingPartnerVerificationCodeController,
 );
 router.get("/me", getCurrentShippingPartnerController);
+router.post("/logout", logoutPartnerController);
 router.get("/google", startPartnerGoogleAuthController);
 router.get("/google/pending-profile", getPendingPartnerGoogleProfileController);
 router.post(

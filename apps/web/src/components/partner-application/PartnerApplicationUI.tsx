@@ -122,21 +122,23 @@ function ApplicationSteps({ activeStep, currentStep }: { activeStep: 1 | 2 | 3; 
 
   return (
     <nav aria-label="Application progress" className="mx-auto w-full max-w-[620px] overflow-hidden">
-      <ol className="flex w-full min-w-0 items-center justify-center gap-2 px-1 sm:gap-4 md:gap-10">
+      <ol className="flex w-full min-w-0 items-center justify-center gap-2 px-1 sm:gap-3 lg:gap-10">
         {STEP_LINKS.map((item) => {
           const enabled = currentRank >= item.number;
           const active = activeStep === item.number;
-          const expandedOnMobile = item.number === activeStep || item.number === activeStep + 1;
+          const expandedOnSmallScreens =
+            item.number === activeStep ||
+            (activeStep < STEP_LINKS.length && item.number === activeStep + 1);
           const content = (
             <span
-              className={`inline-flex h-8 max-w-full items-center gap-1.5 rounded-md font-sans text-[11px] leading-4 md:px-2.5 md:text-xs ${
-                expandedOnMobile ? "px-2" : "px-1.5"
+              className={`inline-flex h-8 max-w-full items-center gap-1.5 rounded-md font-sans text-[11px] leading-4 lg:px-2.5 lg:text-xs ${
+                expandedOnSmallScreens ? "px-2" : "px-1.5"
               } ${active ? "bg-neutral-01 text-neutral-10" : "text-neutral-06"}`}
             >
               <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[11px] text-white ${active ? "bg-primary-06" : "bg-neutral-06"}`}>
                 {item.number}
               </span>
-              <span className={`${expandedOnMobile ? "inline truncate" : "hidden"} md:inline`}>{item.label}</span>
+              <span className={`${expandedOnSmallScreens ? "inline truncate" : "hidden"} lg:inline`}>{item.label}</span>
             </span>
           );
 
@@ -232,7 +234,7 @@ export function PartnerApplicationShell({
               <Image src="/images/logo-zionra.png" alt="" width={24} height={24} className="h-6 w-6 object-contain" priority />
               <span className="font-display text-base font-bold">zionra</span>
             </div>
-            <button type="button" onClick={() => setShowCancelModal(true)} className="inline-flex items-center gap-1.5 font-sans text-[11px] text-neutral-03 transition-colors hover:text-error active:text-[#BF1A10] md:hidden">
+            <button type="button" onClick={() => setShowCancelModal(true)} className="inline-flex items-center gap-1.5 font-sans text-[11px] text-neutral-03 transition-colors hover:text-error active:text-[#BF1A10] lg:hidden">
               <CloseIcon /> Cancel Application
             </button>
           </div>
@@ -243,11 +245,19 @@ export function PartnerApplicationShell({
       </header>
 
       <div className="mx-auto max-w-[1120px] px-4 pb-12 pt-4 sm:px-6 md:px-10 md:pt-6">
-        <button type="button" onClick={() => setShowCancelModal(true)} className="hidden items-center gap-1.5 font-sans text-xs text-neutral-08 transition-colors hover:text-error active:text-[#BF1A10] md:inline-flex">
-          <CloseIcon /> Cancel Application
-        </button>
-
-        {showSteps && activeStep ? <div className="mt-0 md:-mt-6"><ApplicationSteps activeStep={activeStep} currentStep={currentStep} /></div> : null}
+        {showSteps && activeStep ? (
+          <div className="lg:grid lg:grid-cols-[minmax(170px,1fr)_minmax(0,620px)_minmax(170px,1fr)] lg:items-center">
+            <button type="button" onClick={() => setShowCancelModal(true)} className="hidden items-center gap-1.5 justify-self-start font-sans text-xs text-neutral-08 transition-colors hover:text-error active:text-[#BF1A10] lg:inline-flex">
+              <CloseIcon /> Cancel Application
+            </button>
+            <ApplicationSteps activeStep={activeStep} currentStep={currentStep} />
+            <span aria-hidden="true" className="hidden lg:block" />
+          </div>
+        ) : (
+          <button type="button" onClick={() => setShowCancelModal(true)} className="hidden items-center gap-1.5 font-sans text-xs text-neutral-08 transition-colors hover:text-error active:text-[#BF1A10] lg:inline-flex">
+            <CloseIcon /> Cancel Application
+          </button>
+        )}
 
         {pageTitle ? (
           <div className="mx-auto mt-5 max-w-[680px] text-center md:mt-8">
