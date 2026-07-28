@@ -435,9 +435,42 @@ export function TagsInput({
   }
 
   return (
-    <div className={`zion-input flex min-h-[52px] w-full flex-wrap items-center gap-1.5 py-2 md:min-h-12 ${error ? "zion-input-error" : "focus-within:border-2 focus-within:border-primary-06"}`}>
-      {values.map((value) => <span key={value} className="inline-flex items-center gap-1 rounded bg-primary-01 px-2 py-1 font-sans text-xs text-primary-08">{value}<button type="button" aria-label={`Remove ${value}`} onClick={() => onChange(values.filter((item) => item !== value))} className="text-primary-06"><CloseIcon /></button></span>)}
-      <input id={id} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={onKeyDown} onBlur={addDraft} placeholder={values.length ? "Add another city" : placeholder} className="min-w-[150px] flex-1 border-0 bg-transparent px-0 py-1 font-sans text-base font-normal leading-[26px] text-neutral-10 outline-none placeholder:text-neutral-05" />
+    <div
+      className={`zion-input !h-auto min-h-[52px] w-full min-w-0 flex-wrap content-start items-center gap-1.5 overflow-hidden px-3 py-2 md:min-h-12 ${
+        error
+          ? "zion-input-error"
+          : "focus-within:border-2 focus-within:border-primary-06"
+      }`}
+    >
+      {values.map((value) => (
+        <span
+          key={value}
+          className="inline-flex max-w-full min-w-0 shrink-0 items-center gap-1 rounded bg-primary-01 px-2 py-1 font-sans text-xs text-primary-08"
+        >
+          <span className="max-w-[180px] truncate sm:max-w-[240px]">
+            {value}
+          </span>
+          <button
+            type="button"
+            aria-label={`Remove ${value}`}
+            onClick={() =>
+              onChange(values.filter((item) => item !== value))
+            }
+            className="shrink-0 text-primary-06"
+          >
+            <CloseIcon />
+          </button>
+        </span>
+      ))}
+      <input
+        id={id}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={onKeyDown}
+        onBlur={addDraft}
+        placeholder={values.length ? "Add another city" : placeholder}
+        className="min-w-[120px] flex-[1_1_120px] border-0 bg-transparent px-0 py-1 font-sans text-base font-normal leading-[26px] text-neutral-10 outline-none placeholder:text-neutral-05"
+      />
     </div>
   );
 }

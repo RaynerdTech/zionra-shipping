@@ -231,7 +231,7 @@ export default function PartnerAccountInformationForm() {
 
         {formError ? <p className="zion-field-error mt-5 text-center">{formError}</p> : null}
         <div className="mt-10 flex items-center justify-between gap-4">
-          <Link href={routes.web.partnerOperationalDetails} className="zion-btn zion-btn-md zion-btn-outline-blue min-w-[98px]"><BackArrowIcon /> Back</Link>
+          <Link href={routes.web.partnerOperationalDetails} className="zion-btn zion-btn-outline-blue h-11 min-h-0 w-[144px] min-w-0 rounded-lg px-4 font-sans text-base font-normal"><BackArrowIcon className="h-6 w-6" /> Back</Link>
           <button type="submit" disabled={isSaving} className="zion-btn zion-btn-md zion-btn-blue min-w-[126px]">{isSaving ? <LoadingSpinner /> : searchParams.get("returnTo") === "review" ? "Review" : "Review Document"}</button>
         </div>
       </form>

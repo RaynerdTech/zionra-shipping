@@ -30,7 +30,7 @@ function EditLink({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="zion-btn zion-btn-outline-blue mt-6 h-9 min-h-0 min-w-[96px] rounded-md px-4 text-sm"
+      className="zion-btn zion-btn-outline-blue h-11 min-h-0 w-[144px] min-w-0 rounded-lg px-4 font-sans text-base font-normal mt-6"
     >
       Edit
     </Link>
@@ -138,9 +138,9 @@ export default function PartnerApplicationReview() {
       <div className="mt-14 flex items-center justify-between gap-3">
         <Link
           href={routes.web.partnerAccountInformation}
-          className="zion-btn zion-btn-outline-blue h-10 min-h-0 min-w-[96px] rounded-md px-4 text-sm"
+          className="zion-btn zion-btn-outline-blue h-11 min-h-0 w-[144px] min-w-0 rounded-lg px-4 font-sans text-base font-normal"
         >
-          <BackArrowIcon className="h-4 w-4" />
+          <BackArrowIcon className="h-6 w-6" />
           Back
         </Link>
         <Link

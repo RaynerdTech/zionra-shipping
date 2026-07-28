@@ -153,7 +153,7 @@ export default function PartnerOperationalDetailsForm() {
 
         {formError ? <p className="zion-field-error mt-5 text-center">{formError}</p> : null}
         <div className="mt-9 flex items-center justify-between gap-4">
-          <Link href={routes.web.partnerBusinessInformation} className="zion-btn zion-btn-md zion-btn-outline-blue min-w-[94px]"><BackArrowIcon /> Back</Link>
+          <Link href={routes.web.partnerBusinessInformation} className="zion-btn zion-btn-outline-blue h-11 min-h-0 w-[144px] min-w-0 rounded-lg px-4 font-sans text-base font-normal"><BackArrowIcon className="h-6 w-6" /> Back</Link>
           <button type="submit" disabled={isSaving} className="zion-btn zion-btn-md zion-btn-blue w-[126px]">{isSaving ? <LoadingSpinner /> : "Next"}</button>
         </div>
       </form>
