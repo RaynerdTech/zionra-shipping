@@ -27,7 +27,14 @@ function ReviewValue({ label, value, required = false }: { label: string; value:
 }
 
 function EditLink({ href }: { href: string }) {
-  return <Link href={href} className="zion-btn zion-btn-md zion-btn-outline-blue mt-6 min-w-[110px]">Edit</Link>;
+  return (
+    <Link
+      href={href}
+      className="zion-btn zion-btn-outline-blue mt-6 h-9 min-h-0 min-w-[96px] rounded-md px-4 text-sm"
+    >
+      Edit
+    </Link>
+  );
 }
 
 export default function PartnerApplicationReview() {
@@ -128,9 +135,20 @@ export default function PartnerApplicationReview() {
         <EditLink href={`${routes.web.partnerAccountInformation}?returnTo=review`} />
       </section>
 
-      <div className="mt-14 flex items-center justify-end gap-4 md:justify-between">
-        <Link href={routes.web.partnerAccountInformation} className="zion-btn zion-btn-md zion-btn-outline-blue hidden min-w-[120px] md:inline-flex"><BackArrowIcon /> Back</Link>
-        <Link href={routes.web.partnerApplicationProcessing} className="zion-btn zion-btn-md zion-btn-blue min-w-[170px]">Submit Application</Link>
+      <div className="mt-14 flex items-center justify-between gap-3">
+        <Link
+          href={routes.web.partnerAccountInformation}
+          className="zion-btn zion-btn-outline-blue h-10 min-h-0 min-w-[96px] rounded-md px-4 text-sm"
+        >
+          <BackArrowIcon className="h-4 w-4" />
+          Back
+        </Link>
+        <Link
+          href={routes.web.partnerApplicationProcessing}
+          className="zion-btn zion-btn-blue h-11 min-h-0 min-w-[154px] rounded-md px-4 text-sm"
+        >
+          Submit Application
+        </Link>
       </div>
     </PartnerApplicationShell>
   );

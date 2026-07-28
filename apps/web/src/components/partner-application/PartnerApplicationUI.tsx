@@ -122,28 +122,38 @@ function ApplicationSteps({ activeStep, currentStep }: { activeStep: 1 | 2 | 3; 
 
   return (
     <nav aria-label="Application progress" className="mx-auto w-full max-w-[620px] overflow-hidden">
-      <ol className="flex w-full min-w-0 items-center justify-center gap-2 px-1 sm:gap-3 lg:gap-10">
+      <ol className="flex w-full min-w-0 items-center justify-center gap-2 sm:gap-3 lg:gap-10">
         {STEP_LINKS.map((item) => {
           const enabled = currentRank >= item.number;
           const active = activeStep === item.number;
-          const expandedOnSmallScreens =
-            item.number === activeStep ||
-            (activeStep < STEP_LINKS.length && item.number === activeStep + 1);
+          const visibleOnSmallScreens =
+            item.number === activeStep || item.number === activeStep + 1;
+          const stretchOnSmallScreens = activeStep < STEP_LINKS.length;
+
           const content = (
             <span
-              className={`inline-flex h-8 max-w-full items-center gap-1.5 rounded-md font-sans text-[11px] leading-4 lg:px-2.5 lg:text-xs ${
-                expandedOnSmallScreens ? "px-2" : "px-1.5"
+              className={`inline-flex h-8 max-w-full items-center justify-center gap-1.5 rounded-md px-2 font-sans text-[11px] leading-4 sm:px-2.5 lg:w-auto lg:px-2.5 lg:text-xs ${
+                stretchOnSmallScreens ? "w-full" : "w-auto"
               } ${active ? "bg-neutral-01 text-neutral-10" : "text-neutral-06"}`}
             >
               <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[11px] text-white ${active ? "bg-primary-06" : "bg-neutral-06"}`}>
                 {item.number}
               </span>
-              <span className={`${expandedOnSmallScreens ? "inline truncate" : "hidden"} lg:inline`}>{item.label}</span>
+              <span className="min-w-0 whitespace-nowrap">{item.label}</span>
             </span>
           );
 
           return (
-            <li key={item.number} className="min-w-0">
+            <li
+              key={item.number}
+              className={`${
+                visibleOnSmallScreens
+                  ? stretchOnSmallScreens
+                    ? "min-w-0 flex-1"
+                    : "shrink-0"
+                  : "hidden"
+              } lg:block lg:flex-none`}
+            >
               {enabled ? <Link href={item.href}>{content}</Link> : <span aria-disabled="true">{content}</span>}
             </li>
           );

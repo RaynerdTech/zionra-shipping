@@ -44,6 +44,7 @@ const EMPTY_CONTACT: PartnerApplicationContact = {
 };
 
 function countryFromCallingCode(value: string | null | undefined): CountryCode {
+  if (value === "+44") return "GB";
   return COUNTRY_OPTIONS.find((country) => country.callingCode === value)?.code ?? "GB";
 }
 
