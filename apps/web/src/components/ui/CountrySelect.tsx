@@ -27,8 +27,6 @@ type CountrySelectProps = {
   compact?: boolean;
   error?: boolean;
   ariaLabel: string;
-  className?: string;
-  menuClassName?: string;
 };
 
 function ChevronIcon() {
@@ -61,7 +59,10 @@ function CountryFlag({ country }: { country: CountryOption }) {
         width="24"
         height="18"
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
       />
     </span>
   );
@@ -74,8 +75,6 @@ export default function CountrySelect({
   compact = false,
   error = false,
   ariaLabel,
-  className = "",
-  menuClassName = "",
 }: CountrySelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -127,7 +126,7 @@ export default function CountrySelect({
         onClick={() => setIsOpen((current) => !current)}
         className={`zion-input flex h-[52px] items-center text-left md:h-12 ${
           compact ? "gap-2 px-3" : "gap-2 pr-3"
-        } ${error ? "zion-input-error" : ""} ${className}`}
+        } ${error ? "zion-input-error" : ""}`}
       >
         <CountryFlag country={selectedCountry} />
         <span
@@ -159,7 +158,7 @@ export default function CountrySelect({
           aria-label={ariaLabel}
           className={`absolute z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-neutral-02 bg-white p-1 shadow-lg ${
             compact ? "left-0 w-[290px]" : "inset-x-0"
-          } ${menuClassName}`}
+          }`}
         >
           {COUNTRY_OPTIONS.map((country) => {
             const isSelected = country.code === value;

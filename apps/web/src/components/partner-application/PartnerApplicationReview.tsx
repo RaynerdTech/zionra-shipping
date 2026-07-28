@@ -20,14 +20,14 @@ import { usePartnerApplication } from "./usePartnerApplication";
 function ReviewValue({ label, value, required = false }: { label: string; value: ReactNode; required?: boolean }) {
   return (
     <div className="min-w-0">
-      <p className="font-sans text-xs font-semibold leading-5 text-neutral-10 md:text-sm">{label}{required ? <span className="text-error"> *</span> : null}</p>
-      <div className="mt-2 break-words font-sans text-xs leading-5 text-neutral-08 md:text-sm md:leading-6">{value || "—"}</div>
+      <p className="font-sans text-sm font-normal leading-[22px] text-neutral-10">{label}{required ? <span className="text-error"> *</span> : null}</p>
+      <div className="mt-2 break-words font-sans text-base font-normal leading-[26px] text-neutral-08">{value || "—"}</div>
     </div>
   );
 }
 
 function EditLink({ href }: { href: string }) {
-  return <Link href={href} className="zion-btn zion-btn-outline-blue mt-6 h-9 min-h-0 min-w-[110px] text-sm">Edit</Link>;
+  return <Link href={href} className="zion-btn zion-btn-md zion-btn-outline-blue mt-6 min-w-[110px]">Edit</Link>;
 }
 
 export default function PartnerApplicationReview() {
@@ -65,7 +65,7 @@ export default function PartnerApplicationReview() {
     <PartnerApplicationShell currentStep={application.currentStep} headerTitle="Document Review" showSteps={false} pageTitle="Review Information" pageSubtitle="Review the information you entered">
       <section>
         <ApplicationSectionLabel>Company Details</ApplicationSectionLabel>
-        <div className="mt-4 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
           <ReviewValue label="Registered Business Name" value={application.registeredBusinessName} required />
           <ReviewValue label="Company Email Address" value={application.companyEmailAddress} required />
           <ReviewValue label="Business Address" value={application.businessAddress} required />
@@ -76,7 +76,7 @@ export default function PartnerApplicationReview() {
 
         <div className="mt-8"><ApplicationSectionLabel>Company Contact Person</ApplicationSectionLabel></div>
         {primaryContact ? (
-          <div className="mt-4 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
             <ReviewValue label="Full Name" value={primaryContact.fullName} required />
             <ReviewValue label="Job Title" value={primaryContact.jobTitle} required />
             <ReviewValue label="Email Address" value={primaryContact.email} required />
@@ -86,7 +86,7 @@ export default function PartnerApplicationReview() {
         {additionalContacts.map((contact, index) => (
           <div key={contact.id ?? index} className="mt-6 rounded-xl border border-neutral-02 p-4">
             <p className="font-display text-sm font-semibold text-primary-10">Additional Contact {index + 1}</p>
-            <div className="mt-4 grid grid-cols-1 gap-x-10 gap-y-5 md:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
               <ReviewValue label="Full Name" value={contact.fullName} />
               <ReviewValue label="Job Title" value={contact.jobTitle} />
               <ReviewValue label="Email Address" value={contact.email} />
@@ -100,7 +100,7 @@ export default function PartnerApplicationReview() {
       <section className="mt-12">
         <div className="text-center"><h2 className="font-display text-2xl font-semibold text-primary-10">Operational Details</h2><p className="font-sans text-sm text-neutral-06">Fill all the required fields</p></div>
         <div className="mt-5"><ApplicationSectionLabel>Operational Details</ApplicationSectionLabel></div>
-        <div className="mt-4 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
           <ReviewValue label="Collection Cities" value={<div className="flex flex-wrap gap-1.5">{application.collectionCities.map((city) => <span key={city} className="rounded bg-primary-01 px-2 py-1 text-[11px] text-primary-08">{city}</span>)}</div>} required />
           <ReviewValue label="Items Handled" value={<div className="flex flex-wrap gap-1.5">{application.itemsHandled.map((item) => <span key={item} className="rounded bg-primary-01 px-2 py-1 text-[11px] text-primary-08">{item}</span>)}</div>} required />
           <ReviewValue label="Business Address" value={application.operationalBusinessAddress} required />
@@ -118,8 +118,8 @@ export default function PartnerApplicationReview() {
         <div className="mt-5"><ApplicationSectionLabel>Account Details</ApplicationSectionLabel></div>
         <div className="mt-4">
           <ReviewValue label="Company Logo" value={application.companyLogoUrl ? <img src={application.companyLogoUrl} alt="Company logo" className="h-16 w-16 rounded-full border border-primary-02 object-contain p-1" /> : "Not uploaded"} />
-          <div className="mt-6"><ReviewValue label="Company Bio" value={<div className="min-h-[150px] rounded-lg border border-primary-04 p-3 whitespace-pre-wrap">{application.companyBio}</div>} required /></div>
-          <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
+          <div className="mt-6"><ReviewValue label="Company Bio" value={<div className="zion-input h-auto min-h-[150px] whitespace-pre-wrap py-3">{application.companyBio}</div>} required /></div>
+          <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
             <ReviewValue label="Response Time" value={application.responseTime} required />
             <ReviewValue label="Collection Method" value={application.collectionMethod} required />
             <ReviewValue label="Delivery Method" value={application.deliveryMethod} required />
@@ -129,8 +129,8 @@ export default function PartnerApplicationReview() {
       </section>
 
       <div className="mt-14 flex items-center justify-end gap-4 md:justify-between">
-        <Link href={routes.web.partnerAccountInformation} className="zion-btn zion-btn-outline-blue hidden h-11 min-h-0 min-w-[120px] text-sm md:inline-flex"><BackArrowIcon /> Back</Link>
-        <Link href={routes.web.partnerApplicationProcessing} className="zion-btn zion-btn-blue h-12 min-h-0 min-w-[170px] text-sm">Submit Application</Link>
+        <Link href={routes.web.partnerAccountInformation} className="zion-btn zion-btn-md zion-btn-outline-blue hidden min-w-[120px] md:inline-flex"><BackArrowIcon /> Back</Link>
+        <Link href={routes.web.partnerApplicationProcessing} className="zion-btn zion-btn-md zion-btn-blue min-w-[170px]">Submit Application</Link>
       </div>
     </PartnerApplicationShell>
   );

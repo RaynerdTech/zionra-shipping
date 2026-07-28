@@ -64,9 +64,8 @@ export const APPLICATION_STEP_RANK = {
 } as const;
 
 export const FIELD_LABEL_CLASS =
-  "mb-2 block font-sans text-sm font-medium leading-5 text-neutral-10";
+  "mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10";
 export const REQUIRED_CLASS = "text-error";
-export const INPUT_CLASS =
-  "zion-input h-12 min-w-0 rounded-lg px-3 text-sm leading-5 placeholder:text-neutral-05 md:h-[52px]";
+export const INPUT_CLASS = "zion-input h-[52px] min-w-0 md:h-12";
 export const TEXTAREA_CLASS =
-  "zion-input min-h-[170px] resize-y rounded-lg px-3 py-3 text-sm leading-6 placeholder:text-neutral-05 md:min-h-[190px]";
+  "zion-input min-h-[170px] resize-y py-3 md:min-h-[190px]";

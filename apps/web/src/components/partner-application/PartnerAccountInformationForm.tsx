@@ -231,8 +231,8 @@ export default function PartnerAccountInformationForm() {
 
         {formError ? <p className="zion-field-error mt-5 text-center">{formError}</p> : null}
         <div className="mt-10 flex items-center justify-between gap-4">
-          <Link href={routes.web.partnerOperationalDetails} className="zion-btn zion-btn-outline-blue h-11 min-h-0 min-w-[98px] text-sm"><BackArrowIcon /> Back</Link>
-          <button type="submit" disabled={isSaving} className="zion-btn zion-btn-blue h-12 min-h-0 min-w-[126px] text-sm md:h-[54px]">{isSaving ? <LoadingSpinner /> : searchParams.get("returnTo") === "review" ? "Review" : "Review Document"}</button>
+          <Link href={routes.web.partnerOperationalDetails} className="zion-btn zion-btn-md zion-btn-outline-blue min-w-[98px]"><BackArrowIcon /> Back</Link>
+          <button type="submit" disabled={isSaving} className="zion-btn zion-btn-md zion-btn-blue min-w-[126px]">{isSaving ? <LoadingSpinner /> : searchParams.get("returnTo") === "review" ? "Review" : "Review Document"}</button>
         </div>
       </form>
     </PartnerApplicationShell>

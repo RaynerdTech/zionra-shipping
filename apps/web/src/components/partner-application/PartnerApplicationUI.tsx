@@ -82,7 +82,7 @@ export function FieldError({ children }: { children?: string }) {
 
 export function ApplicationSectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="relative flex h-7 items-center rounded-[5px] bg-primary-01 pl-4 font-sans text-xs font-normal leading-5 text-primary-06 before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:rounded-l-[5px] before:bg-primary-06 md:text-sm">
+    <div className="relative flex h-6 items-center rounded-md bg-primary-01 pl-4 font-sans text-xs font-normal text-primary-06 before:absolute before:inset-y-0 before:left-0 before:w-1 before:rounded-l-md before:bg-primary-06">
       {children}
     </div>
   );
@@ -315,17 +315,18 @@ export function PartnerSelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-controls={listboxId} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`flex h-12 w-full items-center justify-between rounded-lg border bg-white px-3 text-left font-sans text-sm transition-colors md:h-[52px] ${error ? "border-2 border-error" : isOpen ? "border-2 border-primary-06" : "border-[1.5px] border-neutral-03 hover:border-primary-04"}`}>
-        <span className={value ? "truncate text-neutral-10" : "truncate text-neutral-05"}>{value || placeholder}</span>
-        <span className={`ml-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
+      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-controls={listboxId} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input flex h-[52px] w-full items-center justify-between gap-3 text-left md:h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
+        <span className={`min-w-0 flex-1 truncate ${value ? "text-neutral-10" : "text-neutral-05"}`}>{value || placeholder}</span>
+        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
       </button>
       {isOpen ? (
-        <div id={listboxId} role="listbox" aria-labelledby={id} className="absolute inset-x-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-primary-02 bg-white p-1.5 shadow-[0_14px_32px_rgba(7,30,61,0.14)]">
+        <div id={listboxId} role="listbox" aria-labelledby={id} className="absolute inset-x-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-lg border border-neutral-03 bg-white py-1 shadow-[0_10px_30px_rgba(7,22,44,0.14)]">
           {options.map((option) => {
             const selected = option === value;
             return (
-              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => { onChange(option); setIsOpen(false); }} className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left font-sans text-sm transition-colors ${selected ? "bg-primary-01 font-medium text-primary-07" : "text-neutral-09 hover:bg-primary-01/70 hover:text-primary-07"}`}>
-                <span>{option}</span>{selected ? <span className="text-primary-06">✓</span> : null}
+              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => { onChange(option); setIsOpen(false); }} className={`flex w-full min-w-0 items-center justify-between gap-3 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${selected ? "bg-primary-06 text-white" : "text-neutral-10 hover:bg-primary-01"}`}>
+                <span className="block min-w-0 break-words">{option}</span>
+                {selected ? <span className="shrink-0 text-white">✓</span> : null}
               </button>
             );
           })}
@@ -367,9 +368,9 @@ export function PartnerMultiSelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`flex min-h-12 w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-left font-sans text-sm md:min-h-[52px] ${error ? "border-2 border-error" : isOpen ? "border-2 border-primary-06" : "border-[1.5px] border-neutral-03 hover:border-primary-04"}`}>
+      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input flex min-h-[52px] w-full items-center justify-between gap-3 py-2 text-left md:min-h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
         <span className={values.length ? "min-w-0 flex-1 truncate text-neutral-10" : "text-neutral-05"}>{values.length ? `${values.length} selected` : placeholder}</span>
-        <span className={`ml-3 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
+        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
       </button>
       {isOpen ? (
         <div role="listbox" aria-multiselectable="true" aria-labelledby={id} className="absolute inset-x-0 z-50 mt-2 max-h-[330px] overflow-y-auto rounded-xl border border-primary-02 bg-white p-2 shadow-[0_14px_32px_rgba(7,30,61,0.16)]">
@@ -424,9 +425,9 @@ export function TagsInput({
   }
 
   return (
-    <div className={`flex min-h-12 w-full flex-wrap items-center gap-1.5 rounded-lg border bg-white px-2.5 py-2 transition-colors md:min-h-[52px] ${error ? "border-2 border-error" : "border-[1.5px] border-neutral-03 focus-within:border-2 focus-within:border-primary-06"}`}>
+    <div className={`zion-input flex min-h-[52px] w-full flex-wrap items-center gap-1.5 py-2 md:min-h-12 ${error ? "zion-input-error" : "focus-within:border-2 focus-within:border-primary-06"}`}>
       {values.map((value) => <span key={value} className="inline-flex items-center gap-1 rounded bg-primary-01 px-2 py-1 font-sans text-xs text-primary-08">{value}<button type="button" aria-label={`Remove ${value}`} onClick={() => onChange(values.filter((item) => item !== value))} className="text-primary-06"><CloseIcon /></button></span>)}
-      <input id={id} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={onKeyDown} onBlur={addDraft} placeholder={values.length ? "Add another city" : placeholder} className="min-w-[150px] flex-1 border-0 bg-transparent px-0 py-1 font-sans text-sm text-neutral-10 outline-none placeholder:text-neutral-05" />
+      <input id={id} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={onKeyDown} onBlur={addDraft} placeholder={values.length ? "Add another city" : placeholder} className="min-w-[150px] flex-1 border-0 bg-transparent px-0 py-1 font-sans text-base font-normal leading-[26px] text-neutral-10 outline-none placeholder:text-neutral-05" />
     </div>
   );
 }
@@ -449,7 +450,7 @@ export function PhoneField({
   error?: boolean;
 }) {
   return (
-    <div className="grid min-w-0 grid-cols-[132px_minmax(0,1fr)] gap-2 sm:grid-cols-[144px_minmax(0,1fr)] md:grid-cols-[152px_minmax(0,1fr)] md:gap-3">
+    <div className="grid grid-cols-[116px_minmax(0,1fr)] gap-3">
       <CountrySelect
         id={`${id}Country`}
         value={country}
@@ -458,14 +459,12 @@ export function PhoneField({
         onChange={(selected) =>
           onCountryChange(selected.code, selected.callingCode)
         }
-        className="h-12 w-full min-w-0 rounded-lg text-sm md:h-[52px]"
-        menuClassName="max-w-[calc(100vw-32px)]"
       />
-      <input id={id} type="tel" value={phoneNumber} onChange={(event) => onPhoneChange(event.target.value)} placeholder={placeholder} className="zion-input h-12 min-w-0 rounded-lg px-3 text-sm placeholder:text-neutral-05 md:h-[52px]" aria-invalid={error || undefined} />
+      <input id={id} type="tel" value={phoneNumber} onChange={(event) => onPhoneChange(event.target.value)} placeholder={placeholder} className="zion-input h-[52px] min-w-0 md:h-12" aria-invalid={error || undefined} />
     </div>
   );
 }
 
 export function AddContactButton({ onClick }: { onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-primary-06 px-3 font-sans text-sm text-primary-06 transition-colors hover:bg-primary-01"><PlusIcon /> Add Contact</button>;
+  return <button type="button" onClick={onClick} className="zion-btn zion-btn-md zion-btn-outline-blue"><PlusIcon /> Add Contact</button>;
 }
