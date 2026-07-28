@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { ApplicationLoadError, ApplicationLoading } from "./PartnerApplicationUI";
@@ -13,14 +13,52 @@ const NEXT_STEPS = [
   { title: "Account activation", description: "Once approved, you’ll receive an email to activate your partner account." },
 ] as const;
 
+const CONFETTI_COLORS = ["#286BDC", "#2EC4B6", "#FFA630", "#124E49", "#E8493F", "#72A7EC"] as const;
+
+type ConfettiPiece = {
+  id: number;
+  left: number;
+  delay: number;
+  duration: number;
+  width: number;
+  height: number;
+  color: string;
+  drift: number;
+  rotation: number;
+  round: boolean;
+};
+
 export default function PartnerApplicationSubmitted() {
   const router = useRouter();
   const { data, error, isLoading } = usePartnerApplication();
+  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+  const isSubmitted = data?.application.currentStep === "SUBMITTED";
 
   useEffect(() => {
     if (!data) return;
-    if (data.application.currentStep !== "SUBMITTED") router.replace(routes.web.partnerApplicationReview);
-  }, [data, router]);
+    if (!isSubmitted) router.replace(routes.web.partnerApplicationReview);
+  }, [data, isSubmitted, router]);
+
+  useEffect(() => {
+    if (!isSubmitted) return;
+
+    const pieces = Array.from({ length: 34 }, (_, index): ConfettiPiece => ({
+      id: index,
+      left: 4 + ((index * 17) % 92),
+      delay: (index % 9) * 0.055,
+      duration: 1.65 + (index % 7) * 0.11,
+      width: 5 + (index % 3) * 2,
+      height: 8 + (index % 4) * 2,
+      color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+      drift: -55 + ((index * 29) % 110),
+      rotation: 360 + (index % 5) * 180,
+      round: index % 4 === 0,
+    }));
+
+    setConfetti(pieces);
+    const timer = window.setTimeout(() => setConfetti([]), 3000);
+    return () => window.clearTimeout(timer);
+  }, [isSubmitted]);
 
   if (isLoading || !data) return error ? <ApplicationLoadError message={error} /> : <ApplicationLoading />;
 
@@ -29,10 +67,33 @@ export default function PartnerApplicationSubmitted() {
       <span aria-hidden="true" className="absolute -right-16 top-0 h-44 w-44 rounded-full bg-tertiary-06/[0.05]" />
       <span aria-hidden="true" className="absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-primary-06/[0.05]" />
       <section className="relative w-full max-w-[560px] overflow-hidden rounded-[20px] border border-neutral-03/60 bg-white px-6 py-8 md:px-10 md:py-10">
-        <div className="pointer-events-none absolute inset-x-0 top-5 flex justify-around px-8" aria-hidden="true">
-          {["bg-primary-04", "bg-tertiary-04", "bg-secondary-04", "bg-error", "bg-primary-06"].map((color, index) => <span key={index} className={`h-2 w-2 rounded-full ${color}`} />)}
+        {confetti.length ? (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[260px] overflow-hidden">
+            {confetti.map((piece) => (
+              <span
+                key={piece.id}
+                className="partner-confetti-piece absolute -top-5 block"
+                style={
+                  {
+                    left: `${piece.left}%`,
+                    width: `${piece.width}px`,
+                    height: `${piece.height}px`,
+                    backgroundColor: piece.color,
+                    borderRadius: piece.round ? "999px" : "2px",
+                    animationDelay: `${piece.delay}s`,
+                    animationDuration: `${piece.duration}s`,
+                    "--confetti-drift": `${piece.drift}px`,
+                    "--confetti-rotation": `${piece.rotation}deg`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+        ) : null}
+
+        <div className="mx-auto mt-3 flex h-20 w-20 items-center justify-center rounded-full border-[5px] border-primary-06 bg-white">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-tertiary-09 text-3xl font-bold text-white">✓</span>
         </div>
-        <div className="mx-auto mt-3 flex h-20 w-20 items-center justify-center rounded-full border-[5px] border-primary-06 bg-white"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-tertiary-09 text-3xl font-bold text-white">✓</span></div>
         <h1 className="mt-6 text-center font-display text-[26px] font-bold leading-8 text-primary-10">Application Submitted!</h1>
         <p className="mx-auto mt-2 max-w-[430px] text-center font-sans text-sm leading-6 text-text-body-light">Thank you for applying to become a Zionra Shipping Partner.</p>
         <div className="mt-6 h-1.5 overflow-hidden rounded bg-neutral-03"><div className="h-full w-[72%] rounded bg-primary-06" /></div>
@@ -48,6 +109,35 @@ export default function PartnerApplicationSubmitted() {
         <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-primary-03 bg-primary-01 px-3 py-2 font-sans text-xs"><span className="text-neutral-06">📋 Application reference:</span><span className="font-medium text-primary-06">{data.application.applicationReference}</span></div>
       </section>
       <Link href={routes.web.partnerDashboard} className="zion-btn zion-btn-blue zion-btn-md mt-8 min-w-[190px]">Go to Dashboard <span aria-hidden="true">→</span></Link>
+
+      <style jsx>{`
+        .partner-confetti-piece {
+          opacity: 0;
+          animation-name: partner-confetti-fall;
+          animation-timing-function: cubic-bezier(0.18, 0.72, 0.3, 1);
+          animation-fill-mode: forwards;
+        }
+
+        @keyframes partner-confetti-fall {
+          0% {
+            opacity: 0;
+            transform: translate3d(0, -18px, 0) rotate(0deg);
+          }
+          10% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+            transform: translate3d(var(--confetti-drift), 250px, 0) rotate(var(--confetti-rotation));
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .partner-confetti-piece {
+            display: none;
+          }
+        }
+      `}</style>
     </main>
   );
 }

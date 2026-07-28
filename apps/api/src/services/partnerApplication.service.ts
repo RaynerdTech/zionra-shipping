@@ -6,6 +6,7 @@
 
 import crypto from "node:crypto";
 import type { ShippingPartnerApplicationStep } from "../generated/prisma/enums.js";
+import { deletePartnerLogo } from "../lib/cloudinary.js";
 import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import { hashPartnerOnboardingToken } from "../lib/partnerAuth.js";
 import { prisma } from "../lib/prisma.js";
@@ -93,9 +94,7 @@ async function requirePartner(token: string | undefined) {
   return getPartnerFromOnboardingToken(token);
 }
 
-async function getOrCreateApplication(
-  partner: Awaited<ReturnType<typeof requirePartner>>,
-) {
+async function getOrCreateApplication(partner: Awaited<ReturnType<typeof requirePartner>>) {
   const existing = await prisma.shippingPartnerApplication.findUnique({
     where: { partnerId: partner.id },
     include: { contacts: { orderBy: { position: "asc" } } },
@@ -163,10 +162,7 @@ export async function savePartnerBusinessInformation(
   const application = await getOrCreateApplication(partner);
   assertEditable(application);
 
-  const currentStep = advanceStep(
-    application.currentStep,
-    STEP.OPERATIONAL_DETAILS,
-  );
+  const currentStep = advanceStep(application.currentStep, STEP.OPERATIONAL_DETAILS);
 
   const updated = await prisma.$transaction(async (transaction) => {
     await transaction.shippingPartnerApplicationContact.deleteMany({
@@ -224,10 +220,7 @@ export async function savePartnerOperationalDetails(
       pricePerBarrel: input.pricePerBarrel,
       insuranceAvailable: input.insuranceAvailable,
       upfrontImmigrationCharge: input.upfrontImmigrationCharge,
-      currentStep: advanceStep(
-        application.currentStep,
-        STEP.ACCOUNT_INFORMATION,
-      ),
+      currentStep: advanceStep(application.currentStep, STEP.ACCOUNT_INFORMATION),
     },
     include: { contacts: { orderBy: { position: "asc" } } },
   });
@@ -280,6 +273,29 @@ export async function savePartnerCompanyLogo(
   return toPublicApplication(updated);
 }
 
+export async function removePartnerCompanyLogo(token: string | undefined) {
+  const partner = await requirePartner(token);
+  const application = await getOrCreateApplication(partner);
+  assertEditable(application);
+
+  if (application.companyLogoPublicId) {
+    await deletePartnerLogo(application.companyLogoPublicId);
+  }
+
+  const updated = await prisma.shippingPartnerApplication.update({
+    where: { id: application.id },
+    data: {
+      companyLogoUrl: null,
+      companyLogoPublicId: null,
+      companyLogoFormat: null,
+      companyLogoBytes: null,
+    },
+    include: { contacts: { orderBy: { position: "asc" } } },
+  });
+
+  return toPublicApplication(updated);
+}
+
 function buildBusinessValidationBody(application: any) {
   return {
     registeredBusinessName: application.registeredBusinessName,
@@ -317,34 +333,21 @@ function buildAccountValidationBody(application: any) {
   };
 }
 
-function mergeValidationErrors(
-  ...validations: Array<{
-    success: boolean;
-    errors?: Record<string, string>;
-  }>
-) {
-  return validations.reduce<Record<string, string>>(
-    (errors, validation) => {
-      if (!validation.success && validation.errors) {
-        Object.assign(errors, validation.errors);
-      }
-
-      return errors;
-    },
-    {},
-  );
+function mergeValidationErrors(...validations: Array<{ success: boolean; errors?: Record<string, string> }>) {
+  return validations.reduce<Record<string, string>>((errors, validation) => {
+    if (!validation.success && validation.errors) Object.assign(errors, validation.errors);
+    return errors;
+  }, {});
 }
 
 async function generateApplicationReference() {
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const suffix = crypto.randomInt(10000, 100000);
     const reference = `ZNR-AGENT-${suffix}`;
-
     const exists = await prisma.shippingPartnerApplication.findUnique({
       where: { applicationReference: reference },
       select: { id: true },
     });
-
     if (!exists) return reference;
   }
 
@@ -353,7 +356,6 @@ async function generateApplicationReference() {
 
 export async function submitPartnerApplication(token: string | undefined) {
   const partner = await requirePartner(token);
-
   const application = await prisma.shippingPartnerApplication.findUnique({
     where: { partnerId: partner.id },
     include: { contacts: { orderBy: { position: "asc" } } },
@@ -377,15 +379,12 @@ export async function submitPartnerApplication(token: string | undefined) {
   const businessValidation = validatePartnerBusinessInformation(
     buildBusinessValidationBody(application),
   );
-
   const operationalValidation = validatePartnerOperationalDetails(
     buildOperationalValidationBody(application),
   );
-
   const accountValidation = validatePartnerAccountInformation(
     buildAccountValidationBody(application),
   );
-
   const errors = mergeValidationErrors(
     businessValidation,
     operationalValidation,
@@ -396,10 +395,7 @@ export async function submitPartnerApplication(token: string | undefined) {
     throw new HttpError(
       HTTP_STATUS.UNPROCESSABLE_ENTITY,
       "Complete all required application fields before submitting.",
-      {
-        code: "APPLICATION_INCOMPLETE",
-        errors,
-      },
+      { code: "APPLICATION_INCOMPLETE", errors },
     );
   }
 
@@ -408,10 +404,7 @@ export async function submitPartnerApplication(token: string | undefined) {
 
   const updated = await prisma.$transaction(async (transaction) => {
     const claimed = await transaction.shippingPartnerApplication.updateMany({
-      where: {
-        id: application.id,
-        submittedAt: null,
-      },
+      where: { id: application.id, submittedAt: null },
       data: {
         currentStep: STEP.SUBMITTED,
         applicationReference: reference,
@@ -447,7 +440,6 @@ export async function submitPartnerApplication(token: string | undefined) {
 
 export async function cancelPartnerApplication(token: string | undefined) {
   const partner = await requirePartner(token);
-
   const application = await prisma.shippingPartnerApplication.findUnique({
     where: { partnerId: partner.id },
   });
@@ -460,18 +452,23 @@ export async function cancelPartnerApplication(token: string | undefined) {
     );
   }
 
-  await prisma.$transaction([
-    prisma.shippingPartnerApplication.deleteMany({
-      where: { partnerId: partner.id },
-    }),
-    prisma.shippingPartnerOnboardingSession.updateMany({
-      where: {
+  if (application?.companyLogoPublicId) {
+    try {
+      await deletePartnerLogo(application.companyLogoPublicId);
+    } catch (error) {
+      console.error("Unable to delete the cancelled application logo from Cloudinary.", {
         partnerId: partner.id,
-        revokedAt: null,
-      },
-      data: {
-        revokedAt: new Date(),
-      },
+        publicId: application.companyLogoPublicId,
+        error,
+      });
+    }
+  }
+
+  await prisma.$transaction([
+    prisma.shippingPartnerApplication.deleteMany({ where: { partnerId: partner.id } }),
+    prisma.shippingPartnerOnboardingSession.updateMany({
+      where: { partnerId: partner.id, revokedAt: null },
+      data: { revokedAt: new Date() },
     }),
     prisma.shippingPartner.update({
       where: { id: partner.id },
@@ -479,23 +476,13 @@ export async function cancelPartnerApplication(token: string | undefined) {
     }),
   ]);
 
-  return {
-    message: "Application cancelled.",
-  };
+  return { message: "Application cancelled." };
 }
 
-export async function revokeCurrentPartnerSession(
-  token: string | undefined,
-) {
+export async function revokeCurrentPartnerSession(token: string | undefined) {
   if (!token) return;
-
   await prisma.shippingPartnerOnboardingSession.updateMany({
-    where: {
-      tokenHash: hashPartnerOnboardingToken(token),
-      revokedAt: null,
-    },
-    data: {
-      revokedAt: new Date(),
-    },
+    where: { tokenHash: hashPartnerOnboardingToken(token), revokedAt: null },
+    data: { revokedAt: new Date() },
   });
 }

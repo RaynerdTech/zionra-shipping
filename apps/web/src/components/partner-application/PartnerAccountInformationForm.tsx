@@ -34,6 +34,14 @@ type AccountValues = {
   deliveryMethod: string;
 };
 
+function RemoveLogoIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none">
+      <path d="m4 4 8 8m0-8-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function PartnerAccountInformationForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,6 +52,7 @@ export default function PartnerAccountInformationForm() {
   const [logoError, setLogoError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isRemovingLogo, setIsRemovingLogo] = useState(false);
 
   useEffect(() => {
     if (!data || values) return;
@@ -81,7 +90,7 @@ export default function PartnerAccountInformationForm() {
   async function uploadLogo(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file || isUploadingLogo) return;
+    if (!file || isUploadingLogo || isRemovingLogo) return;
 
     if (!new Set(["image/jpeg", "image/png"]).has(file.type)) {
       setLogoError("Only JPG and PNG images are supported.");
@@ -110,6 +119,33 @@ export default function PartnerAccountInformationForm() {
       setLogoError(uploadError instanceof Error ? uploadError.message : "Unable to upload the logo.");
     } finally {
       setIsUploadingLogo(false);
+    }
+  }
+
+  async function removeLogo() {
+    if (!data?.application.companyLogoUrl || isUploadingLogo || isRemovingLogo) return;
+
+    setIsRemovingLogo(true);
+    setLogoError("");
+
+    try {
+      const response = await fetch(buildApiUrl(routes.api.partnerAuth.companyLogo), {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const result = (await response.json().catch(() => ({}))) as ApiErrorResponse & {
+        application?: NonNullable<typeof data>["application"];
+      };
+
+      if (!response.ok || !result.application) {
+        throw new Error(result.errors?.logo ?? result.message ?? "Unable to remove the logo.");
+      }
+
+      setData((current) => current ? { ...current, application: result.application! } : current);
+    } catch (removeError) {
+      setLogoError(removeError instanceof Error ? removeError.message : "Unable to remove the logo.");
+    } finally {
+      setIsRemovingLogo(false);
     }
   }
 
@@ -148,19 +184,36 @@ export default function PartnerAccountInformationForm() {
         <ApplicationSectionLabel>Account Details</ApplicationSectionLabel>
         <div className="mt-4">
           <FieldLabel>Company Logo</FieldLabel>
-          <label className="relative flex h-[104px] w-[124px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-primary-04 bg-white text-center transition-colors hover:bg-primary-01">
+          <div className="relative w-fit">
+            <label className="relative flex h-[104px] w-[124px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-primary-04 bg-white text-center transition-colors hover:bg-primary-01">
+              {data.application.companyLogoUrl ? (
+                <img src={data.application.companyLogoUrl} alt="Company logo preview" className="h-full w-full object-contain p-2" />
+              ) : (
+                <>
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-01 text-lg">🖼️</span>
+                  <span className="mt-1 font-sans text-xs text-primary-06">Click to upload</span>
+                  <span className="mt-0.5 font-sans text-[10px] text-neutral-05">JPG, PNG up to 5MB</span>
+                </>
+              )}
+              {isUploadingLogo || isRemovingLogo ? (
+                <span className="absolute inset-0 flex items-center justify-center bg-white/85 text-primary-06"><LoadingSpinner /></span>
+              ) : null}
+              <input type="file" accept="image/jpeg,image/png" onChange={uploadLogo} className="sr-only" disabled={isUploadingLogo || isRemovingLogo} />
+            </label>
+
             {data.application.companyLogoUrl ? (
-              <img src={data.application.companyLogoUrl} alt="Company logo preview" className="h-full w-full object-contain p-2" />
-            ) : (
-              <>
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-01 text-lg">🖼️</span>
-                <span className="mt-1 font-sans text-xs text-primary-06">Click to upload</span>
-                <span className="mt-0.5 font-sans text-[10px] text-neutral-05">JPG, PNG up to 5MB</span>
-              </>
-            )}
-            {isUploadingLogo ? <span className="absolute inset-0 flex items-center justify-center bg-white/85 text-primary-06"><LoadingSpinner /></span> : null}
-            <input type="file" accept="image/jpeg,image/png" onChange={uploadLogo} className="sr-only" disabled={isUploadingLogo} />
-          </label>
+              <button
+                type="button"
+                aria-label="Remove company logo"
+                title="Remove company logo"
+                onClick={removeLogo}
+                disabled={isUploadingLogo || isRemovingLogo}
+                className="absolute right-1.5 top-1.5 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/80 bg-primary-10/85 text-white shadow-sm transition-colors hover:bg-error active:bg-[#BF1A10] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RemoveLogoIcon />
+              </button>
+            ) : null}
+          </div>
           <FieldError>{logoError}</FieldError>
         </div>
 

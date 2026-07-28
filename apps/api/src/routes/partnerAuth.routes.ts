@@ -19,6 +19,7 @@ import {
 import {
   cancelPartnerApplicationController,
   getPartnerApplicationController,
+  removePartnerCompanyLogoController,
   savePartnerAccountInformationController,
   savePartnerBusinessInformationController,
   savePartnerOperationalDetailsController,
@@ -103,6 +104,7 @@ router.post(
     });
   },
 );
+router.delete("/application/logo", removePartnerCompanyLogoController);
 router.post("/application/submit", submitPartnerApplicationController);
 router.delete("/application", cancelPartnerApplicationController);
 

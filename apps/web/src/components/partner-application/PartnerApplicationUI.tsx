@@ -121,20 +121,27 @@ function ApplicationSteps({ activeStep, currentStep }: { activeStep: 1 | 2 | 3; 
   const currentRank = APPLICATION_STEP_RANK[currentStep];
 
   return (
-    <nav aria-label="Application progress" className="mx-auto w-full max-w-[620px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <ol className="flex min-w-max items-center justify-center gap-7 px-1 md:gap-10">
+    <nav aria-label="Application progress" className="mx-auto w-full max-w-[620px] overflow-hidden">
+      <ol className="flex w-full min-w-0 items-center justify-center gap-2 px-1 sm:gap-4 md:gap-10">
         {STEP_LINKS.map((item) => {
           const enabled = currentRank >= item.number;
           const active = activeStep === item.number;
+          const expandedOnMobile = item.number === activeStep || item.number === activeStep + 1;
           const content = (
-            <span className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 font-sans text-[11px] leading-4 md:text-xs ${active ? "bg-neutral-01 text-neutral-10" : "text-neutral-06"}`}>
-              <span className={`inline-flex h-5 w-5 items-center justify-center rounded text-[11px] text-white ${active ? "bg-primary-06" : "bg-neutral-06"}`}>{item.number}</span>
-              <span>{item.label}</span>
+            <span
+              className={`inline-flex h-8 max-w-full items-center gap-1.5 rounded-md font-sans text-[11px] leading-4 md:px-2.5 md:text-xs ${
+                expandedOnMobile ? "px-2" : "px-1.5"
+              } ${active ? "bg-neutral-01 text-neutral-10" : "text-neutral-06"}`}
+            >
+              <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[11px] text-white ${active ? "bg-primary-06" : "bg-neutral-06"}`}>
+                {item.number}
+              </span>
+              <span className={`${expandedOnMobile ? "inline truncate" : "hidden"} md:inline`}>{item.label}</span>
             </span>
           );
 
           return (
-            <li key={item.number}>
+            <li key={item.number} className="min-w-0">
               {enabled ? <Link href={item.href}>{content}</Link> : <span aria-disabled="true">{content}</span>}
             </li>
           );

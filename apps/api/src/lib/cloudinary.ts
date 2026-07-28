@@ -68,3 +68,34 @@ export function uploadPartnerLogo(partnerId: string, buffer: Buffer) {
     stream.end(buffer);
   });
 }
+
+
+export async function deletePartnerLogo(publicId: string) {
+  if (!publicId) return;
+
+  if (!configured) {
+    throw new HttpError(
+      503,
+      "Company-logo removal is temporarily unavailable.",
+      { code: "CLOUDINARY_NOT_CONFIGURED" },
+    );
+  }
+
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+      invalidate: true,
+    });
+
+    if (result.result !== "ok" && result.result !== "not found") {
+      throw new Error(`Unexpected Cloudinary response: ${result.result}`);
+    }
+  } catch (error) {
+    console.error("Cloudinary partner-logo deletion failed.", error);
+    throw new HttpError(
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      "Unable to remove the company logo. Please try again.",
+      { code: "LOGO_DELETE_FAILED" },
+    );
+  }
+}

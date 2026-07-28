@@ -12,6 +12,7 @@ import { PARTNER_ONBOARDING_COOKIE_NAME } from "../lib/partnerAuth.js";
 import {
   cancelPartnerApplication,
   getPartnerApplication,
+  removePartnerCompanyLogo,
   savePartnerAccountInformation,
   savePartnerBusinessInformation,
   savePartnerCompanyLogo,
@@ -166,6 +167,22 @@ export async function uploadPartnerCompanyLogoController(
     });
   } catch (error) {
     forwardError(next, error, "Unable to upload the company logo.");
+  }
+}
+
+export async function removePartnerCompanyLogoController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const application = await removePartnerCompanyLogo(getToken(req));
+    res.status(HTTP_STATUS.OK).json({
+      message: "Company logo removed.",
+      application,
+    });
+  } catch (error) {
+    forwardError(next, error, "Unable to remove the company logo.");
   }
 }
 
