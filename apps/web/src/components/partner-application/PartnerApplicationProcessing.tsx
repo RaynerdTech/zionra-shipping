@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { PartnerApplicationSubmittedView } from "./PartnerApplicationSubmitted";
 import type { ApiErrorResponse } from "./types";
 
 const STEPS = [
@@ -25,12 +25,21 @@ const STEP_TITLES = [
 const STEP_TIMINGS = [600, 1800, 3200, 4600] as const;
 const STEP_PROGRESS = [22, 48, 74, 100] as const;
 
+type SubmitApplicationResponse = ApiErrorResponse & {
+  reference?: string;
+  application?: {
+    applicationReference?: string | null;
+  };
+};
+
 export default function PartnerApplicationProcessing() {
-  const router = useRouter();
   const [activeStep, setActiveStep] = useState(-1);
   const [progress, setProgress] = useState(8);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const [submittedReference, setSubmittedReference] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -63,10 +72,23 @@ export default function PartnerApplicationProcessing() {
             credentials: "include",
           },
         );
-        const result = (await response.json().catch(() => ({}))) as ApiErrorResponse;
+        const result = (await response
+          .json()
+          .catch(() => ({}))) as SubmitApplicationResponse;
 
         if (!response.ok) {
-          throw new Error(result.message ?? "Unable to submit your application.");
+          throw new Error(
+            result.message ?? "Unable to submit your application.",
+          );
+        }
+
+        const reference =
+          result.reference ?? result.application?.applicationReference;
+
+        if (!reference) {
+          throw new Error(
+            "Application submitted, but its reference could not be loaded.",
+          );
         }
 
         const remaining = Math.max(0, 5800 - (Date.now() - startedAt));
@@ -76,10 +98,15 @@ export default function PartnerApplicationProcessing() {
         setActiveStep(STEPS.length);
         setProgress(100);
         await new Promise((resolve) => setTimeout(resolve, 400));
+        if (cancelled) return;
 
-        if (!cancelled) {
-          router.replace(routes.web.partnerApplicationSubmitted);
-        }
+        window.removeEventListener("beforeunload", preventNavigation);
+        window.history.replaceState(
+          window.history.state,
+          "",
+          routes.web.partnerApplicationSubmitted,
+        );
+        setSubmittedReference(reference);
       } catch (submitError) {
         if (cancelled) return;
         timers.forEach(clearTimeout);
@@ -98,13 +125,22 @@ export default function PartnerApplicationProcessing() {
       timers.forEach(clearTimeout);
       window.removeEventListener("beforeunload", preventNavigation);
     };
-  }, [attempt, router]);
+  }, [attempt]);
 
   function retry() {
     setError("");
     setProgress(8);
     setActiveStep(-1);
     setAttempt((current) => current + 1);
+  }
+
+  if (submittedReference) {
+    return (
+      <PartnerApplicationSubmittedView
+        reference={submittedReference}
+        showConfetti
+      />
+    );
   }
 
   const title =
@@ -188,7 +224,8 @@ export default function PartnerApplicationProcessing() {
 
               <div className="mt-5 space-y-3">
                 {STEPS.map((label, index) => {
-                  const done = index < activeStep || activeStep === STEPS.length;
+                  const done =
+                    index < activeStep || activeStep === STEPS.length;
                   const active = index === activeStep;
 
                   return (
@@ -210,7 +247,10 @@ export default function PartnerApplicationProcessing() {
                             className="partner-processing-dot h-1.5 w-1.5 rounded-full bg-white"
                           />
                         ) : index === STEPS.length - 1 ? (
-                          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white/40" />
+                          <span
+                            aria-hidden="true"
+                            className="h-1.5 w-1.5 rounded-full bg-white/40"
+                          />
                         ) : (
                           <span aria-hidden="true">✓</span>
                         )}

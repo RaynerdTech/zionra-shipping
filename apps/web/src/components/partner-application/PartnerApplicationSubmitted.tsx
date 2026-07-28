@@ -4,16 +4,38 @@ import Link from "next/link";
 import { type CSSProperties, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
-import { ApplicationLoadError, ApplicationLoading } from "./PartnerApplicationUI";
+import {
+  ApplicationLoadError,
+  ApplicationLoading,
+} from "./PartnerApplicationUI";
 import { usePartnerApplication } from "./usePartnerApplication";
 
 const NEXT_STEPS = [
-  { title: "Application review", description: "Our team reviews your submitted details and documents (2–3 business days)." },
-  { title: "Verification call", description: "A Zionra partner specialist may contact you to verify your details." },
-  { title: "Account activation", description: "Once approved, you’ll receive an email to activate your partner account." },
+  {
+    title: "Application review",
+    description:
+      "Our team reviews your submitted details and documents (2–3 business days).",
+  },
+  {
+    title: "Verification call",
+    description:
+      "A Zionra partner specialist may contact you to verify your details.",
+  },
+  {
+    title: "Account activation",
+    description:
+      "Once approved, you’ll receive an email to activate your partner account.",
+  },
 ] as const;
 
-const CONFETTI_COLORS = ["#286BDC", "#2EC4B6", "#FFA630", "#124E49", "#E8493F", "#72A7EC"] as const;
+const CONFETTI_COLORS = [
+  "#286BDC",
+  "#2EC4B6",
+  "#FFA630",
+  "#124E49",
+  "#E8493F",
+  "#72A7EC",
+] as const;
 
 type ConfettiPiece = {
   id: number;
@@ -28,19 +50,19 @@ type ConfettiPiece = {
   round: boolean;
 };
 
-export default function PartnerApplicationSubmitted() {
-  const router = useRouter();
-  const { data, error, isLoading } = usePartnerApplication();
+type PartnerApplicationSubmittedViewProps = {
+  reference: string;
+  showConfetti?: boolean;
+};
+
+export function PartnerApplicationSubmittedView({
+  reference,
+  showConfetti = false,
+}: PartnerApplicationSubmittedViewProps) {
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-  const isSubmitted = data?.application.currentStep === "SUBMITTED";
 
   useEffect(() => {
-    if (!data) return;
-    if (!isSubmitted) router.replace(routes.web.partnerApplicationReview);
-  }, [data, isSubmitted, router]);
-
-  useEffect(() => {
-    if (!isSubmitted) return;
+    if (!showConfetti) return;
 
     const pieces = Array.from({ length: 34 }, (_, index): ConfettiPiece => ({
       id: index,
@@ -57,18 +79,27 @@ export default function PartnerApplicationSubmitted() {
 
     setConfetti(pieces);
     const timer = window.setTimeout(() => setConfetti([]), 3000);
-    return () => window.clearTimeout(timer);
-  }, [isSubmitted]);
 
-  if (isLoading || !data) return error ? <ApplicationLoadError message={error} /> : <ApplicationLoading />;
+    return () => window.clearTimeout(timer);
+  }, [showConfetti]);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-01 px-4 py-9">
-      <span aria-hidden="true" className="absolute -right-16 top-0 h-44 w-44 rounded-full bg-tertiary-06/[0.05]" />
-      <span aria-hidden="true" className="absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-primary-06/[0.05]" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-01 px-4 py-9">
+      <span
+        aria-hidden="true"
+        className="absolute -right-16 top-0 h-44 w-44 rounded-full bg-tertiary-06/[0.05]"
+      />
+      <span
+        aria-hidden="true"
+        className="absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-primary-06/[0.05]"
+      />
+
       <section className="relative w-full max-w-[560px] overflow-hidden rounded-[20px] border border-neutral-03/60 bg-white px-6 py-8 md:px-10 md:py-10">
         {confetti.length ? (
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[260px] overflow-hidden">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[260px] overflow-hidden"
+          >
             {confetti.map((piece) => (
               <span
                 key={piece.id}
@@ -91,24 +122,71 @@ export default function PartnerApplicationSubmitted() {
           </div>
         ) : null}
 
-        <div className="mx-auto mt-3 flex h-20 w-20 items-center justify-center rounded-full border-[5px] border-primary-06 bg-white">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-tertiary-09 text-3xl font-bold text-white">✓</span>
+        <div className="mx-auto mt-3 flex h-20 w-20 items-center justify-center rounded-full bg-tertiary-09 text-white">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 36 36"
+            className="h-9 w-9"
+            fill="none"
+          >
+            <path
+              d="m7 18 7 7L29 10"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
-        <h1 className="mt-6 text-center font-display text-[26px] font-bold leading-8 text-primary-10">Application Submitted!</h1>
-        <p className="mx-auto mt-2 max-w-[430px] text-center font-sans text-sm leading-6 text-text-body-light">Thank you for applying to become a Zionra Shipping Partner.</p>
-        <div className="mt-6 h-1.5 overflow-hidden rounded bg-neutral-03"><div className="h-full w-[72%] rounded bg-primary-06" /></div>
-        <h2 className="mt-6 text-center font-display text-base font-bold text-primary-10">What happens next?</h2>
+
+        <h1 className="mt-6 text-center font-display text-[26px] font-bold leading-8 text-primary-10">
+          Application Submitted!
+        </h1>
+        <p className="mx-auto mt-2 max-w-[430px] text-center font-sans text-sm leading-6 text-text-body-light">
+          Thank you for applying to become a Zionra Shipping Partner.
+        </p>
+
+        <div className="mx-auto mt-6 h-px w-full bg-neutral-02" />
+
+        <h2 className="mt-6 text-center font-display text-base font-bold text-primary-10">
+          What happens next?
+        </h2>
+
         <div className="mt-2">
           {NEXT_STEPS.map((step, index) => (
-            <div key={step.title} className="flex gap-3 border-b border-neutral-02 py-4 last:border-b-0">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-02 font-sans text-xs text-neutral-06">{index + 1}</span>
-              <div><h3 className="font-display text-sm font-bold text-primary-10">{step.title}</h3><p className="mt-1 font-sans text-xs leading-5 text-text-body-light">{step.description}</p></div>
+            <div
+              key={step.title}
+              className="flex gap-3 border-b border-neutral-02 py-4 last:border-b-0"
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-02 font-sans text-xs text-neutral-06">
+                {index + 1}
+              </span>
+              <div>
+                <h3 className="font-display text-sm font-bold text-primary-10">
+                  {step.title}
+                </h3>
+                <p className="mt-1 font-sans text-xs leading-5 text-text-body-light">
+                  {step.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
-        <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-primary-03 bg-primary-01 px-3 py-2 font-sans text-xs"><span className="text-neutral-06">📋 Application reference:</span><span className="font-medium text-primary-06">{data.application.applicationReference}</span></div>
+
+        <div className="mt-5 flex items-center justify-between gap-3 rounded-lg border border-primary-03 bg-primary-01 px-3 py-2 font-sans text-xs">
+          <span className="text-neutral-06">📋 Application reference:</span>
+          <span className="font-medium text-primary-06">{reference}</span>
+        </div>
+
+        <div className="mt-7 flex justify-center">
+          <Link
+            href={routes.web.partnerDashboard}
+            className="zion-btn zion-btn-blue zion-btn-md min-w-[190px]"
+          >
+            Go to Dashboard <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </section>
-      <Link href={routes.web.partnerDashboard} className="zion-btn zion-btn-blue zion-btn-md mt-8 min-w-[190px]">Go to Dashboard <span aria-hidden="true">→</span></Link>
 
       <style jsx>{`
         .partner-confetti-piece {
@@ -128,7 +206,8 @@ export default function PartnerApplicationSubmitted() {
           }
           100% {
             opacity: 0;
-            transform: translate3d(var(--confetti-drift), 250px, 0) rotate(var(--confetti-rotation));
+            transform: translate3d(var(--confetti-drift), 250px, 0)
+              rotate(var(--confetti-rotation));
           }
         }
 
@@ -139,5 +218,34 @@ export default function PartnerApplicationSubmitted() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function PartnerApplicationSubmitted() {
+  const router = useRouter();
+  const { data, error, isLoading } = usePartnerApplication();
+  const isSubmitted = data?.application.currentStep === "SUBMITTED";
+
+  useEffect(() => {
+    if (!data || isSubmitted) return;
+    router.replace(routes.web.partnerApplicationReview);
+  }, [data, isSubmitted, router]);
+
+  if (isLoading || !data) {
+    return error ? (
+      <ApplicationLoadError message={error} />
+    ) : (
+      <ApplicationLoading />
+    );
+  }
+
+  if (!isSubmitted || !data.application.applicationReference) {
+    return <ApplicationLoading />;
+  }
+
+  return (
+    <PartnerApplicationSubmittedView
+      reference={data.application.applicationReference}
+    />
   );
 }
