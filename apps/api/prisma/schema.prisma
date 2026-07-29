@@ -307,9 +307,12 @@ model ShippingPartnerApplication {
   collectionMethod           String?
   deliveryMethod             String?
 
-  applicationReference       String?                        @unique
-  submittedAt                DateTime?
-  createdAt                  DateTime                       @default(now())
+  applicationReference         String?                        @unique
+  submittedAt                  DateTime?
+  submissionEmailSentAt        DateTime?
+  submissionEmailLastAttemptAt DateTime?
+  submissionEmailLastError     String?
+  createdAt                    DateTime                       @default(now())
   updatedAt                  DateTime                       @updatedAt
 
   partnerId                  String                         @unique
@@ -318,6 +321,7 @@ model ShippingPartnerApplication {
 
   @@index([currentStep])
   @@index([submittedAt])
+  @@index([submittedAt, submissionEmailSentAt], map: "partner_application_submission_email_pending_idx")
 }
 
 model ShippingPartnerApplicationContact {

@@ -19,7 +19,11 @@ import {
   PartnerSelect,
   PhoneField,
 } from "./PartnerApplicationUI";
-import type { ApiErrorResponse, PartnerApplicationContact } from "./types";
+import type {
+  ApiErrorResponse,
+  PartnerApplicationContact,
+  PartnerApplicationResponse,
+} from "./types";
 import { usePartnerApplication } from "./usePartnerApplication";
 
 type BusinessValues = {
@@ -48,45 +52,85 @@ function countryFromCallingCode(value: string | null | undefined): CountryCode {
   return COUNTRY_OPTIONS.find((country) => country.callingCode === value)?.code ?? "GB";
 }
 
+function buildBusinessValues(
+  data: PartnerApplicationResponse,
+): BusinessValues {
+  const primaryContact = data.application.contacts[0] ?? {
+    ...EMPTY_CONTACT,
+    fullName: `${data.partner.firstName} ${data.partner.lastName}`.trim(),
+    email: data.partner.email,
+    phoneCountryCode: data.partner.phoneCountryCode,
+    phoneNumber: data.partner.phoneNumber,
+    isPrimary: true,
+  };
+
+  return {
+    registeredBusinessName:
+      data.application.registeredBusinessName ?? "",
+    companyEmailAddress:
+      data.application.companyEmailAddress ?? data.partner.email,
+    businessAddress: data.application.businessAddress ?? "",
+    companyHouseNumber: data.application.companyHouseNumber ?? "",
+    companyPhoneCountryCode:
+      data.application.companyPhoneCountryCode ??
+      data.partner.phoneCountryCode,
+    companyPhoneNumber:
+      data.application.companyPhoneNumber ?? data.partner.phoneNumber,
+    website: data.application.website ?? "",
+    contacts: [
+      { ...primaryContact, isPrimary: true, position: 0 },
+      ...data.application.contacts.slice(1).map((contact, index) => ({
+        ...contact,
+        isPrimary: false,
+        position: index + 1,
+      })),
+    ],
+  };
+}
+
 export default function PartnerBusinessInformationForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data, error: loadError, isLoading } = usePartnerApplication();
-  const [values, setValues] = useState<BusinessValues | null>(null);
+
+  useEffect(() => {
+    if (data?.application.currentStep === "SUBMITTED") {
+      router.replace(routes.web.partnerApplicationSubmitted);
+    }
+  }, [data, router]);
+
+  if (isLoading || !data) {
+    return loadError ? (
+      <ApplicationLoadError message={loadError} />
+    ) : (
+      <ApplicationLoading />
+    );
+  }
+
+  if (data.application.currentStep === "SUBMITTED") {
+    return <ApplicationLoading />;
+  }
+
+  return (
+    <BusinessInformationEditor
+      key={data.application.id}
+      data={data}
+    />
+  );
+}
+
+function BusinessInformationEditor({
+  data,
+}: {
+  data: PartnerApplicationResponse;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [values, setValues] = useState<BusinessValues>(() =>
+    buildBusinessValues(data),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    if (!data || values) return;
-    if (data.application.currentStep === "SUBMITTED") {
-      router.replace(routes.web.partnerApplicationSubmitted);
-      return;
-    }
-
-    const primaryContact = data.application.contacts[0] ?? {
-      ...EMPTY_CONTACT,
-      fullName: `${data.partner.firstName} ${data.partner.lastName}`.trim(),
-      email: data.partner.email,
-      phoneCountryCode: data.partner.phoneCountryCode,
-      phoneNumber: data.partner.phoneNumber,
-      isPrimary: true,
-    };
-
-    setValues({
-      registeredBusinessName: data.application.registeredBusinessName ?? "",
-      companyEmailAddress: data.application.companyEmailAddress ?? data.partner.email,
-      businessAddress: data.application.businessAddress ?? "",
-      companyHouseNumber: data.application.companyHouseNumber ?? "",
-      companyPhoneCountryCode: data.application.companyPhoneCountryCode ?? data.partner.phoneCountryCode,
-      companyPhoneNumber: data.application.companyPhoneNumber ?? data.partner.phoneNumber,
-      website: data.application.website ?? "",
-      contacts: [
-        { ...primaryContact, isPrimary: true, position: 0 },
-        ...data.application.contacts.slice(1).map((contact, index) => ({ ...contact, isPrimary: false, position: index + 1 })),
-      ],
-    });
-  }, [data, router, values]);
 
   function updateField<K extends keyof Omit<BusinessValues, "contacts">>(field: K, value: BusinessValues[K]) {
     setValues((current) => (current ? { ...current, [field]: value } : current));
@@ -141,8 +185,6 @@ export default function PartnerBusinessInformationForm() {
       setIsSaving(false);
     }
   }
-
-  if (isLoading || !data || !values) return loadError ? <ApplicationLoadError message={loadError} /> : <ApplicationLoading />;
 
   const companyCountry = countryFromCallingCode(values.companyPhoneCountryCode);
 

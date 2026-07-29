@@ -12,6 +12,7 @@ import {
 import { createLoginVerificationCodeEmail } from "../emails/LoginVerificationCodeEmail.js";
 import { createPasswordChangedEmail } from "../emails/PasswordChangedEmail.js";
 import { createPasswordResetCodeEmail } from "../emails/PasswordResetCodeEmail.js";
+import { createPartnerApplicationReceivedEmail } from "../emails/PartnerApplicationReceivedEmail.js";
 import { createVerificationCodeEmail } from "../emails/VerificationCodeEmail.js";
 import { createWelcomeEmail } from "../emails/WelcomeEmail.js";
 import { resend } from "../lib/resend.js";
@@ -242,5 +243,29 @@ export async function sendPartnerVerificationEmail(input: {
     text: content.text,
     idempotencyKey: `partner-verification/${input.verificationCodeId}`,
     category: "partner_verification",
+  });
+}
+
+export async function sendPartnerApplicationReceivedEmail(input: {
+  applicationId: string;
+  partnerId: string;
+  firstName: string;
+  email: string;
+  applicationReference: string;
+}) {
+  const content = createPartnerApplicationReceivedEmail({
+    firstName: input.firstName,
+    applicationReference: input.applicationReference,
+    supportEmail: env.EMAIL_REPLY_TO,
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `partner-application-received/${input.applicationId}`,
+    category: "partner_application_received",
   });
 }

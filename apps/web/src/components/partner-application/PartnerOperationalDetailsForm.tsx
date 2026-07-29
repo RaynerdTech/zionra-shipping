@@ -26,7 +26,7 @@ import {
   PartnerSelect,
   TagsInput,
 } from "./PartnerApplicationUI";
-import type { ApiErrorResponse } from "./types";
+import type { ApiErrorResponse, PartnerApplicationResponse } from "./types";
 import { usePartnerApplication } from "./usePartnerApplication";
 
 type OperationalValues = {
@@ -42,39 +42,89 @@ type OperationalValues = {
   upfrontImmigrationCharge: "" | "Yes" | "No";
 };
 
+function buildOperationalValues(
+  data: PartnerApplicationResponse,
+): OperationalValues {
+  return {
+    collectionCities: data.application.collectionCities,
+    itemsHandled: data.application.itemsHandled,
+    operationalBusinessAddress:
+      data.application.operationalBusinessAddress ??
+      data.application.businessAddress ??
+      "",
+    shippingMethod: data.application.shippingMethod ?? "",
+    shipmentFrequency: data.application.shipmentFrequency ?? "",
+    airCargoPricePerKg: data.application.airCargoPricePerKg ?? "",
+    seaCargoPricePerKg: data.application.seaCargoPricePerKg ?? "",
+    pricePerBarrel: data.application.pricePerBarrel ?? "",
+    insuranceAvailable:
+      data.application.insuranceAvailable === null
+        ? ""
+        : data.application.insuranceAvailable
+          ? "Yes"
+          : "No",
+    upfrontImmigrationCharge:
+      data.application.upfrontImmigrationCharge === null
+        ? ""
+        : data.application.upfrontImmigrationCharge
+          ? "Yes"
+          : "No",
+  };
+}
+
 export default function PartnerOperationalDetailsForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { data, error: loadError, isLoading } = usePartnerApplication();
-  const [values, setValues] = useState<OperationalValues | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formError, setFormError] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!data || values) return;
+    if (!data) return;
+
     if (data.application.currentStep === "SUBMITTED") {
       router.replace(routes.web.partnerApplicationSubmitted);
       return;
     }
+
     if (APPLICATION_STEP_RANK[data.application.currentStep] < 2) {
       router.replace(routes.web.partnerBusinessInformation);
-      return;
     }
+  }, [data, router]);
 
-    setValues({
-      collectionCities: data.application.collectionCities,
-      itemsHandled: data.application.itemsHandled,
-      operationalBusinessAddress: data.application.operationalBusinessAddress ?? data.application.businessAddress ?? "",
-      shippingMethod: data.application.shippingMethod ?? "",
-      shipmentFrequency: data.application.shipmentFrequency ?? "",
-      airCargoPricePerKg: data.application.airCargoPricePerKg ?? "",
-      seaCargoPricePerKg: data.application.seaCargoPricePerKg ?? "",
-      pricePerBarrel: data.application.pricePerBarrel ?? "",
-      insuranceAvailable: data.application.insuranceAvailable === null ? "" : data.application.insuranceAvailable ? "Yes" : "No",
-      upfrontImmigrationCharge: data.application.upfrontImmigrationCharge === null ? "" : data.application.upfrontImmigrationCharge ? "Yes" : "No",
-    });
-  }, [data, router, values]);
+  if (isLoading || !data) {
+    return loadError ? (
+      <ApplicationLoadError message={loadError} />
+    ) : (
+      <ApplicationLoading />
+    );
+  }
+
+  if (
+    data.application.currentStep === "SUBMITTED" ||
+    APPLICATION_STEP_RANK[data.application.currentStep] < 2
+  ) {
+    return <ApplicationLoading />;
+  }
+
+  return (
+    <OperationalDetailsEditor
+      key={data.application.id}
+      data={data}
+    />
+  );
+}
+
+function OperationalDetailsEditor({
+  data,
+}: {
+  data: PartnerApplicationResponse;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [values, setValues] = useState<OperationalValues>(() =>
+    buildOperationalValues(data),
+  );
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   function updateField<K extends keyof OperationalValues>(field: K, value: OperationalValues[K]) {
     setValues((current) => current ? { ...current, [field]: value } : current);
@@ -124,8 +174,6 @@ export default function PartnerOperationalDetailsForm() {
       setIsSaving(false);
     }
   }
-
-  if (isLoading || !data || !values) return loadError ? <ApplicationLoadError message={loadError} /> : <ApplicationLoading />;
 
   const showAir = values.shippingMethod === "Air cargo" || values.shippingMethod === "Both";
   const showSea = values.shippingMethod === "Sea cargo" || values.shippingMethod === "Both";

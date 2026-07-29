@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import {
@@ -59,12 +59,10 @@ export function PartnerApplicationSubmittedView({
   reference,
   showConfetti = false,
 }: PartnerApplicationSubmittedViewProps) {
-  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+  const confetti = useMemo<ConfettiPiece[]>(() => {
+    if (!showConfetti) return [];
 
-  useEffect(() => {
-    if (!showConfetti) return;
-
-    const pieces = Array.from({ length: 34 }, (_, index): ConfettiPiece => ({
+    return Array.from({ length: 34 }, (_, index): ConfettiPiece => ({
       id: index,
       left: 4 + ((index * 17) % 92),
       delay: (index % 9) * 0.055,
@@ -76,11 +74,6 @@ export function PartnerApplicationSubmittedView({
       rotation: 360 + (index % 5) * 180,
       round: index % 4 === 0,
     }));
-
-    setConfetti(pieces);
-    const timer = window.setTimeout(() => setConfetti([]), 3000);
-
-    return () => window.clearTimeout(timer);
   }, [showConfetti]);
 
   return (

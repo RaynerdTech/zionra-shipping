@@ -1794,6 +1794,9 @@ export const ShippingPartnerApplicationScalarFieldEnum = {
   deliveryMethod: 'deliveryMethod',
   applicationReference: 'applicationReference',
   submittedAt: 'submittedAt',
+  submissionEmailSentAt: 'submissionEmailSentAt',
+  submissionEmailLastAttemptAt: 'submissionEmailLastAttemptAt',
+  submissionEmailLastError: 'submissionEmailLastError',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   partnerId: 'partnerId'

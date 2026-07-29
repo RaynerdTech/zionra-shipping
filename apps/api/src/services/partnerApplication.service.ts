@@ -21,6 +21,7 @@ import {
   validatePartnerOperationalDetails,
 } from "../validators/partnerApplication.validators.js";
 import { getPartnerFromOnboardingToken } from "./partnerAuth.service.js";
+import { attemptPartnerApplicationReceivedEmail } from "./partnerApplicationEmail.service.js";
 
 const STEP = {
   BUSINESS_INFORMATION: "BUSINESS_INFORMATION",
@@ -370,6 +371,8 @@ export async function submitPartnerApplication(token: string | undefined) {
   }
 
   if (application.submittedAt && application.applicationReference) {
+    await attemptPartnerApplicationReceivedEmail(application.id);
+
     return {
       application: toPublicApplication(application),
       reference: application.applicationReference,
@@ -431,6 +434,8 @@ export async function submitPartnerApplication(token: string | undefined) {
       "Unable to finalise the application submission.",
     );
   }
+
+  await attemptPartnerApplicationReceivedEmail(updated.id);
 
   return {
     application: toPublicApplication(updated),

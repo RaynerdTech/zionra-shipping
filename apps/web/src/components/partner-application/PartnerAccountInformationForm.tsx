@@ -1,7 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { type ChangeEvent, type FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { routes } from "@/config/routes";
@@ -24,7 +31,7 @@ import {
   PartnerApplicationShell,
   PartnerSelect,
 } from "./PartnerApplicationUI";
-import type { ApiErrorResponse } from "./types";
+import type { ApiErrorResponse, PartnerApplicationResponse } from "./types";
 import { usePartnerApplication } from "./usePartnerApplication";
 
 type AccountValues = {
@@ -42,11 +49,81 @@ function RemoveLogoIcon() {
   );
 }
 
+function buildAccountValues(
+  data: PartnerApplicationResponse,
+): AccountValues {
+  return {
+    companyBio: data.application.companyBio ?? "",
+    responseTime: data.application.responseTime ?? "",
+    collectionMethod: data.application.collectionMethod ?? "",
+    deliveryMethod: data.application.deliveryMethod ?? "",
+  };
+}
+
 export default function PartnerAccountInformationForm() {
   const router = useRouter();
+  const {
+    data,
+    setData,
+    error: loadError,
+    isLoading,
+  } = usePartnerApplication();
+
+  useEffect(() => {
+    if (!data) return;
+
+    if (data.application.currentStep === "SUBMITTED") {
+      router.replace(routes.web.partnerApplicationSubmitted);
+      return;
+    }
+
+    if (APPLICATION_STEP_RANK[data.application.currentStep] < 3) {
+      router.replace(
+        data.application.currentStep === "BUSINESS_INFORMATION"
+          ? routes.web.partnerBusinessInformation
+          : routes.web.partnerOperationalDetails,
+      );
+    }
+  }, [data, router]);
+
+  if (isLoading || !data) {
+    return loadError ? (
+      <ApplicationLoadError message={loadError} />
+    ) : (
+      <ApplicationLoading />
+    );
+  }
+
+  if (
+    data.application.currentStep === "SUBMITTED" ||
+    APPLICATION_STEP_RANK[data.application.currentStep] < 3
+  ) {
+    return <ApplicationLoading />;
+  }
+
+  return (
+    <AccountInformationEditor
+      key={data.application.id}
+      data={data}
+      setData={setData}
+    />
+  );
+}
+
+function AccountInformationEditor({
+  data,
+  setData,
+}: {
+  data: PartnerApplicationResponse;
+  setData: Dispatch<
+    SetStateAction<PartnerApplicationResponse | null>
+  >;
+}) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const { data, setData, error: loadError, isLoading } = usePartnerApplication();
-  const [values, setValues] = useState<AccountValues | null>(null);
+  const [values, setValues] = useState<AccountValues>(() =>
+    buildAccountValues(data),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [logoError, setLogoError] = useState("");
@@ -54,33 +131,8 @@ export default function PartnerAccountInformationForm() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isRemovingLogo, setIsRemovingLogo] = useState(false);
 
-  useEffect(() => {
-    if (!data || values) return;
-    if (data.application.currentStep === "SUBMITTED") {
-      router.replace(routes.web.partnerApplicationSubmitted);
-      return;
-    }
-    if (APPLICATION_STEP_RANK[data.application.currentStep] < 3) {
-      router.replace(
-        data.application.currentStep === "BUSINESS_INFORMATION"
-          ? routes.web.partnerBusinessInformation
-          : routes.web.partnerOperationalDetails,
-      );
-      return;
-    }
-
-    setValues({
-      companyBio: data.application.companyBio ?? "",
-      responseTime: data.application.responseTime ?? "",
-      collectionMethod: data.application.collectionMethod ?? "",
-      deliveryMethod: data.application.deliveryMethod ?? "",
-    });
-  }, [data, router, values]);
-
-  const wordCount = useMemo(() => {
-    const text = values?.companyBio.trim() ?? "";
-    return text ? text.split(/\s+/).length : 0;
-  }, [values?.companyBio]);
+  const companyBio = values.companyBio.trim();
+  const wordCount = companyBio ? companyBio.split(/\s+/).length : 0;
 
   function updateField(field: keyof AccountValues, value: string) {
     setValues((current) => current ? { ...current, [field]: value } : current);
@@ -175,8 +227,6 @@ export default function PartnerAccountInformationForm() {
       setIsSaving(false);
     }
   }
-
-  if (isLoading || !data || !values) return loadError ? <ApplicationLoadError message={loadError} /> : <ApplicationLoading />;
 
   return (
     <PartnerApplicationShell activeStep={3} currentStep={data.application.currentStep} headerTitle="Final Step" headerDescription="Upload your company logo, add a business description, and complete your profile before submitting your application." pageTitle="Account Information">
