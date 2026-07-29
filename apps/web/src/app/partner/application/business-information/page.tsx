@@ -1,13 +1,13 @@
-/** Defines the protected first shipping-partner onboarding route. */
-
 import type { Metadata } from "next";
-import PartnerBusinessInformationPlaceholder from "@/components/auth/PartnerBusinessInformationPlaceholder";
+import { Suspense } from "react";
+import PartnerBusinessInformationForm from "@/components/partner-application/PartnerBusinessInformationForm";
+import { ApplicationLoading } from "@/components/partner-application/PartnerApplicationUI";
 
 export const metadata: Metadata = {
   title: "Business information | Zionra",
-  description: "Continue your Zionra shipping-partner application.",
+  description: "Tell Zionra about your shipping business.",
 };
 
 export default function PartnerBusinessInformationPage() {
-  return <PartnerBusinessInformationPlaceholder />;
+  return <Suspense fallback={<ApplicationLoading />}><PartnerBusinessInformationForm /></Suspense>;
 }

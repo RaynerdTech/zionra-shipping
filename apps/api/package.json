@@ -12,8 +12,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "test": "tsx --test tests/token.test.ts tests/customerAuth.validators.test.ts tests/partnerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts",
-    "test:watch": "tsx --test --watch tests/token.test.ts tests/customerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts"
+    "test": "tsx --test tests/token.test.ts tests/customerAuth.validators.test.ts tests/partnerAuth.validators.test.ts tests/partnerApplication.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts tests/partnerApplicationReceiptDelivery.test.ts",
+    "test:watch": "tsx --test --watch tests/token.test.ts tests/customerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts",
+    "email:retry-partner-applications": "tsx src/scripts/retryPartnerApplicationReceivedEmails.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
@@ -27,7 +28,9 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "resend": "^6.18.0",
-    "zod": "^4.2.1"
+    "zod": "^4.2.1",
+    "cloudinary": "^2.10.0",
+    "multer": "^2.2.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -39,6 +42,7 @@
     "@types/pg": "^8.16.0",
     "prisma": "^7.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@types/multer": "^2.2.0"
   }
 }

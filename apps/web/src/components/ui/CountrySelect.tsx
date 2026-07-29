@@ -59,7 +59,10 @@ function CountryFlag({ country }: { country: CountryOption }) {
         width="24"
         height="18"
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
       />
     </span>
   );

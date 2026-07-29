@@ -15,11 +15,36 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and restart staging
+    name: Build web artifact and deploy staging
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_API_URL: "https://api-staging.zionra.com"
+
     steps:
+      - name: Check out staging commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Build web application on GitHub runner
+        run: |
+          set -eo pipefail
+
+          npm ci --prefix apps/web --no-audit --no-fund
+          npm --prefix apps/web run build
+
+          test -f apps/web/.next/BUILD_ID
+
+          tar             --exclude="./cache"             -C apps/web/.next             -czf /tmp/zionra-web-next.tgz             .
+
       - name: Configure SSH
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -32,7 +57,15 @@ jobs:
           ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Build and deploy on WhoGoHost
+      - name: Upload web build artifact
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          scp             -P "$SSH_PORT"             /tmp/zionra-web-next.tgz             "$SSH_USER@$SSH_HOST:/home/zionraco/zionra-web-next.tgz"
+
+      - name: Deploy and restart on WhoGoHost
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
@@ -43,10 +76,11 @@ jobs:
 
           API_ROOT="/home/zionraco/zionra-staging/apps/api"
           WEB_ROOT="/home/zionraco/zionra-staging/apps/web"
+          WEB_ARCHIVE="/home/zionraco/zionra-web-next.tgz"
           API_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/api/22/bin/activate"
           WEB_ACTIVATE="/home/zionraco/nodevenv/zionra-staging/apps/web/22/bin/activate"
 
-          # Allow the DirectAdmin webhook time to fetch and deploy the push.
+          # Allow the DirectAdmin webhook time to fetch and deploy this commit.
           sleep 60
 
           (
@@ -61,17 +95,47 @@ jobs:
           (
             source "$WEB_ACTIVATE"
             cd "$WEB_ROOT"
-            npm install --include=dev --no-audit --no-fund
-            rm -rf .next
-            RAYON_NUM_THREADS=1 UV_THREADPOOL_SIZE=1 npm run build
+
+            # Runtime dependencies only. Next.js was already built on GitHub.
+            npm install --omit=dev --no-audit --no-fund
           )
+
+          deploy_web_build() {
+            local new_next="$WEB_ROOT/.next.new"
+            local old_next="$WEB_ROOT/.next.old"
+
+            test -f "$WEB_ARCHIVE"
+
+            rm -rf "$new_next" "$old_next"
+            mkdir -p "$new_next"
+            tar -xzf "$WEB_ARCHIVE" -C "$new_next"
+            test -f "$new_next/BUILD_ID"
+
+            if [ -d "$WEB_ROOT/.next" ]; then
+              mv "$WEB_ROOT/.next" "$old_next"
+            fi
+
+            if ! mv "$new_next" "$WEB_ROOT/.next"; then
+              rm -rf "$new_next"
+
+              if [ -d "$old_next" ]; then
+                mv "$old_next" "$WEB_ROOT/.next"
+              fi
+
+              return 1
+            fi
+
+            rm -rf "$old_next" "$WEB_ARCHIVE"
+          }
+
+          deploy_web_build
 
           restart_node_app() {
             local app_root="$1"
             local absolute_root="$2"
 
             if command -v cloudlinux-selector >/dev/null 2>&1; then
-              if cloudlinux-selector restart --json --interpreter nodejs --user zionraco --app-root "$app_root"; then
+              if cloudlinux-selector restart                 --json                 --interpreter nodejs                 --user zionraco                 --app-root "$app_root"; then
                 return 0
               fi
             fi

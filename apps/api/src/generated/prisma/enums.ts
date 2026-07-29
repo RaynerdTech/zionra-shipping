@@ -34,3 +34,14 @@ export const ShippingPartnerStatus = {
 } as const
 
 export type ShippingPartnerStatus = (typeof ShippingPartnerStatus)[keyof typeof ShippingPartnerStatus]
+
+
+export const ShippingPartnerApplicationStep = {
+  BUSINESS_INFORMATION: 'BUSINESS_INFORMATION',
+  OPERATIONAL_DETAILS: 'OPERATIONAL_DETAILS',
+  ACCOUNT_INFORMATION: 'ACCOUNT_INFORMATION',
+  REVIEW: 'REVIEW',
+  SUBMITTED: 'SUBMITTED'
+} as const
+
+export type ShippingPartnerApplicationStep = (typeof ShippingPartnerApplicationStep)[keyof typeof ShippingPartnerApplicationStep]
