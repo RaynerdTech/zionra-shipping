@@ -269,3 +269,80 @@ export async function sendPartnerApplicationReceivedEmail(input: {
     category: "partner_application_received",
   });
 }
+
+export async function sendPartnerLoginVerificationEmail(input: {
+  partnerId: string;
+  loginChallengeId: string;
+  emailSendCount: number;
+  firstName: string;
+  email: string;
+  code: string;
+}) {
+  const content = createLoginVerificationCodeEmail({
+    firstName: input.firstName,
+    code: input.code,
+    supportEmail: env.EMAIL_REPLY_TO,
+    accountLabel: "shipping partner",
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `partner-login-verification/${input.loginChallengeId}/${input.emailSendCount}`,
+    category: "partner_login_verification",
+  });
+}
+
+export async function sendPartnerPasswordResetCodeEmail(input: {
+  partnerId: string;
+  passwordResetCodeId: string;
+  firstName: string;
+  email: string;
+  code: string;
+}) {
+  const content = createPasswordResetCodeEmail({
+    firstName: input.firstName,
+    code: input.code,
+    supportEmail: env.EMAIL_REPLY_TO,
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `partner-password-reset/${input.passwordResetCodeId}`,
+    category: "partner_password_reset",
+  });
+}
+
+export async function sendPartnerPasswordChangedEmail(input: {
+  partnerId: string;
+  passwordResetCodeId: string;
+  firstName: string;
+  email: string;
+}) {
+  const secureAccountUrl = new URL(
+    `${WEB_ROUTES.partnerForgotPassword}?email=${encodeURIComponent(input.email)}`,
+    env.WEB_APP_URL,
+  ).toString();
+  const content = createPasswordChangedEmail({
+    firstName: input.firstName,
+    supportEmail: env.EMAIL_REPLY_TO,
+    secureAccountUrl,
+  });
+
+  return sendTransactionalEmail({
+    from: env.EMAIL_ACCOUNTS_FROM,
+    to: input.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    idempotencyKey: `partner-password-changed/${input.passwordResetCodeId}`,
+    category: "partner_password_changed",
+  });
+}

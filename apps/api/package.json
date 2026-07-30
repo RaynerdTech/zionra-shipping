@@ -12,7 +12,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "test": "tsx --test tests/token.test.ts tests/customerAuth.validators.test.ts tests/partnerAuth.validators.test.ts tests/partnerApplication.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts tests/partnerApplicationReceiptDelivery.test.ts",
+    "test": "tsx --test tests/token.test.ts tests/customerAuth.validators.test.ts tests/partnerAuth.validators.test.ts tests/partnerApplication.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts tests/partnerApplicationReceiptDelivery.test.ts tests/partnerAuth.email.test.ts tests/partnerAuth.destination.test.ts",
     "test:watch": "tsx --test --watch tests/token.test.ts tests/customerAuth.validators.test.ts tests/password.test.ts tests/errorHandler.test.ts",
     "email:retry-partner-applications": "tsx src/scripts/retryPartnerApplicationReceivedEmails.ts"
   },

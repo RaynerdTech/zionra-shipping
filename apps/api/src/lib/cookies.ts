@@ -28,8 +28,12 @@ import {
   CUSTOMER_PASSWORD_RESET_AUTH_DURATION_MS,
 } from "./token.js";
 import {
+  PARTNER_LOGIN_CHALLENGE_COOKIE_NAME,
+  PARTNER_LOGIN_CHALLENGE_DURATION_MS,
   PARTNER_ONBOARDING_COOKIE_NAME,
   PARTNER_ONBOARDING_DURATION_MS,
+  PARTNER_PASSWORD_RESET_AUTH_COOKIE_NAME,
+  PARTNER_PASSWORD_RESET_AUTH_DURATION_MS,
 } from "./partnerAuth.js";
 
 const GOOGLE_OAUTH_COOKIE_PATH = "/";
@@ -90,7 +94,7 @@ export function setGoogleOAuthNonceCookie(res: Response, nonce: string) {
 
 export function setGoogleOAuthFlowCookie(
   res: Response,
-  flow: "customer" | "partner",
+  flow: "customer" | "partner" | "partner-login",
 ) {
   res.cookie(GOOGLE_OAUTH_FLOW_COOKIE_NAME, flow, {
     ...getSensitiveCookieOptions(),
@@ -196,5 +200,41 @@ export function clearCustomerLoginChallengeCookie(res: Response) {
   res.clearCookie(CUSTOMER_LOGIN_CHALLENGE_COOKIE_NAME, {
     ...getSensitiveCookieOptions(),
     path: API_ROUTES.customerLoginBase,
+  });
+}
+
+export function setPartnerLoginChallengeCookie(
+  res: Response,
+  token: string,
+) {
+  res.cookie(PARTNER_LOGIN_CHALLENGE_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: PARTNER_LOGIN_CHALLENGE_DURATION_MS,
+    path: API_ROUTES.partnerLoginBase,
+  });
+}
+
+export function clearPartnerLoginChallengeCookie(res: Response) {
+  res.clearCookie(PARTNER_LOGIN_CHALLENGE_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: API_ROUTES.partnerLoginBase,
+  });
+}
+
+export function setPartnerPasswordResetAuthorizationCookie(
+  res: Response,
+  token: string,
+) {
+  res.cookie(PARTNER_PASSWORD_RESET_AUTH_COOKIE_NAME, token, {
+    ...getSensitiveCookieOptions(),
+    maxAge: PARTNER_PASSWORD_RESET_AUTH_DURATION_MS,
+    path: API_ROUTES.partnerAuthBase,
+  });
+}
+
+export function clearPartnerPasswordResetAuthorizationCookie(res: Response) {
+  res.clearCookie(PARTNER_PASSWORD_RESET_AUTH_COOKIE_NAME, {
+    ...getSensitiveCookieOptions(),
+    path: API_ROUTES.partnerAuthBase,
   });
 }

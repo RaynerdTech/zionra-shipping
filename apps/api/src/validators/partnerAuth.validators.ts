@@ -194,3 +194,86 @@ export function validatePartnerEmailCode(
     data: { email: emailValidation.success ? emailValidation.data.email : "", code },
   };
 }
+
+export type LoginShippingPartnerInput = {
+  email: string;
+  password: string;
+  marketingOptIn: boolean;
+};
+
+export type PartnerLoginVerificationCodeInput = {
+  code: string;
+};
+
+export type PartnerPasswordResetCodeInput = {
+  email: string;
+  code: string;
+};
+
+export type ResetShippingPartnerPasswordInput = {
+  password: string;
+};
+
+export function validateLoginShippingPartner(
+  requestBody: unknown,
+): ValidationResult<LoginShippingPartnerInput> {
+  const body = toBody(requestBody);
+  const email = getString(body, "email").toLowerCase();
+  const password = getString(body, "password");
+  const marketingOptIn = getBoolean(body, "marketingOptIn");
+  const errors: FieldErrors = {};
+
+  if (!email) errors.email = REQUIRED_MESSAGE;
+  else if (!isValidEmail(email)) errors.email = "Enter a valid email address.";
+
+  if (!password) errors.password = REQUIRED_MESSAGE;
+
+  return Object.keys(errors).length
+    ? { success: false, errors }
+    : { success: true, data: { email, password, marketingOptIn } };
+}
+
+export function validatePartnerLoginVerificationCode(
+  requestBody: unknown,
+): ValidationResult<PartnerLoginVerificationCodeInput> {
+  const code = getString(toBody(requestBody), "code");
+  const errors: FieldErrors = {};
+
+  if (!code) errors.code = REQUIRED_MESSAGE;
+  else if (!/^\d{6}$/.test(code)) {
+    errors.code = "Enter the 6 digit verification code.";
+  }
+
+  return Object.keys(errors).length
+    ? { success: false, errors }
+    : { success: true, data: { code } };
+}
+
+export function validatePartnerPasswordResetCode(
+  requestBody: unknown,
+): ValidationResult<PartnerPasswordResetCodeInput> {
+  return validatePartnerEmailCode(requestBody);
+}
+
+export function validateResetShippingPartnerPassword(
+  requestBody: unknown,
+): ValidationResult<ResetShippingPartnerPasswordInput> {
+  const body = toBody(requestBody);
+  const password = getString(body, "password");
+  const confirmPassword = getString(body, "confirmPassword");
+  const errors: FieldErrors = {};
+
+  if (!password) errors.password = REQUIRED_MESSAGE;
+  else if (password.length < 8) {
+    errors.password = "Password must be at least 8 characters.";
+  }
+
+  if (!confirmPassword) errors.confirmPassword = REQUIRED_MESSAGE;
+  else if (password && password !== confirmPassword) {
+    errors.confirmPassword = "Passwords do not match.";
+  }
+
+  return Object.keys(errors).length
+    ? { success: false, errors }
+    : { success: true, data: { password } };
+}

@@ -32,7 +32,7 @@ function formatSubmittedDate(value: string | null) {
 
 export default function PartnerDashboardPlaceholder() {
   const router = useRouter();
-  const { data, error, isLoading } = usePartnerApplication();
+  const { data, error, isLoading } = usePartnerApplication({ approvedOnly: true });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
 

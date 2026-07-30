@@ -4,8 +4,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   validateLinkGoogleShippingPartnerAccount,
+  validateLoginShippingPartner,
   validatePartnerEmailCode,
+  validatePartnerLoginVerificationCode,
+  validatePartnerPasswordResetCode,
   validateRegisterShippingPartner,
+  validateResetShippingPartnerPassword,
 } from "../src/validators/partnerAuth.validators.js";
 
 const validBody = {
@@ -70,4 +74,53 @@ test("partner Google linking requires the existing account password", () => {
     validateLinkGoogleShippingPartnerAccount({ password: " secure-password " }),
     { success: true, data: { password: "secure-password" } },
   );
+});
+
+
+test("partner login normalizes email and preserves opt-in intent", () => {
+  assert.deepEqual(
+    validateLoginShippingPartner({
+      email: " PARTNER@EXAMPLE.COM ",
+      password: " secure-password ",
+      marketingOptIn: true,
+    }),
+    {
+      success: true,
+      data: {
+        email: "partner@example.com",
+        password: "secure-password",
+        marketingOptIn: true,
+      },
+    },
+  );
+});
+
+test("partner login and password-reset verification require six digits", () => {
+  assert.deepEqual(validatePartnerLoginVerificationCode({ code: "001234" }), {
+    success: true,
+    data: { code: "001234" },
+  });
+
+  assert.deepEqual(
+    validatePartnerPasswordResetCode({
+      email: "PARTNER@EXAMPLE.COM",
+      code: "001234",
+    }),
+    {
+      success: true,
+      data: { email: "partner@example.com", code: "001234" },
+    },
+  );
+});
+
+test("partner password reset enforces length and confirmation", () => {
+  const result = validateResetShippingPartnerPassword({
+    password: "short",
+    confirmPassword: "different",
+  });
+
+  assert.equal(result.success, false);
+  if (result.success) return;
+  assert.equal(result.errors.password, "Password must be at least 8 characters.");
+  assert.equal(result.errors.confirmPassword, "Passwords do not match.");
 });

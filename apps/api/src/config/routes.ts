@@ -11,6 +11,7 @@ export const API_ROUTES = {
   customerLoginBase: "/api/customer/auth/login",
   customerGoogleBase: "/api/customer/auth/google",
   partnerAuthBase: "/api/partner/auth",
+  partnerLoginBase: "/api/partner/auth/login",
   partnerGoogleBase: "/api/partner/auth/google",
 } as const;
 
@@ -24,10 +25,21 @@ export const WEB_ROUTES = {
   customerCompleteProfile: "/complete-profile",
   customerLinkGoogleAccount: "/link-google-account",
   customerDashboard: "/dashboard",
+  partnerLogin: "/partner/login",
+  partnerLoginVerification: "/partner/login/verify",
+  partnerForgotPassword: "/partner/forgot-password",
+  partnerResetPassword: "/partner/reset-password",
   partnerApply: "/partner/apply",
   partnerVerifyEmail: "/partner/verify-email",
   partnerCompleteProfile: "/partner/complete-profile",
   partnerLinkGoogleAccount: "/partner/link-google-account",
   partnerBusinessInformation:
     "/partner/application/business-information",
+  partnerOperationalDetails:
+    "/partner/application/operational-details",
+  partnerAccountInformation:
+    "/partner/application/account-information",
+  partnerApplicationReview: "/partner/application/review",
+  partnerApplicationSubmitted: "/partner/application/submitted",
+  partnerDashboard: "/partner/dashboard",
 } as const;

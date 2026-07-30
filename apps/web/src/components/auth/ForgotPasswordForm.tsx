@@ -1,6 +1,6 @@
 /**
  * Responsibility:
- * Collects the customer email used to begin password recovery.
+ * Collects the account email used to begin password recovery.
  * It always advances with privacy-safe messaging and never confirms account existence.
  */
 
@@ -15,6 +15,7 @@ import AuthRecoveryShell from "./AuthRecoveryShell";
 
 type ForgotPasswordFormProps = {
   initialEmail?: string;
+  accountType?: "customer" | "partner";
 };
 
 type ForgotPasswordErrors = {
@@ -29,8 +30,20 @@ type ApiResponse = {
 
 export default function ForgotPasswordForm({
   initialEmail = "",
+  accountType = "customer",
 }: ForgotPasswordFormProps) {
   const router = useRouter();
+  const isPartner = accountType === "partner";
+  const forgotPasswordEndpoint = isPartner
+    ? routes.api.partnerAuth.forgotPassword
+    : routes.api.customerAuth.forgotPassword;
+  const verificationRoute = isPartner
+    ? routes.web.partnerVerifyPasswordResetCode
+    : routes.web.customerVerifyPasswordResetCode;
+  const backRoute = isPartner
+    ? routes.web.partnerLogin
+    : routes.web.home;
+  const backLabel = isPartner ? "Back to login" : "Back to home";
   const [email, setEmail] = useState(initialEmail.trim().toLowerCase());
   const [errors, setErrors] = useState<ForgotPasswordErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +82,7 @@ export default function ForgotPasswordForm({
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.forgotPassword),
+        buildApiUrl(forgotPasswordEndpoint),
         {
           method: "POST",
           credentials: "include",
@@ -95,7 +108,7 @@ export default function ForgotPasswordForm({
       }
 
       router.push(
-        `${routes.web.customerVerifyPasswordResetCode}?email=${encodeURIComponent(
+        `${verificationRoute}?email=${encodeURIComponent(
           normalizedEmail,
         )}`,
       );
@@ -111,8 +124,8 @@ export default function ForgotPasswordForm({
 
   return (
     <AuthRecoveryShell
-      backHref={routes.web.home}
-      backLabel="Back to home"
+      backHref={backRoute}
+      backLabel={backLabel}
       title="Find your account"
       description="Enter the email address connected to your Zionra account."
     >

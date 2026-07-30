@@ -68,6 +68,21 @@ export type ShippingPartner = Prisma.ShippingPartnerModel
  */
 export type ShippingPartnerEmailVerificationCode = Prisma.ShippingPartnerEmailVerificationCodeModel
 /**
+ * Model ShippingPartnerPasswordResetCode
+ * 
+ */
+export type ShippingPartnerPasswordResetCode = Prisma.ShippingPartnerPasswordResetCodeModel
+/**
+ * Model ShippingPartnerPasswordResetAuthorization
+ * 
+ */
+export type ShippingPartnerPasswordResetAuthorization = Prisma.ShippingPartnerPasswordResetAuthorizationModel
+/**
+ * Model ShippingPartnerLoginChallenge
+ * 
+ */
+export type ShippingPartnerLoginChallenge = Prisma.ShippingPartnerLoginChallengeModel
+/**
  * Model ShippingPartnerOnboardingSession
  * 
  */
