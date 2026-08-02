@@ -57,9 +57,9 @@ async function requestPartnerApplication(
 }
 
 export function usePartnerApplication({
-  approvedOnly = false,
-}: { approvedOnly?: boolean } = {}) {
-  const endpoint = approvedOnly
+  dashboard = false,
+}: { dashboard?: boolean } = {}) {
+  const endpoint = dashboard
     ? routes.api.partnerAuth.dashboard
     : routes.api.partnerAuth.application;
   const router = useRouter();

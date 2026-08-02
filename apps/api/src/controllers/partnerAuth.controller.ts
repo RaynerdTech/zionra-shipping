@@ -386,7 +386,7 @@ export async function resetPartnerPasswordController(
   }
 }
 
-export async function getApprovedPartnerDashboardController(
+export async function getPartnerDashboardController(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -396,17 +396,6 @@ export async function getApprovedPartnerDashboardController(
       | string
       | undefined;
     const partner = await getPartnerFromOnboardingToken(token);
-    const redirectTo = await resolvePartnerDestination(partner);
-
-    if (partner.status !== "APPROVED") {
-      res.status(HTTP_STATUS.FORBIDDEN).json({
-        message: "Your shipping-partner application must be approved before you can access the dashboard.",
-        code: "PARTNER_APPROVAL_REQUIRED",
-        redirectTo,
-      });
-      return;
-    }
-
     res.status(HTTP_STATUS.OK).json(await getPartnerApplication(token));
   } catch (error) {
     forwardError(next, error, "Unable to load the partner dashboard.");

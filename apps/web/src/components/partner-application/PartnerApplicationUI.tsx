@@ -422,6 +422,7 @@ export function UkCityAutosuggest({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listboxId = useId();
 
   const normalizedDraft = draft.trim().toLocaleLowerCase("en-GB");
@@ -444,8 +445,7 @@ export function UkCityAutosuggest({
 
       if (firstStarts !== secondStarts) return firstStarts ? -1 : 1;
       return first.localeCompare(second, "en-GB");
-    })
-    .slice(0, 8);
+    });
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -514,11 +514,16 @@ export function UkCityAutosuggest({
   return (
     <div ref={rootRef} className="relative min-w-0">
       <div
+        role="presentation"
+        onClick={() => {
+          inputRef.current?.focus();
+          setIsOpen(true);
+        }}
         className={`zion-input !h-auto min-h-[52px] w-full min-w-0 flex-wrap content-start items-center gap-1.5 overflow-hidden px-3 py-2 md:min-h-12 ${
           error
             ? "zion-input-error"
             : "focus-within:border-2 focus-within:border-primary-06"
-        }`}
+        } cursor-text`}
       >
         {values.map((value) => (
           <span
@@ -531,9 +536,10 @@ export function UkCityAutosuggest({
             <button
               type="button"
               aria-label={`Remove ${value}`}
-              onClick={() =>
-                onChange(values.filter((item) => item !== value))
-              }
+              onClick={(event) => {
+                event.stopPropagation();
+                onChange(values.filter((item) => item !== value));
+              }}
               className="shrink-0 rounded text-primary-06 transition-colors hover:text-primary-07 active:text-primary-08"
             >
               <CloseIcon />
@@ -542,6 +548,7 @@ export function UkCityAutosuggest({
         ))}
 
         <input
+          ref={inputRef}
           id={id}
           value={draft}
           role="combobox"

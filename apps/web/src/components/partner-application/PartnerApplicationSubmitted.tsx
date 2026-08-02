@@ -22,9 +22,9 @@ const NEXT_STEPS = [
       "A Zionra partner specialist may contact you to verify your details.",
   },
   {
-    title: "Account activation",
+    title: "Full dashboard access",
     description:
-      "Once approved, you’ll receive an email to activate your partner account.",
+      "Once approved, you’ll receive an email and your operational dashboard tools will be unlocked.",
   },
 ] as const;
 
@@ -248,6 +248,7 @@ export default function PartnerApplicationSubmitted() {
   return (
     <PartnerApplicationSubmittedView
       reference={data.application.applicationReference}
+      showDashboardAction
     />
   );
 }

@@ -321,6 +321,11 @@ export default function VerifyPasswordResetCodeForm({
           {maskEmail(normalizedEmail)}
         </div>
 
+        <p className="mx-auto mt-4 max-w-[430px] font-sans text-[13px] leading-5 text-[#D4DAE0]">
+          Created your account with Google? No password-reset code will be sent.
+          Return to Log in and continue with Google instead.
+        </p>
+
         <form onSubmit={handleVerify} noValidate className="mt-6 w-full">
           <AuthOtpInput
             ref={otpInputRef}

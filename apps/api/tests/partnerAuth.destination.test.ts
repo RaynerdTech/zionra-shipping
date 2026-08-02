@@ -18,7 +18,7 @@ test("approved partners are routed to the dashboard", () => {
   );
 });
 
-test("submitted partners who are not approved remain on the submitted screen", () => {
+test("submitted partners use the status-aware dashboard before approval", () => {
   for (const status of [
     "APPLICATION_SUBMITTED",
     "UNDER_REVIEW",
@@ -33,7 +33,7 @@ test("submitted partners who are not approved remain on the submitted screen", (
           submittedAt: new Date(),
         },
       }),
-      WEB_ROUTES.partnerApplicationSubmitted,
+      WEB_ROUTES.partnerDashboard,
     );
   }
 });

@@ -10,7 +10,7 @@ import {
   cancelPartnerLoginChallengeController,
   completePartnerGoogleProfileController,
   forgotPartnerPasswordController,
-  getApprovedPartnerDashboardController,
+  getPartnerDashboardController,
   getCurrentShippingPartnerController,
   getPartnerLoginChallengeController,
   getPartnerPasswordResetSessionController,
@@ -82,7 +82,7 @@ router.post(
   resendShippingPartnerVerificationCodeController,
 );
 router.get("/me", getCurrentShippingPartnerController);
-router.get("/dashboard", getApprovedPartnerDashboardController);
+router.get("/dashboard", getPartnerDashboardController);
 router.post("/logout", logoutPartnerController);
 router.get("/google", startPartnerGoogleAuthController);
 router.get("/google/pending-profile", getPendingPartnerGoogleProfileController);

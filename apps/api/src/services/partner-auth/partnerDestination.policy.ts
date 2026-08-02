@@ -1,7 +1,8 @@
 /**
  * Responsibility:
  * Applies the shipping-partner post-authentication routing policy without
- * performing database access. Approval is the only state that grants dashboard access.
+ * performing database access. Submitted partners enter a status-aware dashboard,
+ * while onboarding partners resume their incomplete application.
  */
 
 import { WEB_ROUTES } from "../../config/routes.js";
@@ -20,16 +21,12 @@ export function getPartnerDestination({
   status,
   application,
 }: PartnerDestinationInput) {
-  if (status === "APPROVED") {
-    return WEB_ROUTES.partnerDashboard;
-  }
-
   if (
     status !== "ONBOARDING" ||
     application?.currentStep === "SUBMITTED" ||
     application?.submittedAt
   ) {
-    return WEB_ROUTES.partnerApplicationSubmitted;
+    return WEB_ROUTES.partnerDashboard;
   }
 
   switch (application?.currentStep) {

@@ -159,6 +159,13 @@ export default function ForgotPasswordForm({
           ) : null}
         </label>
 
+        <div className="mt-4 rounded-lg border border-primary-02 bg-primary-01 px-3 py-2.5 font-sans text-sm leading-[22px] text-text-body-light">
+          Created your account with Google? Return to Log in and continue with
+          Google, using the same sign-in method you used when you created the
+          account. Password reset only applies to accounts that already have a
+          password.
+        </div>
+
         {errors.form ? (
           <p aria-live="polite" className="zion-field-error mt-4 text-center">
             {errors.form}
