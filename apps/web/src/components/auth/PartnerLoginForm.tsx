@@ -15,6 +15,7 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthBackButton from "./shared/AuthBackButton";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 import AuthDeliveryNetwork from "./shared/AuthDeliveryNetwork";
 import AuthPasswordField from "./shared/AuthPasswordField";
@@ -253,11 +254,13 @@ export default function PartnerLoginForm({
         <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] xl:fixed xl:right-0 xl:-top-[56px]" />
 
         <div className="relative z-[20] mx-auto w-full max-w-[424px] md:max-w-[628px] md:rounded-[20px] md:bg-white md:px-10 md:pb-8 md:pt-7 xl:w-[628px] xl:max-w-[628px] xl:px-16 xl:pb-5 xl:pt-6">
-          <Link href={routes.web.getStarted} className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0 md:px-0">
+          <AuthBackButton
+            fallbackHref={routes.web.getStarted}
+            className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0 md:px-0"
+          >
             <AuthBackArrowIcon />
-            <span className="md:hidden">Back</span>
-            <span className="hidden md:inline">Back to home</span>
-          </Link>
+            <span>Back</span>
+          </AuthBackButton>
 
           <div className="mx-auto w-full max-w-[500px] xl:max-w-[400px]">
             <header className="mt-7 text-center md:mt-5">
@@ -334,7 +337,7 @@ export default function PartnerLoginForm({
                 <div aria-live="polite" className="mt-4 text-center font-sans text-sm leading-[22px] text-error">
                   <p>{errors.form}</p>
                   {requiresVerification && email.trim() ? (
-                    <Link href={verificationHref} className="mt-1 inline-block font-medium text-primary-06 no-underline hover:text-primary-07">
+                    <Link href={verificationHref} className="mt-1 inline-block font-medium text-primary-06 no-underline hover:text-primary-07 active:text-primary-08">
                       Verify your email
                     </Link>
                   ) : null}
@@ -354,7 +357,7 @@ export default function PartnerLoginForm({
             />
 
             <div className="mt-5 text-center">
-              <Link href={routes.web.partnerForgotPassword} className="font-sans text-sm font-normal leading-[22px] text-primary-06 no-underline hover:text-primary-07">
+              <Link href={routes.web.partnerForgotPassword} className="font-sans text-sm font-normal leading-[22px] text-primary-06 no-underline hover:text-primary-07 active:text-primary-08">
                 Forgot your password?
               </Link>
             </div>
@@ -364,13 +367,13 @@ export default function PartnerLoginForm({
             <div className="mt-5 space-y-3 font-sans text-sm font-normal leading-[22px]">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-text-body-light">Become a shipping partner</span>
-                <Link href={routes.web.partnerApplication} className="inline-flex items-center gap-2 whitespace-nowrap text-primary-06 no-underline hover:text-primary-07">
+                <Link href={routes.web.partnerApplication} className="inline-flex items-center gap-2 whitespace-nowrap text-primary-06 no-underline hover:text-primary-07 active:text-primary-08">
                   Create Account <ForwardArrowIcon />
                 </Link>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <span className="text-text-body-light">Are you a customer?</span>
-                <Link href={routes.web.customerLogin} className="inline-flex items-center gap-2 whitespace-nowrap text-secondary-06 no-underline hover:text-secondary-07">
+                <Link href={routes.web.customerLogin} className="inline-flex items-center gap-2 whitespace-nowrap text-secondary-06 no-underline hover:text-secondary-07 active:text-secondary-08">
                   Login <ForwardArrowIcon />
                 </Link>
               </div>

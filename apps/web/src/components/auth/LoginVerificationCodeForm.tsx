@@ -432,7 +432,7 @@ export default function LoginVerificationCodeForm({
           onClick={handleCancel}
           disabled={isCancelling}
           aria-label="Cancel sign-in verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isCancelling ? <LoadingSpinner /> : <CloseIcon />}
         </button>
@@ -523,7 +523,7 @@ export default function LoginVerificationCodeForm({
               !isVerifying &&
               !isCancelling &&
               !outcome
-                ? "bg-primary-06 text-white hover:bg-primary-07"
+                ? "bg-primary-06 text-white hover:bg-primary-07 active:bg-primary-08"
                 : outcome === "success" || isVerifying
                   ? "cursor-wait bg-primary-06 text-white"
                   : "cursor-not-allowed bg-neutral-02 text-neutral-05"
@@ -558,7 +558,7 @@ export default function LoginVerificationCodeForm({
               cooldownSeconds > 0 ||
               outcome === "success"
             }
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 active:text-primary-01 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>{resendLabel}</span>

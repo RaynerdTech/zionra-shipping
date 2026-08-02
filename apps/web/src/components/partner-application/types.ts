@@ -29,7 +29,6 @@ export type PartnerApplication = {
   contacts: PartnerApplicationContact[];
   collectionCities: string[];
   itemsHandled: string[];
-  operationalBusinessAddress: string | null;
   shippingMethod: string | null;
   shipmentFrequency: string | null;
   airCargoPricePerKg: string | null;

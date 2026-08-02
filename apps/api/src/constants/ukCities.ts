@@ -1,0 +1,96 @@
+/**
+ * Canonical UK city names accepted for partner collection areas.
+ * Keep this list aligned with apps/web/src/lib/ukCities.ts.
+ */
+export const UK_CITIES = [
+  "Aberdeen",
+  "Armagh",
+  "Bangor, Northern Ireland",
+  "Bangor, Wales",
+  "Bath",
+  "Belfast",
+  "Birmingham",
+  "Bradford",
+  "Brighton and Hove",
+  "Bristol",
+  "Cambridge",
+  "Canterbury",
+  "Cardiff",
+  "Carlisle",
+  "Chelmsford",
+  "Chester",
+  "Chichester",
+  "Colchester",
+  "Coventry",
+  "Derby",
+  "Derry/Londonderry",
+  "Doncaster",
+  "Dundee",
+  "Dunfermline",
+  "Durham",
+  "Edinburgh",
+  "Ely",
+  "Exeter",
+  "Glasgow",
+  "Gloucester",
+  "Hereford",
+  "Inverness",
+  "Kingston upon Hull",
+  "Lancaster",
+  "Leeds",
+  "Leicester",
+  "Lichfield",
+  "Lincoln",
+  "Lisburn",
+  "Liverpool",
+  "London",
+  "Manchester",
+  "Milton Keynes",
+  "Newcastle upon Tyne",
+  "Newport",
+  "Newry",
+  "Norwich",
+  "Nottingham",
+  "Oxford",
+  "Perth",
+  "Peterborough",
+  "Plymouth",
+  "Portsmouth",
+  "Preston",
+  "Ripon",
+  "Salford",
+  "Salisbury",
+  "Sheffield",
+  "Southampton",
+  "Southend-on-Sea",
+  "St Albans",
+  "St Asaph",
+  "St Davids",
+  "Stirling",
+  "Stoke-on-Trent",
+  "Sunderland",
+  "Swansea",
+  "Truro",
+  "Wakefield",
+  "Wells",
+  "Westminster",
+  "Winchester",
+  "Wolverhampton",
+  "Worcester",
+  "Wrexham",
+  "York",
+] as const;
+
+const UK_CITY_BY_NORMALIZED_NAME = new Map(
+  UK_CITIES.map((city) => [city.toLocaleLowerCase("en-GB"), city]),
+);
+
+export function normalizeUkCities(values: string[]) {
+  const normalized = values.map((value) =>
+    UK_CITY_BY_NORMALIZED_NAME.get(value.trim().toLocaleLowerCase("en-GB")),
+  );
+
+  return normalized.every((city): city is (typeof UK_CITIES)[number] => Boolean(city))
+    ? [...new Set(normalized)]
+    : null;
+}

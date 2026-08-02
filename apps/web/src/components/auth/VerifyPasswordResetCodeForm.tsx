@@ -287,7 +287,7 @@ export default function VerifyPasswordResetCodeForm({
         <Link
           href={forgotPasswordRoute}
           aria-label="Close password-reset verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >
           <CloseIcon />
         </Link>
@@ -353,7 +353,7 @@ export default function VerifyPasswordResetCodeForm({
             aria-busy={isVerifying}
             className={`mt-3 inline-flex h-12 w-[193px] items-center justify-center rounded-md font-sans text-base transition-colors ${
               codeIsComplete && !isVerified
-                ? "bg-primary-06 text-white hover:bg-primary-07"
+                ? "bg-primary-06 text-white hover:bg-primary-07 active:bg-primary-08"
                 : "cursor-not-allowed bg-neutral-02 text-neutral-05"
             }`}
           >
@@ -376,7 +376,7 @@ export default function VerifyPasswordResetCodeForm({
             type="button"
             disabled={isResending || isVerifying || isVerified || cooldownSeconds > 0}
             onClick={handleResend}
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 active:text-primary-01 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>

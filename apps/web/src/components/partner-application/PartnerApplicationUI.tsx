@@ -16,6 +16,7 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import CountrySelect from "@/components/ui/CountrySelect";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { UK_CITIES } from "@/lib/ukCities";
 import { APPLICATION_STEP_RANK, FIELD_LABEL_CLASS, REQUIRED_CLASS } from "./constants";
 import type { ApiErrorResponse, PartnerApplicationStep } from "./types";
 
@@ -203,7 +204,7 @@ function CancelApplicationModal({ onClose }: { onClose: () => void }) {
           <p className="mx-auto mt-2 max-w-[310px] font-sans text-base font-semibold leading-6 text-text-body-light">Are you sure you want to cancel the application?</p>
           {error ? <p className="zion-field-error mt-3">{error}</p> : null}
         </div>
-        <button type="button" disabled={isCancelling} onClick={onClose} className="block w-full border-t border-primary-02 bg-transparent px-5 py-4 font-sans text-lg text-neutral-10 hover:bg-white/50 disabled:opacity-60">No</button>
+        <button type="button" disabled={isCancelling} onClick={onClose} className="block w-full border-t border-primary-02 bg-transparent px-5 py-4 font-sans text-lg text-neutral-10 hover:bg-white/50 active:bg-white/70 disabled:opacity-60">No</button>
         <button type="button" disabled={isCancelling} onClick={cancelApplication} className="block w-full rounded-b-2xl border-t border-primary-02 bg-transparent px-5 py-4 font-sans text-lg text-error transition-colors hover:bg-white/50 active:text-[#BF1A10] disabled:opacity-60">
           {isCancelling ? "Cancelling…" : "Cancel application"}
         </button>
@@ -325,16 +326,16 @@ export function PartnerSelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-controls={listboxId} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input flex h-[52px] w-full items-center justify-between gap-3 text-left md:h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
+      <button id={id} type="button" role="combobox" aria-haspopup="listbox" aria-expanded={isOpen} aria-controls={listboxId} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input group flex h-[52px] w-full items-center justify-between gap-3 text-left md:h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
         <span className={`min-w-0 flex-1 truncate ${value ? "text-neutral-10" : "text-neutral-05"}`}>{value || placeholder}</span>
-        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
+        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-[background-color,color,transform] duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
       </button>
       {isOpen ? (
         <div id={listboxId} role="listbox" aria-labelledby={id} className="absolute inset-x-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-lg border border-neutral-03 bg-white py-1 shadow-[0_10px_30px_rgba(7,22,44,0.14)]">
           {options.map((option) => {
             const selected = option === value;
             return (
-              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => { onChange(option); setIsOpen(false); }} className={`flex w-full min-w-0 items-center justify-between gap-3 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${selected ? "bg-primary-06 text-white" : "text-neutral-10 hover:bg-primary-01"}`}>
+              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => { onChange(option); setIsOpen(false); }} className={`flex w-full min-w-0 items-center justify-between gap-3 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${selected ? "bg-primary-06 text-white" : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"}`}>
                 <span className="block min-w-0 break-words">{option}</span>
                 {selected ? <span className="shrink-0 text-white">✓</span> : null}
               </button>
@@ -378,16 +379,16 @@ export function PartnerMultiSelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <button id={id} type="button" aria-haspopup="listbox" aria-expanded={isOpen} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input flex min-h-[52px] w-full items-center justify-between gap-3 py-2 text-left md:min-h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
+      <button id={id} type="button" role="combobox" aria-haspopup="listbox" aria-expanded={isOpen} aria-invalid={error || undefined} onClick={() => setIsOpen((open) => !open)} className={`zion-input group flex min-h-[52px] w-full items-center justify-between gap-3 py-2 text-left md:min-h-12 ${error ? "zion-input-error" : isOpen ? "border-2 border-primary-06" : ""}`}>
         <span className={values.length ? "min-w-0 flex-1 truncate text-neutral-10" : "text-neutral-05"}>{values.length ? `${values.length} selected` : placeholder}</span>
-        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
+        <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-[background-color,color,transform] duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${isOpen ? "rotate-180" : ""}`}><ChevronIcon /></span>
       </button>
       {isOpen ? (
         <div role="listbox" aria-multiselectable="true" aria-labelledby={id} className="absolute inset-x-0 z-50 mt-2 max-h-[330px] overflow-y-auto rounded-xl border border-primary-02 bg-white p-2 shadow-[0_14px_32px_rgba(7,30,61,0.16)]">
           {options.map((option) => {
             const selected = values.includes(option);
             return (
-              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => toggle(option)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left font-sans text-sm ${selected ? "bg-primary-01 text-primary-08" : "text-neutral-09 hover:bg-primary-01/70"}`}>
+              <button key={option} type="button" role="option" aria-selected={selected} onClick={() => toggle(option)} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left font-sans text-sm ${selected ? "bg-primary-01 text-primary-08" : "text-neutral-09 hover:bg-primary-01/70 active:bg-primary-02/70"}`}>
                 <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${selected ? "border-primary-06 bg-primary-06 text-white" : "border-neutral-04 bg-white"}`}>{selected ? "✓" : ""}</span>
                 <span>{option}</span>
               </button>
@@ -404,7 +405,7 @@ export function PartnerMultiSelect({
   );
 }
 
-export function TagsInput({
+export function UkCityAutosuggest({
   id,
   values,
   placeholder,
@@ -418,59 +419,187 @@ export function TagsInput({
   error?: boolean;
 }) {
   const [draft, setDraft] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
 
-  function addDraft() {
-    const next = draft.trim().replace(/,$/, "");
-    if (!next) return;
-    if (!values.some((value) => value.toLowerCase() === next.toLowerCase())) onChange([...values, next]);
+  const normalizedDraft = draft.trim().toLocaleLowerCase("en-GB");
+  const selectedCities = new Set(
+    values.map((value) => value.toLocaleLowerCase("en-GB")),
+  );
+  const suggestions = UK_CITIES.filter(
+    (city) =>
+      !selectedCities.has(city.toLocaleLowerCase("en-GB")) &&
+      (!normalizedDraft ||
+        city.toLocaleLowerCase("en-GB").includes(normalizedDraft)),
+  )
+    .sort((first, second) => {
+      const firstStarts = first
+        .toLocaleLowerCase("en-GB")
+        .startsWith(normalizedDraft);
+      const secondStarts = second
+        .toLocaleLowerCase("en-GB")
+        .startsWith(normalizedDraft);
+
+      if (firstStarts !== secondStarts) return firstStarts ? -1 : 1;
+      return first.localeCompare(second, "en-GB");
+    })
+    .slice(0, 8);
+
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
+  function selectCity(city: string) {
+    onChange([...values, city]);
     setDraft("");
+    setActiveIndex(0);
+    setIsOpen(false);
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter" || event.key === ",") {
+    if (event.key === "ArrowDown") {
       event.preventDefault();
-      addDraft();
+      setIsOpen(true);
+      setActiveIndex((current) =>
+        suggestions.length ? (current + 1) % suggestions.length : 0,
+      );
+      return;
     }
-    if (event.key === "Backspace" && !draft && values.length) onChange(values.slice(0, -1));
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setIsOpen(true);
+      setActiveIndex((current) =>
+        suggestions.length
+          ? (current - 1 + suggestions.length) % suggestions.length
+          : 0,
+      );
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const exactMatch = UK_CITIES.find(
+        (city) => city.toLocaleLowerCase("en-GB") === normalizedDraft,
+      );
+      const city = exactMatch ?? suggestions[activeIndex];
+      if (city) selectCity(city);
+      return;
+    }
+
+    if (event.key === ",") {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === "Escape") {
+      setIsOpen(false);
+      return;
+    }
+
+    if (event.key === "Backspace" && !draft && values.length) {
+      onChange(values.slice(0, -1));
+    }
   }
 
   return (
-    <div
-      className={`zion-input !h-auto min-h-[52px] w-full min-w-0 flex-wrap content-start items-center gap-1.5 overflow-hidden px-3 py-2 md:min-h-12 ${
-        error
-          ? "zion-input-error"
-          : "focus-within:border-2 focus-within:border-primary-06"
-      }`}
-    >
-      {values.map((value) => (
-        <span
-          key={value}
-          className="inline-flex max-w-full min-w-0 shrink-0 items-center gap-1 rounded bg-primary-01 px-2 py-1 font-sans text-xs text-primary-08"
-        >
-          <span className="max-w-[180px] truncate sm:max-w-[240px]">
-            {value}
-          </span>
-          <button
-            type="button"
-            aria-label={`Remove ${value}`}
-            onClick={() =>
-              onChange(values.filter((item) => item !== value))
-            }
-            className="shrink-0 text-primary-06"
+    <div ref={rootRef} className="relative min-w-0">
+      <div
+        className={`zion-input !h-auto min-h-[52px] w-full min-w-0 flex-wrap content-start items-center gap-1.5 overflow-hidden px-3 py-2 md:min-h-12 ${
+          error
+            ? "zion-input-error"
+            : "focus-within:border-2 focus-within:border-primary-06"
+        }`}
+      >
+        {values.map((value) => (
+          <span
+            key={value}
+            className="inline-flex max-w-full min-w-0 shrink-0 items-center gap-1 rounded bg-primary-01 px-2 py-1 font-sans text-xs text-primary-08"
           >
-            <CloseIcon />
-          </button>
-        </span>
-      ))}
-      <input
-        id={id}
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
-        onKeyDown={onKeyDown}
-        onBlur={addDraft}
-        placeholder={values.length ? "Add another city" : placeholder}
-        className="min-w-[120px] flex-[1_1_120px] border-0 bg-transparent px-0 py-1 font-sans text-base font-normal leading-[26px] text-neutral-10 outline-none placeholder:text-neutral-05"
-      />
+            <span className="max-w-[180px] truncate sm:max-w-[240px]">
+              {value}
+            </span>
+            <button
+              type="button"
+              aria-label={`Remove ${value}`}
+              onClick={() =>
+                onChange(values.filter((item) => item !== value))
+              }
+              className="shrink-0 rounded text-primary-06 transition-colors hover:text-primary-07 active:text-primary-08"
+            >
+              <CloseIcon />
+            </button>
+          </span>
+        ))}
+
+        <input
+          id={id}
+          value={draft}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={isOpen}
+          aria-controls={listboxId}
+          aria-activedescendant={
+            isOpen && suggestions[activeIndex]
+              ? `${listboxId}-${activeIndex}`
+              : undefined
+          }
+          autoComplete="off"
+          onFocus={() => setIsOpen(true)}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            setActiveIndex(0);
+            setIsOpen(true);
+          }}
+          onKeyDown={onKeyDown}
+          placeholder={values.length ? "Add another UK city" : placeholder}
+          className="min-w-[120px] flex-[1_1_120px] border-0 bg-transparent px-0 py-1 font-sans text-base font-normal leading-[26px] text-neutral-10 outline-none placeholder:text-neutral-05"
+        />
+      </div>
+
+      {isOpen ? (
+        <div
+          id={listboxId}
+          role="listbox"
+          aria-label="UK city suggestions"
+          className="absolute inset-x-0 z-50 mt-2 max-h-64 overflow-y-auto rounded-xl border border-primary-02 bg-white p-1.5 shadow-[0_14px_32px_rgba(7,30,61,0.14)]"
+        >
+          {suggestions.length ? (
+            suggestions.map((city, index) => (
+              <button
+                id={`${listboxId}-${index}`}
+                key={city}
+                type="button"
+                role="option"
+                aria-selected={index === activeIndex}
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => selectCity(city)}
+                className={`block w-full rounded-lg px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
+                  index === activeIndex
+                    ? "bg-primary-01 text-primary-08"
+                    : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
+                }`}
+              >
+                {city}
+              </button>
+            ))
+          ) : (
+            <p className="px-3 py-2.5 font-sans text-sm leading-[22px] text-neutral-06">
+              No matching UK city. Choose a city from the available suggestions.
+            </p>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

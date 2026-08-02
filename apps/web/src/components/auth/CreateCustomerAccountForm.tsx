@@ -23,6 +23,7 @@ import { buildApiUrl } from "@/lib/api";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthBackButton from "./shared/AuthBackButton";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 import AuthPasswordField from "./shared/AuthPasswordField";
 import GoogleAuthButton from "./shared/GoogleAuthButton";
@@ -165,7 +166,7 @@ function ReferralSourceSelect({
         aria-expanded={isOpen}
         aria-controls="referralSourceOptions"
         onClick={() => setIsOpen((current) => !current)}
-        className={`zion-input flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
+        className={`zion-input group flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
           value ? "text-neutral-10" : "text-neutral-05"
         }`}
       >
@@ -174,7 +175,7 @@ function ReferralSourceSelect({
         </span>
 
         <span
-          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${
+          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-[background-color,color,transform] duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
             isOpen ? "rotate-180" : ""
           }`}
         >
@@ -198,7 +199,7 @@ function ReferralSourceSelect({
               className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
                 !value
                   ? "bg-primary-06 text-white"
-                  : "text-neutral-10 hover:bg-primary-01"
+                  : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
               }`}
             >
               <span className="block break-words">Select an option</span>
@@ -214,7 +215,7 @@ function ReferralSourceSelect({
                 className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
                   value === option
                     ? "bg-primary-06 text-white"
-                    : "text-neutral-10 hover:bg-primary-01"
+                    : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
                 }`}
               >
                 <span className="block break-words">{option}</span>
@@ -623,14 +624,13 @@ export default function CreateCustomerAccountForm() {
         <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] lg:fixed lg:right-0 lg:-top-[56px]" />
 
         <div className="relative z-[1] mx-auto w-full max-w-[424px] md:max-w-[628px]">
-          <Link
-            href={routes.web.getStarted}
-            className="inline-flex min-h-9 items-center gap-2 rounded-md px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
+          <AuthBackButton
+            fallbackHref={routes.web.getStarted}
+            className="inline-flex min-h-9 items-center gap-2 rounded-md bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
           >
             <AuthBackArrowIcon />
-            <span className="lg:hidden">Back</span>
-            <span className="hidden lg:inline">Back to home</span>
-          </Link>
+            <span>Back</span>
+          </AuthBackButton>
 
           <header className="mt-6 text-center md:mt-2">
             <h1 className="font-display text-[28px] font-semibold leading-[38px] tracking-[-0.7px] text-neutral-10 md:text-2xl md:leading-[34px] md:tracking-[-0.5px]">
@@ -794,14 +794,14 @@ export default function CreateCustomerAccountForm() {
                   I agree to Zionra&apos;s{" "}
                   <Link
                     href={routes.web.terms}
-                    className="text-primary-06 no-underline hover:text-primary-07"
+                    className="text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                   >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link
                     href={routes.web.privacy}
-                    className="text-primary-06 no-underline hover:text-primary-07"
+                    className="text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                   >
                     Privacy Policy
                   </Link>
@@ -857,7 +857,7 @@ export default function CreateCustomerAccountForm() {
               </span>
               <Link
                 href={routes.web.customerLogin}
-                className="inline-flex items-center gap-2 text-primary-06 no-underline hover:text-primary-07"
+                className="inline-flex items-center gap-2 text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
               >
                 Login
                 <ForwardArrowIcon />
@@ -870,7 +870,7 @@ export default function CreateCustomerAccountForm() {
               </span>
               <Link
                 href={routes.web.partnerApplication}
-                className="inline-flex items-center gap-2 text-secondary-06 no-underline hover:text-secondary-07"
+                className="inline-flex items-center gap-2 text-secondary-06 no-underline hover:text-secondary-07 active:text-secondary-08"
               >
                 Become a shipping partner
                 <ForwardArrowIcon />

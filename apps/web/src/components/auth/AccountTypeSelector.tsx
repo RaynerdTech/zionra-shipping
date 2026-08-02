@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useState } from "react";
 import NavigationButtonContent from "../ui/NavigationButtonContent";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthBackButton from "./shared/AuthBackButton";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 
 type AccountType = "customer" | "partner";
@@ -209,13 +210,13 @@ export default function AccountTypeSelector() {
             : "md:h-[638px] md:min-h-0"
         } md:m-0 md:w-[840px] md:max-w-full md:px-9 md:pb-6 md:pt-11`}
       >
-        <Link
-          href={ROUTES.home}
-          className="z-[1] -m-2 mb-7 ml-1 inline-flex w-fit items-center gap-2 rounded-md bg-transparent p-2 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:absolute md:left-9 md:top-11 md:m-0"
+        <AuthBackButton
+          fallbackHref={ROUTES.home}
+          className="z-[1] -m-2 mb-7 ml-1 inline-flex w-fit items-center gap-2 rounded-md bg-transparent p-2 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:absolute md:left-9 md:top-11 md:m-0"
         >
           <AuthBackArrowIcon className="h-6 w-6 shrink-0" />
-          <span>Back to home</span>
-        </Link>
+          <span>Back</span>
+        </AuthBackButton>
 
         <header className="mx-auto mb-7 hidden w-full max-w-[646px] text-center md:block">
           <div className="mx-auto mb-[9px] flex w-fit items-center gap-2">
@@ -248,7 +249,7 @@ export default function AccountTypeSelector() {
           <div className="min-w-0">
             <button
               type="button"
-              className={`${mobileBaseCardClasses} hover:border-primary-06 ${
+              className={`${mobileBaseCardClasses} hover:border-primary-06 active:border-primary-07 ${
                 mobileOpenType === "customer" ? "border-primary-06" : ""
               }`}
               onClick={() => toggleMobileType("customer")}
@@ -281,7 +282,7 @@ export default function AccountTypeSelector() {
           <div className="min-w-0">
             <button
               type="button"
-              className={`${mobileBaseCardClasses} hover:border-secondary-06 ${
+              className={`${mobileBaseCardClasses} hover:border-secondary-06 active:border-secondary-07 ${
                 mobileOpenType === "partner" ? "border-secondary-06" : ""
               }`}
               onClick={() => toggleMobileType("partner")}
@@ -322,7 +323,7 @@ export default function AccountTypeSelector() {
 
           <Link
             href={ROUTES.learnDifference}
-            className="inline-flex items-center gap-[3px] rounded text-primary-06 no-underline hover:text-primary-07 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
+            className="inline-flex items-center gap-[3px] rounded text-primary-06 no-underline hover:text-primary-07 active:text-primary-08 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
           >
             Learn the difference
             <RightArrowIcon />

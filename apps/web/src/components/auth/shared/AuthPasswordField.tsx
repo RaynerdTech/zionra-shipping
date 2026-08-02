@@ -116,7 +116,7 @@ export default function AuthPasswordField({
         <button
           type="button"
           disabled={disabled}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-primary-01 p-0 text-primary-08 transition-colors hover:bg-primary-02 focus-visible:outline-2 focus-visible:outline-primary-03 disabled:cursor-not-allowed"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-primary-01 p-0 text-primary-08 transition-colors hover:bg-primary-02 active:bg-primary-03 focus-visible:outline-2 focus-visible:outline-primary-03 disabled:cursor-not-allowed"
           aria-label={visible ? `Hide ${visibilityLabel}` : `Show ${visibilityLabel}`}
           onClick={onToggle}
         >

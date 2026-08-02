@@ -442,7 +442,7 @@ export default function EmailVerificationForm({
 
   const verifyButtonClass =
     visualState === "filled"
-      ? "bg-primary-06 text-white hover:bg-primary-07"
+      ? "bg-primary-06 text-white hover:bg-primary-07 active:bg-primary-08"
       : visualState === "loading" || visualState === "success"
         ? "cursor-wait bg-primary-06 text-white"
         : "cursor-not-allowed bg-neutral-02 text-neutral-05";
@@ -453,7 +453,7 @@ export default function EmailVerificationForm({
         <Link
           href={routes.web.customerCreateAccount}
           aria-label="Close email verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >
           <CloseIcon />
         </Link>
@@ -556,7 +556,7 @@ export default function EmailVerificationForm({
               !hasEmail || isResending || isVerifying || cooldownSeconds > 0
             }
             onClick={handleResend}
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 active:text-primary-01 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>{resendLabel}</span>

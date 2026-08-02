@@ -15,6 +15,7 @@ import { buildApiUrl } from "@/lib/api";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthBackButton from "./shared/AuthBackButton";
 import AuthPasswordField from "./shared/AuthPasswordField";
 import GoogleAuthButton from "./shared/GoogleAuthButton";
 
@@ -277,11 +278,13 @@ export default function PartnerCreateAccountForm() {
         <DecorativeCircle className="-bottom-[72px] -left-[52px] hidden h-[180px] w-[180px] bg-secondary-06/[0.04] lg:block" />
 
         <div className="relative z-10 mx-auto w-full max-w-[620px] min-w-0">
-          <Link href={routes.web.home} className="inline-flex min-h-9 items-center gap-2 rounded-md px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 2xl:ml-7">
+          <AuthBackButton
+            fallbackHref={routes.web.getStarted}
+            className="inline-flex min-h-9 items-center gap-2 rounded-md bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 2xl:ml-7"
+          >
             <AuthBackArrowIcon className="h-5 w-5 shrink-0" />
-            <span className="xl:hidden">Back</span>
-            <span className="hidden xl:inline">Back to home</span>
-          </Link>
+            <span>Back</span>
+          </AuthBackButton>
 
           <header className="mx-auto mt-[17px] text-center xl:mt-5">
             <h1 className="mx-auto max-w-[280px] font-display text-[20px] font-semibold leading-[34px] tracking-[-0.5px] text-primary-10 sm:max-w-none text-[24px] mb-[6px]">Become a Zionra Shipping Partner</h1>
@@ -351,14 +354,14 @@ export default function PartnerCreateAccountForm() {
                     aria-expanded={isReferralOpen}
                     aria-controls="partnerReferralOptions"
                     onClick={() => setIsReferralOpen((current) => !current)}
-                    className={`zion-input flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
+                    className={`zion-input group flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
                       values.referralSource ? "text-neutral-10" : "text-neutral-05"
                     }`}
                   >
                     <span className="min-w-0 flex-1 truncate">
                       {values.referralSource || "Select an option"}
                     </span>
-                    <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${isReferralOpen ? "rotate-180" : ""}`}>
+                    <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-[background-color,color,transform] duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${isReferralOpen ? "rotate-180" : ""}`}>
                       <SelectChevronIcon />
                     </span>
                   </button>
@@ -386,7 +389,7 @@ export default function PartnerCreateAccountForm() {
                             className={`flex w-full min-w-0 items-center justify-between gap-3 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
                               selected
                                 ? "bg-primary-06 text-white"
-                                : "text-neutral-10 hover:bg-primary-01"
+                                : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
                             }`}
                           >
                             <span className="block min-w-0 break-words">{option}</span>
@@ -429,11 +432,11 @@ export default function PartnerCreateAccountForm() {
           <div className="mt-6 space-y-3 font-sans text-sm font-normal leading-[22px]">
             <div className="flex items-center justify-between gap-4">
               <span className="text-text-body-light">Already have a partner account?</span>
-              <Link href={routes.web.partnerLogin} className="inline-flex shrink-0 items-center gap-2 text-primary-06 no-underline hover:text-primary-07">Sign in <ArrowIcon /></Link>
+              <Link href={routes.web.partnerLogin} className="inline-flex shrink-0 items-center gap-2 text-primary-06 no-underline hover:text-primary-07 active:text-primary-08">Sign in <ArrowIcon /></Link>
             </div>
             <div className="flex items-center justify-between gap-4">
               <span className="text-text-body-light">Are you a customer?</span>
-              <Link href={routes.web.customerLogin} className="inline-flex shrink-0 items-center gap-2 text-secondary-06 no-underline hover:text-secondary-07">Login <ArrowIcon /></Link>
+              <Link href={routes.web.customerLogin} className="inline-flex shrink-0 items-center gap-2 text-secondary-06 no-underline hover:text-secondary-07 active:text-secondary-08">Login <ArrowIcon /></Link>
             </div>
           </div>
 

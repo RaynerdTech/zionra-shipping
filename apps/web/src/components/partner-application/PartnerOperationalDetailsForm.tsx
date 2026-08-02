@@ -24,7 +24,7 @@ import {
   PartnerApplicationShell,
   PartnerMultiSelect,
   PartnerSelect,
-  TagsInput,
+  UkCityAutosuggest,
 } from "./PartnerApplicationUI";
 import type { ApiErrorResponse, PartnerApplicationResponse } from "./types";
 import { usePartnerApplication } from "./usePartnerApplication";
@@ -32,7 +32,6 @@ import { usePartnerApplication } from "./usePartnerApplication";
 type OperationalValues = {
   collectionCities: string[];
   itemsHandled: string[];
-  operationalBusinessAddress: string;
   shippingMethod: string;
   shipmentFrequency: string;
   airCargoPricePerKg: string;
@@ -48,10 +47,6 @@ function buildOperationalValues(
   return {
     collectionCities: data.application.collectionCities,
     itemsHandled: data.application.itemsHandled,
-    operationalBusinessAddress:
-      data.application.operationalBusinessAddress ??
-      data.application.businessAddress ??
-      "",
     shippingMethod: data.application.shippingMethod ?? "",
     shipmentFrequency: data.application.shipmentFrequency ?? "",
     airCargoPricePerKg: data.application.airCargoPricePerKg ?? "",
@@ -183,9 +178,8 @@ function OperationalDetailsEditor({
       <form onSubmit={handleSubmit} noValidate>
         <ApplicationSectionLabel>Operational Details</ApplicationSectionLabel>
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-          <div className="md:col-span-2"><FieldLabel required>Collection Cities</FieldLabel><TagsInput id="collectionCities" values={values.collectionCities} placeholder="e.g. London, Manchester" onChange={(next) => updateField("collectionCities", next)} error={Boolean(errors.collectionCities)} /><FieldError>{errors.collectionCities}</FieldError></div>
+          <div className="md:col-span-2"><FieldLabel required>Collection Cities</FieldLabel><UkCityAutosuggest id="collectionCities" values={values.collectionCities} placeholder="Search UK cities" onChange={(next) => updateField("collectionCities", next)} error={Boolean(errors.collectionCities)} /><FieldError>{errors.collectionCities}</FieldError></div>
           <div className="md:col-span-2"><FieldLabel required>Items Handled</FieldLabel><PartnerMultiSelect id="itemsHandled" values={values.itemsHandled} options={ITEMS_HANDLED_OPTIONS} placeholder="Select the items you handle" onChange={(next) => updateField("itemsHandled", next)} error={Boolean(errors.itemsHandled)} /><FieldError>{errors.itemsHandled}</FieldError></div>
-          <div className="md:col-span-2"><FieldLabel htmlFor="operationalBusinessAddress" required>Business Address</FieldLabel><input id="operationalBusinessAddress" value={values.operationalBusinessAddress} onChange={(event) => updateField("operationalBusinessAddress", event.target.value)} placeholder="Your business address" className={INPUT_CLASS} aria-invalid={Boolean(errors.operationalBusinessAddress)} /><FieldError>{errors.operationalBusinessAddress}</FieldError></div>
           <div><FieldLabel required>Shipping Method</FieldLabel><PartnerSelect id="shippingMethod" value={values.shippingMethod} options={SHIPPING_METHOD_OPTIONS} placeholder="What shipping style do you use?" onChange={updateShippingMethod} error={Boolean(errors.shippingMethod)} /><FieldError>{errors.shippingMethod}</FieldError></div>
           <div><FieldLabel required>Shipment Frequency</FieldLabel><PartnerSelect id="shipmentFrequency" value={values.shipmentFrequency} options={SHIPMENT_FREQUENCY_OPTIONS} placeholder="Select an option" onChange={(value) => updateField("shipmentFrequency", value)} error={Boolean(errors.shipmentFrequency)} /><FieldError>{errors.shipmentFrequency}</FieldError></div>
         </div>
@@ -213,7 +207,7 @@ function MoneyField({ id, label, value, onChange, error }: { id: string; label: 
   return (
     <div>
       <FieldLabel htmlFor={id} required>{label}</FieldLabel>
-      <div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-sans text-sm text-neutral-10">$</span><input id={id} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value)} className={`${INPUT_CLASS} pl-7`} aria-invalid={Boolean(error)} /></div>
+      <div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-sans text-sm text-neutral-10">£</span><input id={id} inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value)} className={`${INPUT_CLASS} pl-7`} aria-invalid={Boolean(error)} /></div>
       <FieldError>{error}</FieldError>
     </div>
   );

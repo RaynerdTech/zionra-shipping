@@ -855,6 +855,7 @@ function DropdownField({
       <button
         ref={buttonRef}
         type="button"
+        role="combobox"
         aria-labelledby={labelId}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -862,7 +863,7 @@ function DropdownField({
         aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
+        className={`group flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
           error
             ? "border-error focus:border-error"
             : "border-neutral-03 focus:border-neutral-03"
@@ -879,7 +880,7 @@ function DropdownField({
         </span>
 
         <ChevronDownIcon
-          className={`shrink-0 text-neutral-05 transition ${
+          className={`shrink-0 rounded-full p-1 text-neutral-05 transition-[background-color,color,transform] md:group-hover:bg-primary-08 md:group-hover:text-neutral-01 group-active:bg-primary-08 group-active:text-neutral-01 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -1015,6 +1016,7 @@ function MultiSelectDropdownField({
       <button
         ref={buttonRef}
         type="button"
+        role="combobox"
         aria-labelledby={labelId}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -1022,7 +1024,7 @@ function MultiSelectDropdownField({
         aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
+        className={`group flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
           error
             ? "border-error focus:border-error"
             : "border-neutral-03 focus:border-neutral-03"
@@ -1039,7 +1041,7 @@ function MultiSelectDropdownField({
         </span>
 
         <ChevronDownIcon
-          className={`shrink-0 text-neutral-05 transition ${
+          className={`shrink-0 rounded-full p-1 text-neutral-05 transition-[background-color,color,transform] md:group-hover:bg-primary-08 md:group-hover:text-neutral-01 group-active:bg-primary-08 group-active:text-neutral-01 ${
             isOpen ? "rotate-180" : ""
           }`}
         />

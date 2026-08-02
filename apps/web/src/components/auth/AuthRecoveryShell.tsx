@@ -6,8 +6,8 @@
 
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
+import AuthBackButton from "./shared/AuthBackButton";
 
 type AuthRecoveryShellProps = {
   backHref: string;
@@ -91,9 +91,9 @@ export default function AuthRecoveryShell({
       {showRightDecoration ? <RightDecoration /> : null}
 
       <section className="relative z-10 mx-auto min-h-[calc(100vh-24px)] w-full rounded-t-[24px] bg-white px-6 pb-12 pt-5 md:min-h-0 md:max-w-[920px] md:rounded-none md:bg-transparent md:px-0 md:pb-20 md:pt-0">
-        <Link
-          href={backHref}
-          className="inline-flex min-h-9 items-center gap-2 rounded-md border border-primary-04 px-3 py-1.5 font-sans text-sm font-normal text-text-body-light no-underline transition-colors hover:bg-primary-01 hover:text-primary-08 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0 md:px-0 md:text-primary-06"
+        <AuthBackButton
+          fallbackHref={backHref}
+          className="inline-flex min-h-9 items-center gap-2 rounded-md border border-primary-04 bg-transparent px-3 py-1.5 font-sans text-sm font-normal text-text-body-light transition-colors hover:bg-primary-01 hover:text-primary-08 active:bg-primary-02 active:text-primary-09 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0 md:px-0 md:text-primary-06"
         >
           <span className="md:hidden">
             <CloseIcon />
@@ -102,7 +102,7 @@ export default function AuthRecoveryShell({
             <BackArrowIcon />
           </span>
           <span>{backLabel}</span>
-        </Link>
+        </AuthBackButton>
 
         <header className="mx-auto mt-6 w-full max-w-[560px] text-center md:mt-3">
           <h1 className="font-display text-[28px] font-semibold leading-[38px] tracking-[-0.7px] text-primary-10 md:text-[30px] md:leading-[40px]">

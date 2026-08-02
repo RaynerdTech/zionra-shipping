@@ -42,8 +42,8 @@ export default function ForgotPasswordForm({
     : routes.web.customerVerifyPasswordResetCode;
   const backRoute = isPartner
     ? routes.web.partnerLogin
-    : routes.web.home;
-  const backLabel = isPartner ? "Back to login" : "Back to home";
+    : routes.web.customerLogin;
+  const backLabel = "Back";
   const [email, setEmail] = useState(initialEmail.trim().toLowerCase());
   const [errors, setErrors] = useState<ForgotPasswordErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
