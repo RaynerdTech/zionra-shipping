@@ -428,6 +428,7 @@ export default function PartnerEmailVerificationForm({
       <section className="relative mx-auto flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <Link
           href={routes.web.partnerApplication}
+          replace
           aria-label="Close email verification"
           className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >

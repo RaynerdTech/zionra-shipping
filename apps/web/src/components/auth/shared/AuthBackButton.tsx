@@ -1,7 +1,8 @@
 /**
  * Responsibility:
- * Returns users to the previous Zionra screen while providing a safe route
- * when the page was opened directly without usable browser history.
+ * Returns users to the known previous screen for the current Zionra auth flow.
+ * Deterministic replacement prevents cancelled verification screens from being
+ * reopened by stale browser-history entries.
  */
 
 "use client";
@@ -25,12 +26,7 @@ export default function AuthBackButton({
   const router = useRouter();
 
   function goBack() {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-
-    router.push(fallbackHref);
+    router.replace(fallbackHref);
   }
 
   return (

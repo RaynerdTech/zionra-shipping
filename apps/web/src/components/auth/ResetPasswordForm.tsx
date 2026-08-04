@@ -219,6 +219,7 @@ export default function ResetPasswordForm({
             </p>
             <Link
               href={forgotPasswordRoute}
+              replace
               className="zion-btn zion-btn-md zion-btn-blue mt-5 w-full min-w-0"
             >
               Start again
