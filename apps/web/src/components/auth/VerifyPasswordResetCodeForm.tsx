@@ -35,6 +35,7 @@ type ApiResponse = {
 
 type VerifyPasswordResetCodeFormProps = {
   email: string;
+  accountType?: "customer" | "partner";
 };
 
 function CloseIcon() {
@@ -97,8 +98,17 @@ function maskEmail(email: string) {
 
 export default function VerifyPasswordResetCodeForm({
   email,
+  accountType = "customer",
 }: VerifyPasswordResetCodeFormProps) {
   const router = useRouter();
+  const isPartner = accountType === "partner";
+  const authRoutes = isPartner ? routes.api.partnerAuth : routes.api.customerAuth;
+  const forgotPasswordRoute = isPartner
+    ? routes.web.partnerForgotPassword
+    : routes.web.customerForgotPassword;
+  const resetPasswordRoute = isPartner
+    ? routes.web.partnerResetPassword
+    : routes.web.customerResetPassword;
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -161,7 +171,7 @@ export default function VerifyPasswordResetCodeForm({
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.verifyPasswordResetCode),
+        buildApiUrl(authRoutes.verifyPasswordResetCode),
         {
           method: "POST",
           credentials: "include",
@@ -189,7 +199,7 @@ export default function VerifyPasswordResetCodeForm({
       setIsVerified(true);
       redirectTimeoutRef.current = setTimeout(() => {
         router.replace(
-          result.redirectTo ?? routes.web.customerResetPassword,
+          result.redirectTo ?? resetPasswordRoute,
         );
       }, 700);
     } catch (requestError) {
@@ -217,7 +227,7 @@ export default function VerifyPasswordResetCodeForm({
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.forgotPassword),
+        buildApiUrl(authRoutes.forgotPassword),
         {
           method: "POST",
           credentials: "include",
@@ -261,7 +271,8 @@ export default function VerifyPasswordResetCodeForm({
             Your password-recovery request is missing an email address.
           </p>
           <Link
-            href={routes.web.customerForgotPassword}
+            href={forgotPasswordRoute}
+            replace
             className="zion-btn zion-btn-md zion-btn-blue mt-6 w-full min-w-0"
           >
             Start again
@@ -275,9 +286,10 @@ export default function VerifyPasswordResetCodeForm({
     <main className="flex min-h-screen items-center justify-center bg-neutral-01 px-4 py-10">
       <section className="relative flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <Link
-          href={routes.web.customerForgotPassword}
+          href={forgotPasswordRoute}
+          replace
           aria-label="Close password-reset verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
         >
           <CloseIcon />
         </Link>
@@ -311,11 +323,16 @@ export default function VerifyPasswordResetCodeForm({
           {maskEmail(normalizedEmail)}
         </div>
 
+        <p className="mx-auto mt-4 max-w-[430px] font-sans text-[13px] leading-5 text-[#D4DAE0]">
+          Created your account with Google? No password-reset code will be sent.
+          Return to Log in and continue with Google instead.
+        </p>
+
         <form onSubmit={handleVerify} noValidate className="mt-6 w-full">
           <AuthOtpInput
             ref={otpInputRef}
             value={code}
-            idPrefix="password-reset-code"
+            idPrefix={isPartner ? "partner-password-reset-code" : "password-reset-code"}
             digitLabel="Password reset code"
             disabled={fieldsAreLocked}
             state={
@@ -343,7 +360,7 @@ export default function VerifyPasswordResetCodeForm({
             aria-busy={isVerifying}
             className={`mt-3 inline-flex h-12 w-[193px] items-center justify-center rounded-md font-sans text-base transition-colors ${
               codeIsComplete && !isVerified
-                ? "bg-primary-06 text-white hover:bg-primary-07"
+                ? "bg-primary-06 text-white hover:bg-primary-07 active:bg-primary-08"
                 : "cursor-not-allowed bg-neutral-02 text-neutral-05"
             }`}
           >
@@ -366,7 +383,7 @@ export default function VerifyPasswordResetCodeForm({
             type="button"
             disabled={isResending || isVerifying || isVerified || cooldownSeconds > 0}
             onClick={handleResend}
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 active:text-primary-01 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>

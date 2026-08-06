@@ -68,7 +68,6 @@ function toPublicApplication(application: any) {
       })),
     collectionCities: application.collectionCities ?? [],
     itemsHandled: application.itemsHandled ?? [],
-    operationalBusinessAddress: application.operationalBusinessAddress,
     shippingMethod: application.shippingMethod,
     shipmentFrequency: application.shipmentFrequency,
     airCargoPricePerKg: decimalToString(application.airCargoPricePerKg),
@@ -213,7 +212,6 @@ export async function savePartnerOperationalDetails(
     data: {
       collectionCities: input.collectionCities,
       itemsHandled: input.itemsHandled,
-      operationalBusinessAddress: input.operationalBusinessAddress,
       shippingMethod: input.shippingMethod,
       shipmentFrequency: input.shipmentFrequency,
       airCargoPricePerKg: input.airCargoPricePerKg,
@@ -314,7 +312,6 @@ function buildOperationalValidationBody(application: any) {
   return {
     collectionCities: application.collectionCities,
     itemsHandled: application.itemsHandled,
-    operationalBusinessAddress: application.operationalBusinessAddress,
     shippingMethod: application.shippingMethod,
     shipmentFrequency: application.shipmentFrequency,
     airCargoPricePerKg: decimalToString(application.airCargoPricePerKg),

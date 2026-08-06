@@ -394,6 +394,9 @@ export const ModelName = {
   CustomerOAuthSignup: 'CustomerOAuthSignup',
   ShippingPartner: 'ShippingPartner',
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
+  ShippingPartnerPasswordResetCode: 'ShippingPartnerPasswordResetCode',
+  ShippingPartnerPasswordResetAuthorization: 'ShippingPartnerPasswordResetAuthorization',
+  ShippingPartnerLoginChallenge: 'ShippingPartnerLoginChallenge',
   ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
   ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
   ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup',
@@ -414,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup" | "shippingPartnerApplication" | "shippingPartnerApplicationContact"
+    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerPasswordResetCode" | "shippingPartnerPasswordResetAuthorization" | "shippingPartnerLoginChallenge" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup" | "shippingPartnerApplication" | "shippingPartnerApplicationContact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1158,6 +1161,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ShippingPartnerPasswordResetCode: {
+      payload: Prisma.$ShippingPartnerPasswordResetCodePayload<ExtArgs>
+      fields: Prisma.ShippingPartnerPasswordResetCodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerPasswordResetCodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerPasswordResetCodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerPasswordResetCodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerPasswordResetCodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerPasswordResetCodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerPasswordResetCodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerPasswordResetCodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerPasswordResetCodeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerPasswordResetCodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerPasswordResetCodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerPasswordResetCodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerPasswordResetCodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerPasswordResetCodeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerPasswordResetCodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetCodePayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerPasswordResetCodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerPasswordResetCode>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerPasswordResetCodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerPasswordResetCodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerPasswordResetCodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerPasswordResetCodeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerPasswordResetAuthorization: {
+      payload: Prisma.$ShippingPartnerPasswordResetAuthorizationPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerPasswordResetAuthorizationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerPasswordResetAuthorizationPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerPasswordResetAuthorization>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerPasswordResetAuthorizationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerPasswordResetAuthorizationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerPasswordResetAuthorizationCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerLoginChallenge: {
+      payload: Prisma.$ShippingPartnerLoginChallengePayload<ExtArgs>
+      fields: Prisma.ShippingPartnerLoginChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerLoginChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerLoginChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerLoginChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerLoginChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerLoginChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerLoginChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerLoginChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerLoginChallengeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerLoginChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerLoginChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerLoginChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerLoginChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerLoginChallengeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerLoginChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerLoginChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerLoginChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerLoginChallenge>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerLoginChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerLoginChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerLoginChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerLoginChallengeCountAggregateOutputType> | number
+        }
+      }
+    }
     ShippingPartnerOnboardingSession: {
       payload: Prisma.$ShippingPartnerOnboardingSessionPayload<ExtArgs>
       fields: Prisma.ShippingPartnerOnboardingSessionFieldRefs
@@ -1720,6 +1945,49 @@ export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
 export type ShippingPartnerEmailVerificationCodeScalarFieldEnum = (typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum)[keyof typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum]
 
 
+export const ShippingPartnerPasswordResetCodeScalarFieldEnum = {
+  id: 'id',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  failedAttempts: 'failedAttempts',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerPasswordResetCodeScalarFieldEnum = (typeof ShippingPartnerPasswordResetCodeScalarFieldEnum)[keyof typeof ShippingPartnerPasswordResetCodeScalarFieldEnum]
+
+
+export const ShippingPartnerPasswordResetAuthorizationScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId',
+  passwordResetCodeId: 'passwordResetCodeId'
+} as const
+
+export type ShippingPartnerPasswordResetAuthorizationScalarFieldEnum = (typeof ShippingPartnerPasswordResetAuthorizationScalarFieldEnum)[keyof typeof ShippingPartnerPasswordResetAuthorizationScalarFieldEnum]
+
+
+export const ShippingPartnerLoginChallengeScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  codeHash: 'codeHash',
+  codeExpiresAt: 'codeExpiresAt',
+  expiresAt: 'expiresAt',
+  failedAttempts: 'failedAttempts',
+  emailSendCount: 'emailSendCount',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerLoginChallengeScalarFieldEnum = (typeof ShippingPartnerLoginChallengeScalarFieldEnum)[keyof typeof ShippingPartnerLoginChallengeScalarFieldEnum]
+
+
 export const ShippingPartnerOnboardingSessionScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -2104,6 +2372,9 @@ export type GlobalOmitConfig = {
   customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit
   shippingPartner?: Prisma.ShippingPartnerOmit
   shippingPartnerEmailVerificationCode?: Prisma.ShippingPartnerEmailVerificationCodeOmit
+  shippingPartnerPasswordResetCode?: Prisma.ShippingPartnerPasswordResetCodeOmit
+  shippingPartnerPasswordResetAuthorization?: Prisma.ShippingPartnerPasswordResetAuthorizationOmit
+  shippingPartnerLoginChallenge?: Prisma.ShippingPartnerLoginChallengeOmit
   shippingPartnerOnboardingSession?: Prisma.ShippingPartnerOnboardingSessionOmit
   shippingPartnerOAuthAccount?: Prisma.ShippingPartnerOAuthAccountOmit
   shippingPartnerOAuthSignup?: Prisma.ShippingPartnerOAuthSignupOmit

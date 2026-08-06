@@ -124,7 +124,7 @@ export default function CountrySelect({
         aria-expanded={isOpen}
         aria-controls={listboxId}
         onClick={() => setIsOpen((current) => !current)}
-        className={`zion-input flex h-[52px] items-center text-left md:h-12 ${
+        className={`zion-input group flex h-[52px] items-center text-left md:h-12 ${
           compact ? "gap-2 px-3" : "gap-2 pr-3"
         } ${error ? "zion-input-error" : ""}`}
       >
@@ -141,7 +141,7 @@ export default function CountrySelect({
             : selectedCountry.name}
         </span>
         <span
-          className={`pointer-events-none inline-flex shrink-0 items-center justify-center text-primary-08 ${
+          className={`pointer-events-none inline-flex shrink-0 items-center justify-center rounded-full text-primary-08 transition-colors duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
             compact
               ? "ml-auto h-5 w-5"
               : "h-8 w-8 rounded-full bg-primary-01"
@@ -170,7 +170,7 @@ export default function CountrySelect({
                 role="option"
                 aria-selected={isSelected}
                 onClick={() => selectCountry(country)}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left font-sans text-sm leading-[22px] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-primary-03 ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left font-sans text-sm leading-[22px] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-primary-03 ${
                   isSelected
                     ? "bg-primary-01 text-primary-08"
                     : "text-neutral-10"

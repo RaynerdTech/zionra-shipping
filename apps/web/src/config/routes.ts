@@ -21,6 +21,10 @@ export const routes = {
     customerDashboard: "/dashboard",
 
     partnerLogin: "/partner/login",
+    partnerLoginVerification: "/partner/login/verify",
+    partnerForgotPassword: "/partner/forgot-password",
+    partnerVerifyPasswordResetCode: "/partner/forgot-password/verify",
+    partnerResetPassword: "/partner/reset-password",
     partnerApplication: "/partner/apply",
     partnerVerifyEmail: "/partner/verify-email",
     partnerCompleteProfile: "/partner/complete-profile",
@@ -47,6 +51,18 @@ export const routes = {
   api: {
     partnerAuth: {
       register: "/api/partner/auth/register",
+      login: "/api/partner/auth/login",
+      loginChallenge: "/api/partner/auth/login/challenge",
+      verifyLoginCode: "/api/partner/auth/login/verify-code",
+      resendLoginCode: "/api/partner/auth/login/resend-code",
+      cancelLogin: "/api/partner/auth/login/cancel",
+      forgotPassword: "/api/partner/auth/forgot-password",
+      verifyPasswordResetCode:
+        "/api/partner/auth/verify-password-reset-code",
+      passwordResetSession:
+        "/api/partner/auth/password-reset-session",
+      resetPassword: "/api/partner/auth/reset-password",
+      dashboard: "/api/partner/auth/dashboard",
       verifyEmail: "/api/partner/auth/verify-email",
       resendVerificationCode:
         "/api/partner/auth/resend-verification-code",

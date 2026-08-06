@@ -37,7 +37,6 @@ test("both shipping methods require both per-KG prices", () => {
   const result = validatePartnerOperationalDetails({
     collectionCities: ["London"],
     itemsHandled: ["Furniture"],
-    operationalBusinessAddress: "1 Zionra Way",
     shippingMethod: "Both",
     shipmentFrequency: "Weekly",
     airCargoPricePerKg: "6",
@@ -56,7 +55,6 @@ test("air cargo ignores a hidden sea-cargo price", () => {
   const result = validatePartnerOperationalDetails({
     collectionCities: ["London"],
     itemsHandled: ["Documents & Paperwork"],
-    operationalBusinessAddress: "1 Zionra Way",
     shippingMethod: "Air cargo",
     shipmentFrequency: "On Demand / As Needed",
     airCargoPricePerKg: "6.50",
@@ -70,6 +68,46 @@ test("air cargo ignores a hidden sea-cargo price", () => {
   if (!result.success) return;
   assert.equal(result.data.airCargoPricePerKg, "6.50");
   assert.equal(result.data.seaCargoPricePerKg, null);
+});
+
+
+test("operational details accept only canonical UK cities", () => {
+  const result = validatePartnerOperationalDetails({
+    collectionCities: ["london", "Manchester"],
+    itemsHandled: ["Furniture"],
+    shippingMethod: "Air cargo",
+    shipmentFrequency: "Weekly",
+    airCargoPricePerKg: "6",
+    seaCargoPricePerKg: "",
+    pricePerBarrel: "140",
+    insuranceAvailable: true,
+    upfrontImmigrationCharge: false,
+  });
+
+  assert.equal(result.success, true);
+  if (!result.success) return;
+  assert.deepEqual(result.data.collectionCities, ["London", "Manchester"]);
+});
+
+test("operational details reject cities outside the UK suggestion list", () => {
+  const result = validatePartnerOperationalDetails({
+    collectionCities: ["Londn"],
+    itemsHandled: ["Furniture"],
+    shippingMethod: "Air cargo",
+    shipmentFrequency: "Weekly",
+    airCargoPricePerKg: "6",
+    seaCargoPricePerKg: "",
+    pricePerBarrel: "140",
+    insuranceAvailable: true,
+    upfrontImmigrationCharge: false,
+  });
+
+  assert.equal(result.success, false);
+  if (result.success) return;
+  assert.equal(
+    result.errors.collectionCities,
+    "Select valid UK cities from the suggestions.",
+  );
 });
 
 test("account information enforces the 160-word company bio limit", () => {

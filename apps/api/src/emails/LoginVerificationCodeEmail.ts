@@ -1,6 +1,6 @@
 /**
  * Responsibility:
- * Builds the HTML, plain-text, and subject content for customer login verification emails.
+ * Builds the HTML, plain-text, and subject content for account login verification emails.
  */
 
 import {
@@ -12,12 +12,14 @@ type LoginVerificationCodeEmailInput = {
   firstName: string;
   code: string;
   supportEmail: string;
+  accountLabel?: "customer" | "shipping partner";
 };
 
 export function createLoginVerificationCodeEmail({
   firstName,
   code,
   supportEmail,
+  accountLabel = "customer",
 }: LoginVerificationCodeEmailInput) {
   const trimmedFirstName = firstName.trim();
   const safeFirstName = escapeEmailHtml(trimmedFirstName);
@@ -27,7 +29,7 @@ export function createLoginVerificationCodeEmail({
   const bodyHtml = `
     <p style="margin: 0 0 16px;">Hi ${safeFirstName},</p>
     <p style="margin: 0 0 22px;">
-      Use the verification code below to finish signing in to your Zionra customer account.
+      Use the verification code below to finish signing in to your Zionra ${accountLabel} account.
     </p>
 
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 22px;">
@@ -59,7 +61,7 @@ export function createLoginVerificationCodeEmail({
     text: [
       `Hi ${trimmedFirstName},`,
       "",
-      "Use this verification code to finish signing in to your Zionra customer account:",
+      `Use this verification code to finish signing in to your Zionra ${accountLabel} account:`,
       "",
       code,
       "",

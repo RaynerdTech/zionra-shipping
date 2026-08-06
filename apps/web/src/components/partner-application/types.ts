@@ -29,7 +29,6 @@ export type PartnerApplication = {
   contacts: PartnerApplicationContact[];
   collectionCities: string[];
   itemsHandled: string[];
-  operationalBusinessAddress: string | null;
   shippingMethod: string | null;
   shipmentFrequency: string | null;
   airCargoPricePerKg: string | null;
@@ -71,4 +70,5 @@ export type ApiErrorResponse = {
   message?: string;
   code?: string;
   errors?: Record<string, string>;
+  redirectTo?: string;
 };

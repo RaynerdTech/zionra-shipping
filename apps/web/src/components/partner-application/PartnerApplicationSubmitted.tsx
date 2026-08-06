@@ -22,9 +22,9 @@ const NEXT_STEPS = [
       "A Zionra partner specialist may contact you to verify your details.",
   },
   {
-    title: "Account activation",
+    title: "Full dashboard access",
     description:
-      "Once approved, you’ll receive an email to activate your partner account.",
+      "Once approved, you’ll receive an email and your operational dashboard tools will be unlocked.",
   },
 ] as const;
 
@@ -53,11 +53,13 @@ type ConfettiPiece = {
 type PartnerApplicationSubmittedViewProps = {
   reference: string;
   showConfetti?: boolean;
+  showDashboardAction?: boolean;
 };
 
 export function PartnerApplicationSubmittedView({
   reference,
   showConfetti = false,
+  showDashboardAction = false,
 }: PartnerApplicationSubmittedViewProps) {
   const confetti = useMemo<ConfettiPiece[]>(() => {
     if (!showConfetti) return [];
@@ -171,14 +173,16 @@ export function PartnerApplicationSubmittedView({
           <span className="font-medium text-primary-06">{reference}</span>
         </div>
 
-        <div className="mt-7 flex justify-center">
-          <Link
-            href={routes.web.partnerDashboard}
-            className="zion-btn zion-btn-blue zion-btn-md min-w-[190px]"
-          >
-            Go to Dashboard <span aria-hidden="true">→</span>
-          </Link>
-        </div>
+        {showDashboardAction ? (
+          <div className="mt-7 flex justify-center">
+            <Link
+              href={routes.web.partnerDashboard}
+              className="zion-btn zion-btn-blue zion-btn-md min-w-[190px]"
+            >
+              Go to Dashboard <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <style jsx>{`
@@ -218,11 +222,16 @@ export default function PartnerApplicationSubmitted() {
   const router = useRouter();
   const { data, error, isLoading } = usePartnerApplication();
   const isSubmitted = data?.application.currentStep === "SUBMITTED";
+  const isApproved = data?.partner.status === "APPROVED";
 
   useEffect(() => {
-    if (!data || isSubmitted) return;
-    router.replace(routes.web.partnerApplicationReview);
-  }, [data, isSubmitted, router]);
+    if (!data) return;
+    if (isApproved) {
+      router.replace(routes.web.partnerDashboard);
+      return;
+    }
+    if (!isSubmitted) router.replace(routes.web.partnerApplicationReview);
+  }, [data, isApproved, isSubmitted, router]);
 
   if (isLoading || !data) {
     return error ? (
@@ -232,13 +241,14 @@ export default function PartnerApplicationSubmitted() {
     );
   }
 
-  if (!isSubmitted || !data.application.applicationReference) {
+  if (isApproved || !isSubmitted || !data.application.applicationReference) {
     return <ApplicationLoading />;
   }
 
   return (
     <PartnerApplicationSubmittedView
       reference={data.application.applicationReference}
+      showDashboardAction
     />
   );
 }

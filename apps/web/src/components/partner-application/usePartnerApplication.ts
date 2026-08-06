@@ -8,13 +8,15 @@ import type { ApiErrorResponse, PartnerApplicationResponse } from "./types";
 
 type ApplicationRequestResult =
   | { kind: "success"; data: PartnerApplicationResponse }
-  | { kind: "unauthorized" };
+  | { kind: "unauthorized" }
+  | { kind: "redirect"; redirectTo: string };
 
 async function requestPartnerApplication(
+  endpoint: string,
   signal?: AbortSignal,
 ): Promise<ApplicationRequestResult> {
   const response = await fetch(
-    buildApiUrl(routes.api.partnerAuth.application),
+    buildApiUrl(endpoint),
     {
       credentials: "include",
       cache: "no-store",
@@ -27,6 +29,16 @@ async function requestPartnerApplication(
 
   if (response.status === 401) {
     return { kind: "unauthorized" };
+  }
+
+  if (
+    response.status === 403 &&
+    typeof result === "object" &&
+    result !== null &&
+    "redirectTo" in result &&
+    typeof result.redirectTo === "string"
+  ) {
+    return { kind: "redirect", redirectTo: result.redirectTo };
   }
 
   const hasApplication =
@@ -44,7 +56,12 @@ async function requestPartnerApplication(
   return { kind: "success", data: result };
 }
 
-export function usePartnerApplication() {
+export function usePartnerApplication({
+  dashboard = false,
+}: { dashboard?: boolean } = {}) {
+  const endpoint = dashboard
+    ? routes.api.partnerAuth.dashboard
+    : routes.api.partnerAuth.application;
   const router = useRouter();
   const [data, setData] = useState<PartnerApplicationResponse | null>(null);
   const [error, setError] = useState("");
@@ -56,11 +73,16 @@ export function usePartnerApplication() {
 
     async function loadInitialApplication() {
       try {
-        const result = await requestPartnerApplication(controller.signal);
+        const result = await requestPartnerApplication(endpoint, controller.signal);
         if (!isActive) return;
 
         if (result.kind === "unauthorized") {
-          router.replace(routes.web.partnerApplication);
+          router.replace(routes.web.partnerLogin);
+          return;
+        }
+
+        if (result.kind === "redirect") {
+          router.replace(result.redirectTo);
           return;
         }
 
@@ -83,17 +105,22 @@ export function usePartnerApplication() {
       isActive = false;
       controller.abort();
     };
-  }, [router]);
+  }, [endpoint, router]);
 
   const reload = useCallback(async () => {
     setIsLoading(true);
     setError("");
 
     try {
-      const result = await requestPartnerApplication();
+      const result = await requestPartnerApplication(endpoint);
 
       if (result.kind === "unauthorized") {
-        router.replace(routes.web.partnerApplication);
+        router.replace(routes.web.partnerLogin);
+        return;
+      }
+
+      if (result.kind === "redirect") {
+        router.replace(result.redirectTo);
         return;
       }
 
@@ -107,7 +134,7 @@ export function usePartnerApplication() {
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, [endpoint, router]);
 
   return { data, setData, error, isLoading, reload };
 }

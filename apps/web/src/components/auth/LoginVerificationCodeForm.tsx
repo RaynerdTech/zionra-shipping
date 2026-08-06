@@ -1,6 +1,6 @@
 /**
  * Responsibility:
- * Verifies the six-digit customer login code before creating an authenticated session.
+ * Verifies the six-digit account login code before creating an authenticated session.
  * It loads the server-backed login challenge, handles OTP keyboard interactions,
  * resends codes, cancels verification, and redirects after successful authentication.
  */
@@ -165,7 +165,19 @@ function getCooldownSeconds(resendAvailableAt?: string) {
   return Math.max(0, Math.ceil((availableAt - Date.now()) / 1000));
 }
 
-export default function LoginVerificationCodeForm() {
+type LoginVerificationCodeFormProps = {
+  accountType?: "customer" | "partner";
+};
+
+export default function LoginVerificationCodeForm({
+  accountType = "customer",
+}: LoginVerificationCodeFormProps) {
+  const isPartner = accountType === "partner";
+  const authRoutes = isPartner ? routes.api.partnerAuth : routes.api.customerAuth;
+  const loginRoute = isPartner ? routes.web.partnerLogin : routes.web.customerLogin;
+  const defaultDestination = isPartner
+    ? routes.web.partnerBusinessInformation
+    : routes.web.customerDashboard;
   const router = useRouter();
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -194,7 +206,7 @@ export default function LoginVerificationCodeForm() {
     async function loadChallenge() {
       try {
         const response = await fetch(
-          buildApiUrl(routes.api.customerAuth.loginChallenge),
+          buildApiUrl(authRoutes.loginChallenge),
           {
             method: "GET",
             credentials: "include",
@@ -206,7 +218,7 @@ export default function LoginVerificationCodeForm() {
         const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
         if (!response.ok || !result.maskedEmail) {
-          router.replace(routes.web.customerLogin);
+          router.replace(loginRoute);
           return;
         }
 
@@ -220,7 +232,7 @@ export default function LoginVerificationCodeForm() {
         }
 
         console.error("Login challenge could not be loaded:", error);
-        router.replace(routes.web.customerLogin);
+        router.replace(loginRoute);
       } finally {
         if (!controller.signal.aborted) {
           setIsLoadingChallenge(false);
@@ -237,7 +249,7 @@ export default function LoginVerificationCodeForm() {
         clearTimeout(redirectTimeoutRef.current);
       }
     };
-  }, [router]);
+  }, [authRoutes.loginChallenge, loginRoute, router]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) {
@@ -269,7 +281,7 @@ export default function LoginVerificationCodeForm() {
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.verifyLoginCode),
+        buildApiUrl(authRoutes.verifyLoginCode),
         {
           method: "POST",
           credentials: "include",
@@ -285,8 +297,11 @@ export default function LoginVerificationCodeForm() {
       const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
       if (!response.ok) {
-        if (result.code === "LOGIN_CHALLENGE_EXPIRED") {
-          router.replace(routes.web.customerLogin);
+        if (
+          result.code === "LOGIN_CHALLENGE_EXPIRED" ||
+          result.code === "PARTNER_LOGIN_CHALLENGE_EXPIRED"
+        ) {
+          router.replace(loginRoute);
           return;
         }
 
@@ -302,7 +317,7 @@ export default function LoginVerificationCodeForm() {
 
       redirectTimeoutRef.current = setTimeout(() => {
         router.replace(
-          result.redirectTo ?? routes.web.customerDashboard,
+          result.redirectTo ?? defaultDestination,
         );
         router.refresh();
       }, SUCCESS_REDIRECT_DELAY_MS);
@@ -332,7 +347,7 @@ export default function LoginVerificationCodeForm() {
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.resendLoginCode),
+        buildApiUrl(authRoutes.resendLoginCode),
         {
           method: "POST",
           credentials: "include",
@@ -344,9 +359,10 @@ export default function LoginVerificationCodeForm() {
       if (!response.ok) {
         if (
           result.code === "LOGIN_CHALLENGE_EXPIRED" ||
+          result.code === "PARTNER_LOGIN_CHALLENGE_EXPIRED" ||
           result.code === "EMAIL_DELIVERY_FAILED"
         ) {
-          router.replace(routes.web.customerLogin);
+          router.replace(loginRoute);
           return;
         }
 
@@ -384,14 +400,14 @@ export default function LoginVerificationCodeForm() {
     setIsCancelling(true);
 
     try {
-      await fetch(buildApiUrl(routes.api.customerAuth.cancelLogin), {
+      await fetch(buildApiUrl(authRoutes.cancelLogin), {
         method: "POST",
         credentials: "include",
       });
     } catch (error) {
       console.error("Login verification cancellation failed:", error);
     } finally {
-      router.replace(routes.web.customerLogin);
+      router.replace(loginRoute);
     }
   }
 
@@ -416,7 +432,7 @@ export default function LoginVerificationCodeForm() {
           onClick={handleCancel}
           disabled={isCancelling}
           aria-label="Cancel sign-in verification"
-          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isCancelling ? <LoadingSpinner /> : <CloseIcon />}
         </button>
@@ -455,7 +471,7 @@ export default function LoginVerificationCodeForm() {
           <AuthOtpInput
             ref={otpInputRef}
             value={code}
-            idPrefix="login-code"
+            idPrefix={isPartner ? "partner-login-code" : "login-code"}
             digitLabel="Sign-in code"
             disabled={inputsAreLocked}
             state={
@@ -507,7 +523,7 @@ export default function LoginVerificationCodeForm() {
               !isVerifying &&
               !isCancelling &&
               !outcome
-                ? "bg-primary-06 text-white hover:bg-primary-07"
+                ? "bg-primary-06 text-white hover:bg-primary-07 active:bg-primary-08"
                 : outcome === "success" || isVerifying
                   ? "cursor-wait bg-primary-06 text-white"
                   : "cursor-not-allowed bg-neutral-02 text-neutral-05"
@@ -542,7 +558,7 @@ export default function LoginVerificationCodeForm() {
               cooldownSeconds > 0 ||
               outcome === "success"
             }
-            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-primary-03 transition-colors hover:text-primary-02 active:text-primary-01 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isResending ? <LoadingSpinner /> : null}
             <span>{resendLabel}</span>

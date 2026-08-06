@@ -240,7 +240,7 @@ const AuthOtpInput = forwardRef<AuthOtpInputHandle, AuthOtpInputProps>(
               onFocus={(event: FocusEvent<HTMLInputElement>) =>
                 event.currentTarget.select()
               }
-              className={`h-[53px] w-14 rounded-[10px] border-2 text-center font-display text-[22px] font-semibold leading-none text-primary-10 caret-primary-10 outline-none transition-[background-color,border-color,transform] duration-200 hover:scale-105 disabled:cursor-default disabled:opacity-100 disabled:hover:scale-100 ${stateClass} ${inputClassName}`}
+              className={`h-[53px] w-14 rounded-[10px] border-2 text-center font-display text-[22px] font-semibold leading-none text-primary-10 caret-primary-10 outline-none transition-[background-color,border-color,transform] duration-200 hover:scale-105 active:scale-95 disabled:cursor-default disabled:opacity-100 disabled:hover:scale-100 ${stateClass} ${inputClassName}`}
             />
           );
         })}

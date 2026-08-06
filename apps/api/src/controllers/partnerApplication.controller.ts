@@ -5,7 +5,11 @@
  */
 
 import type { NextFunction, Request, Response } from "express";
-import { clearPartnerOnboardingCookie } from "../lib/cookies.js";
+import {
+  clearPartnerLoginChallengeCookie,
+  clearPartnerOnboardingCookie,
+  clearPartnerPasswordResetAuthorizationCookie,
+} from "../lib/cookies.js";
 import { uploadPartnerLogo } from "../lib/cloudinary.js";
 import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import { PARTNER_ONBOARDING_COOKIE_NAME } from "../lib/partnerAuth.js";
@@ -225,6 +229,8 @@ export async function logoutPartnerController(
   try {
     await revokeCurrentPartnerSession(getToken(req));
     clearPartnerOnboardingCookie(res);
+    clearPartnerLoginChallengeCookie(res);
+    clearPartnerPasswordResetAuthorizationCookie(res);
     res.status(HTTP_STATUS.OK).json({ message: "Logged out successfully." });
   } catch (error) {
     forwardError(next, error, "Unable to log out the shipping partner.");

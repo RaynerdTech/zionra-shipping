@@ -61,6 +61,9 @@ export const ModelName = {
   CustomerOAuthSignup: 'CustomerOAuthSignup',
   ShippingPartner: 'ShippingPartner',
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
+  ShippingPartnerPasswordResetCode: 'ShippingPartnerPasswordResetCode',
+  ShippingPartnerPasswordResetAuthorization: 'ShippingPartnerPasswordResetAuthorization',
+  ShippingPartnerLoginChallenge: 'ShippingPartnerLoginChallenge',
   ShippingPartnerOnboardingSession: 'ShippingPartnerOnboardingSession',
   ShippingPartnerOAuthAccount: 'ShippingPartnerOAuthAccount',
   ShippingPartnerOAuthSignup: 'ShippingPartnerOAuthSignup',
@@ -235,6 +238,49 @@ export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
 } as const
 
 export type ShippingPartnerEmailVerificationCodeScalarFieldEnum = (typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum)[keyof typeof ShippingPartnerEmailVerificationCodeScalarFieldEnum]
+
+
+export const ShippingPartnerPasswordResetCodeScalarFieldEnum = {
+  id: 'id',
+  codeHash: 'codeHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  failedAttempts: 'failedAttempts',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerPasswordResetCodeScalarFieldEnum = (typeof ShippingPartnerPasswordResetCodeScalarFieldEnum)[keyof typeof ShippingPartnerPasswordResetCodeScalarFieldEnum]
+
+
+export const ShippingPartnerPasswordResetAuthorizationScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  partnerId: 'partnerId',
+  passwordResetCodeId: 'passwordResetCodeId'
+} as const
+
+export type ShippingPartnerPasswordResetAuthorizationScalarFieldEnum = (typeof ShippingPartnerPasswordResetAuthorizationScalarFieldEnum)[keyof typeof ShippingPartnerPasswordResetAuthorizationScalarFieldEnum]
+
+
+export const ShippingPartnerLoginChallengeScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  codeHash: 'codeHash',
+  codeExpiresAt: 'codeExpiresAt',
+  expiresAt: 'expiresAt',
+  failedAttempts: 'failedAttempts',
+  emailSendCount: 'emailSendCount',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerLoginChallengeScalarFieldEnum = (typeof ShippingPartnerLoginChallengeScalarFieldEnum)[keyof typeof ShippingPartnerLoginChallengeScalarFieldEnum]
 
 
 export const ShippingPartnerOnboardingSessionScalarFieldEnum = {

@@ -15,7 +15,9 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
+import AuthBackButton from "./shared/AuthBackButton";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
+import AuthDeliveryNetwork from "./shared/AuthDeliveryNetwork";
 import AuthPasswordField from "./shared/AuthPasswordField";
 import GoogleAuthButton from "./shared/GoogleAuthButton";
 
@@ -155,63 +157,7 @@ function PromotionalPanel() {
         </p>
       </div>
 
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[18px] left-[55px] h-[190px] w-[370px] max-w-none overflow-visible"
-        viewBox="0 0 370 190"
-        fill="none"
-      >
-        <path
-          d="M28 50 130 135 248 32 340 77"
-          stroke="#286BDC"
-          strokeOpacity=".45"
-        />
-
-        <path
-          d="M28 50 248 32"
-          stroke="#286BDC"
-          strokeOpacity=".28"
-        />
-
-        <circle cx="28" cy="50" r="16" fill="#286BDC" fillOpacity=".18" />
-        <circle cx="28" cy="50" r="8" fill="#286BDC" />
-
-        <circle cx="130" cy="135" r="16" fill="#286BDC" fillOpacity=".18" />
-        <circle cx="130" cy="135" r="8" fill="#286BDC" />
-
-        <circle cx="248" cy="32" r="16" fill="#FFA630" fillOpacity=".18" />
-        <circle cx="248" cy="32" r="8" fill="#FFA630" />
-
-        <circle cx="340" cy="77" r="16" fill="#2EC4B6" fillOpacity=".18" />
-        <circle cx="340" cy="77" r="8" fill="#2EC4B6" />
-
-        <g fill="#0F2C58">
-          <rect x="3" y="64" width="50" height="17" rx="8.5" />
-          <rect x="95" y="150" width="70" height="17" rx="8.5" />
-          <rect x="224" y="46" width="48" height="17" rx="8.5" />
-          <rect x="314" y="91" width="52" height="17" rx="8.5" />
-        </g>
-
-        <g
-          fill="#C4CEDE"
-          fontFamily="DM Sans, sans-serif"
-          fontSize="8"
-          textAnchor="middle"
-        >
-          <text x="28" y="76">
-            London
-          </text>
-          <text x="130" y="162">
-            Manchester
-          </text>
-          <text x="248" y="58">
-            Lagos
-          </text>
-          <text x="340" y="103">
-            Abuja
-          </text>
-        </g>
-      </svg>
+      <AuthDeliveryNetwork className="pointer-events-none absolute bottom-[18px] left-[55px] h-[190px] w-[370px] max-w-none overflow-visible" />
     </aside>
   );
 }
@@ -383,15 +329,13 @@ export default function CustomerLoginForm({
         <AuthDecorativeCircles className="pointer-events-none absolute right-[-6px] top-[-34px] z-10 h-[136px] w-[136px] md:h-[240px] md:w-[240px] xl:fixed xl:right-0 xl:-top-[56px]" />
 
         <div className="relative z-[20] mx-auto w-full max-w-[424px] md:max-w-[628px] md:rounded-[20px] md:bg-white md:px-10 md:pb-10 md:pt-8 xl:w-[628px] xl:max-w-[628px] xl:min-h-[742px] xl:px-5 xl:pb-[18px] xl:pt-[18px]">
-          <Link
-            href={routes.web.getStarted}
-            className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 no-underline transition-colors duration-[180ms] hover:bg-primary-01 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0"
+          <AuthBackButton
+            fallbackHref={routes.web.getStarted}
+            className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0"
           >
             <AuthBackArrowIcon />
-
-            <span className="md:hidden">Back</span>
-            <span className="hidden md:inline">Back to home</span>
-          </Link>
+            <span>Back</span>
+          </AuthBackButton>
 
           <div className="mx-auto w-full max-w-[400px] md:max-w-[500px] xl:max-w-[400px]">
             <header className="mt-6 text-center md:mt-4 xl:mt-[32px]">
@@ -478,7 +422,7 @@ export default function CustomerLoginForm({
                   {requiresVerification && email.trim() ? (
                     <Link
                       href={verificationHref}
-                      className="mt-1 inline-block font-medium text-primary-06 no-underline hover:text-primary-07"
+                      className="mt-1 inline-block font-medium text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                     >
                       Verify your email
                     </Link>
@@ -513,7 +457,7 @@ export default function CustomerLoginForm({
             <div className="mt-5 text-center">
               <Link
                 href={routes.web.customerForgotPassword}
-                className="font-sans text-sm font-normal leading-[22px] text-primary-06 no-underline hover:text-primary-07"
+                className="font-sans text-sm font-normal leading-[22px] text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
               >
                 Forgot your password?
               </Link>
@@ -529,7 +473,7 @@ export default function CustomerLoginForm({
 
                 <Link
                   href={routes.web.customerCreateAccount}
-                  className="inline-flex items-center gap-2 whitespace-nowrap text-primary-06 no-underline hover:text-primary-07"
+                  className="inline-flex items-center gap-2 whitespace-nowrap text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                 >
                   Create Account
                   <ForwardArrowIcon />
@@ -543,7 +487,7 @@ export default function CustomerLoginForm({
 
                 <Link
                   href={routes.web.partnerApplication}
-                  className="inline-flex items-center gap-2 whitespace-nowrap text-secondary-06 no-underline hover:text-secondary-07"
+                  className="inline-flex items-center gap-2 whitespace-nowrap text-secondary-06 no-underline hover:text-secondary-07 active:text-secondary-08"
                 >
                   Become a shipping partner
                   <ForwardArrowIcon />

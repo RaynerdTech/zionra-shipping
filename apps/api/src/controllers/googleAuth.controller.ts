@@ -74,14 +74,16 @@ type GoogleRedirectStatus =
 function redirectGoogleStatus(
   res: Response,
   status: GoogleRedirectStatus,
-  flow: "customer" | "partner" = "customer",
+  flow: "customer" | "partner" | "partner-login" = "customer",
 ) {
   res.redirect(
     REDIRECT_STATUS,
     buildWebAppUrl(
-      flow === "partner"
-        ? WEB_ROUTES.partnerApply
-        : WEB_ROUTES.customerCreateAccount,
+      flow === "partner-login"
+        ? WEB_ROUTES.partnerLogin
+        : flow === "partner"
+          ? WEB_ROUTES.partnerApply
+          : WEB_ROUTES.customerCreateAccount,
       { googleStatus: status },
     ),
   );
@@ -172,10 +174,13 @@ export async function googleAuthCallbackController(
   const expectedNonce = req.cookies?.[GOOGLE_OAUTH_NONCE_COOKIE_NAME] as
     | string
     | undefined;
+  const storedFlow = req.cookies?.[GOOGLE_OAUTH_FLOW_COOKIE_NAME];
   const flow =
-    req.cookies?.[GOOGLE_OAUTH_FLOW_COOKIE_NAME] === "partner"
-      ? "partner"
-      : "customer";
+    storedFlow === "partner-login"
+      ? "partner-login"
+      : storedFlow === "partner"
+        ? "partner"
+        : "customer";
 
   clearGoogleOAuthCookies(res);
   clearGoogleOAuthFlowCookie(res);
@@ -198,7 +203,7 @@ export async function googleAuthCallbackController(
   }
 
   try {
-    if (flow === "partner") {
+    if (flow === "partner" || flow === "partner-login") {
       const identity = await exchangeCodeForGoogleIdentity(
         code,
         codeVerifier,
@@ -211,7 +216,7 @@ export async function googleAuthCallbackController(
         setPartnerOnboardingCookie(res, partnerResult.sessionToken);
         res.redirect(
           REDIRECT_STATUS,
-          buildWebAppUrl(WEB_ROUTES.partnerBusinessInformation),
+          buildWebAppUrl(partnerResult.redirectTo),
         );
         return;
       }

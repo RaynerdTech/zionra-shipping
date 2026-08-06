@@ -51,7 +51,7 @@ export default function CreateAccountGoogleStatusNotice({
         <button
           type="button"
           onClick={() => setIsVisible(false)}
-          className="shrink-0 border-0 bg-transparent p-0 font-sans text-sm font-medium text-primary-06 hover:text-primary-07"
+          className="shrink-0 border-0 bg-transparent p-0 font-sans text-sm font-medium text-primary-06 hover:text-primary-07 active:text-primary-08"
         >
           Dismiss
         </button>

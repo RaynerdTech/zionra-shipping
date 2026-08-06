@@ -3,6 +3,7 @@
  * Validates and normalizes every shipping-partner application step.
  */
 
+import { normalizeUkCities } from "../constants/ukCities.js";
 import type { FieldErrors } from "../lib/httpError.js";
 
 const REQUIRED_MESSAGE = "This field can't be left empty.";
@@ -78,7 +79,6 @@ export type PartnerBusinessInformationInput = {
 export type PartnerOperationalDetailsInput = {
   collectionCities: string[];
   itemsHandled: string[];
-  operationalBusinessAddress: string;
   shippingMethod: (typeof PARTNER_SHIPPING_METHODS)[number];
   shipmentFrequency: (typeof PARTNER_SHIPMENT_FREQUENCIES)[number];
   airCargoPricePerKg: string | null;
@@ -240,7 +240,6 @@ export function validatePartnerOperationalDetails(
   const errors: FieldErrors = {};
   const collectionCities = getStringArray(body, "collectionCities");
   const itemsHandled = getStringArray(body, "itemsHandled");
-  const operationalBusinessAddress = getString(body, "operationalBusinessAddress");
   const shippingMethod = getString(body, "shippingMethod");
   const shipmentFrequency = getString(body, "shipmentFrequency");
   const rawAirPrice = getString(body, "airCargoPricePerKg");
@@ -249,10 +248,14 @@ export function validatePartnerOperationalDetails(
   const insuranceAvailable = body.insuranceAvailable;
   const upfrontImmigrationCharge = body.upfrontImmigrationCharge;
 
-  if (collectionCities.length === 0) errors.collectionCities = "Add at least one collection city.";
+  const normalizedCollectionCities = normalizeUkCities(collectionCities);
+  if (collectionCities.length === 0) {
+    errors.collectionCities = "Add at least one collection city.";
+  } else if (!normalizedCollectionCities) {
+    errors.collectionCities = "Select valid UK cities from the suggestions.";
+  }
   if (itemsHandled.length === 0) errors.itemsHandled = "Select at least one item category.";
   else if (itemsHandled.some((item) => !isAllowed(item, PARTNER_ITEMS_HANDLED))) errors.itemsHandled = "Select valid item categories.";
-  if (!operationalBusinessAddress) errors.operationalBusinessAddress = REQUIRED_MESSAGE;
   if (!isAllowed(shippingMethod, PARTNER_SHIPPING_METHODS)) errors.shippingMethod = "Select a valid shipping method.";
   if (!isAllowed(shipmentFrequency, PARTNER_SHIPMENT_FREQUENCIES)) errors.shipmentFrequency = "Select a valid shipment frequency.";
 
@@ -273,9 +276,8 @@ export function validatePartnerOperationalDetails(
   return {
     success: true,
     data: {
-      collectionCities,
+      collectionCities: normalizedCollectionCities!,
       itemsHandled,
-      operationalBusinessAddress,
       shippingMethod: shippingMethod as PartnerOperationalDetailsInput["shippingMethod"],
       shipmentFrequency: shipmentFrequency as PartnerOperationalDetailsInput["shipmentFrequency"],
       airCargoPricePerKg,

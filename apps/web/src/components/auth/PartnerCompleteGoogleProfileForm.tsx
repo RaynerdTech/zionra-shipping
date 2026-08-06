@@ -173,7 +173,7 @@ function ReferralSourceSelect({
         aria-expanded={isOpen}
         aria-controls="partnerGoogleReferralSourceOptions"
         onClick={() => setIsOpen((current) => !current)}
-        className={`zion-input flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
+        className={`zion-input group flex h-[52px] w-full min-w-0 items-center justify-between gap-3 text-left md:h-12 ${
           value ? "text-neutral-10" : "text-neutral-05"
         }`}
       >
@@ -182,7 +182,7 @@ function ReferralSourceSelect({
         </span>
 
         <span
-          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-transform duration-200 ${
+          className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-01 text-primary-08 transition-[background-color,color,transform] duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
             isOpen ? "rotate-180" : ""
           }`}
         >
@@ -206,7 +206,7 @@ function ReferralSourceSelect({
               className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
                 !value
                   ? "bg-primary-06 text-white"
-                  : "text-neutral-10 hover:bg-primary-01"
+                  : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
               }`}
             >
               <span className="block break-words">Select an option</span>
@@ -222,7 +222,7 @@ function ReferralSourceSelect({
                 className={`block w-full min-w-0 px-3 py-2.5 text-left font-sans text-sm leading-[22px] transition-colors ${
                   value === option
                     ? "bg-primary-06 text-white"
-                    : "text-neutral-10 hover:bg-primary-01"
+                    : "text-neutral-10 hover:bg-primary-01 active:bg-primary-02"
                 }`}
               >
                 <span className="block break-words">{option}</span>
@@ -498,7 +498,7 @@ export default function PartnerCompleteGoogleProfileForm() {
               </button>
               <Link
                 href={routes.web.partnerApplication}
-                className="mt-4 inline-flex font-sans text-sm font-normal text-primary-06 no-underline hover:text-primary-07"
+                className="mt-4 inline-flex font-sans text-sm font-normal text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
               >
                 Return to partner registration
               </Link>
@@ -651,14 +651,14 @@ export default function PartnerCompleteGoogleProfileForm() {
                       I agree to Zionra&apos;s{" "}
                       <Link
                         href={routes.web.terms}
-                        className="text-primary-06 no-underline hover:text-primary-07"
+                        className="text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                       >
                         Terms of Service
                       </Link>{" "}
                       and{" "}
                       <Link
                         href={routes.web.privacy}
-                        className="text-primary-06 no-underline hover:text-primary-07"
+                        className="text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                       >
                         Privacy Policy
                       </Link>

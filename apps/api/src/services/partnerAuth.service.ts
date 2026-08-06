@@ -32,6 +32,7 @@ import type {
 } from "../validators/partnerAuth.validators.js";
 import { sendPartnerVerificationEmail } from "./email.service.js";
 import type { GoogleIdentity } from "./googleAuth.service.js";
+import { resolvePartnerDestination } from "./partner-auth/partnerDestination.service.js";
 
 const GOOGLE_PROVIDER = "GOOGLE" as const;
 
@@ -342,9 +343,14 @@ export async function processPartnerGoogleIdentity(identity: GoogleIdentity) {
       });
     }
 
+    const partner = await prisma.shippingPartner.findUniqueOrThrow({
+      where: { id: linked.partnerId },
+    });
+
     return {
       outcome: "authenticated" as const,
       sessionToken: await createPartnerOnboardingSession(linked.partnerId),
+      redirectTo: await resolvePartnerDestination(partner),
     };
   }
 
@@ -573,9 +579,14 @@ export async function linkGoogleToExistingPartner(
     return partner.id;
   });
 
+  const linkedPartner = await prisma.shippingPartner.findUniqueOrThrow({
+    where: { id: partnerId },
+  });
+
   return {
     message: "Google Account connected successfully.",
     sessionToken: await createPartnerOnboardingSession(partnerId),
+    redirectTo: await resolvePartnerDestination(linkedPartner),
   };
 }
 
@@ -667,5 +678,6 @@ export async function completePartnerGoogleSignup(
   return {
     message: "Your shipping-partner account is ready for onboarding.",
     sessionToken: await createPartnerOnboardingSession(partner.id),
+    redirectTo: await resolvePartnerDestination(partner),
   };
 }

@@ -44,7 +44,7 @@ function PasswordUpdatedIcon() {
   );
 }
 
-function PasswordUpdatedOverlay() {
+function PasswordUpdatedOverlay({ loginHref }: { loginHref: string }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-end bg-[rgba(7,22,44,0.24)] md:items-center md:justify-center md:px-6 md:py-10">
       <section className="relative flex min-h-[56vh] w-full items-center justify-center overflow-hidden rounded-t-[24px] bg-primary-10 px-5 py-12 md:min-h-0 md:max-w-[560px] md:rounded-[20px] md:px-16 md:py-20">
@@ -61,7 +61,7 @@ function PasswordUpdatedOverlay() {
             Your password has been successfully updated. You can now sign in with your new password.
           </p>
           <Link
-            href={`${routes.web.customerLogin}?passwordReset=1`}
+            href={`${loginHref}?passwordReset=1`}
             className="zion-btn zion-btn-md zion-btn-blue mt-6 w-full min-w-0"
           >
             Continue
@@ -72,7 +72,21 @@ function PasswordUpdatedOverlay() {
   );
 }
 
-export default function ResetPasswordForm() {
+type ResetPasswordFormProps = {
+  accountType?: "customer" | "partner";
+};
+
+export default function ResetPasswordForm({
+  accountType = "customer",
+}: ResetPasswordFormProps) {
+  const isPartner = accountType === "partner";
+  const authRoutes = isPartner ? routes.api.partnerAuth : routes.api.customerAuth;
+  const forgotPasswordRoute = isPartner
+    ? routes.web.partnerForgotPassword
+    : routes.web.customerForgotPassword;
+  const loginRoute = isPartner
+    ? routes.web.partnerLogin
+    : routes.web.customerLogin;
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -88,7 +102,7 @@ export default function ResetPasswordForm() {
     async function validateResetSession() {
       try {
         const response = await fetch(
-          buildApiUrl(routes.api.customerAuth.passwordResetSession),
+          buildApiUrl(authRoutes.passwordResetSession),
           {
             method: "GET",
             credentials: "include",
@@ -111,7 +125,7 @@ export default function ResetPasswordForm() {
     void validateResetSession();
 
     return () => controller.abort();
-  }, []);
+  }, [authRoutes.passwordResetSession]);
 
   function validateForm() {
     const nextErrors: ResetErrors = {};
@@ -144,7 +158,7 @@ export default function ResetPasswordForm() {
 
     try {
       const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.resetPassword),
+        buildApiUrl(authRoutes.resetPassword),
         {
           method: "POST",
           credentials: "include",
@@ -161,7 +175,7 @@ export default function ResetPasswordForm() {
       const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
       if (!response.ok) {
-        if (result.code === "PASSWORD_RESET_SESSION_EXPIRED") {
+        if (result.code === (isPartner ? "PARTNER_PASSWORD_RESET_SESSION_EXPIRED" : "PASSWORD_RESET_SESSION_EXPIRED")) {
           setSessionState("invalid");
           return;
         }
@@ -187,7 +201,7 @@ export default function ResetPasswordForm() {
   return (
     <>
       <AuthRecoveryShell
-        backHref={routes.web.customerForgotPassword}
+        backHref={forgotPasswordRoute}
         backLabel="Cancel"
         title="Create a new password"
         description="Choose a secure password for your Zionra account."
@@ -204,7 +218,8 @@ export default function ResetPasswordForm() {
               Your password reset session is missing or has expired. Request a new code to continue.
             </p>
             <Link
-              href={routes.web.customerForgotPassword}
+              href={forgotPasswordRoute}
+              replace
               className="zion-btn zion-btn-md zion-btn-blue mt-5 w-full min-w-0"
             >
               Start again
@@ -273,7 +288,7 @@ export default function ResetPasswordForm() {
         )}
       </AuthRecoveryShell>
 
-      {completed ? <PasswordUpdatedOverlay /> : null}
+      {completed ? <PasswordUpdatedOverlay loginHref={loginRoute} /> : null}
     </>
   );
 }

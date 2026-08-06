@@ -7,13 +7,23 @@
 import { Router } from "express";
 import multer from "multer";
 import {
+  cancelPartnerLoginChallengeController,
   completePartnerGoogleProfileController,
+  forgotPartnerPasswordController,
+  getPartnerDashboardController,
   getCurrentShippingPartnerController,
+  getPartnerLoginChallengeController,
+  getPartnerPasswordResetSessionController,
   getPendingPartnerGoogleProfileController,
   linkPartnerGoogleAccountController,
+  loginShippingPartnerController,
   registerShippingPartnerController,
+  resendPartnerLoginCodeController,
   resendShippingPartnerVerificationCodeController,
+  resetPartnerPasswordController,
   startPartnerGoogleAuthController,
+  verifyPartnerLoginCodeController,
+  verifyPartnerPasswordResetCodeController,
   verifyShippingPartnerEmailController,
 } from "../controllers/partnerAuth.controller.js";
 import {
@@ -51,12 +61,28 @@ const logoUpload = multer({
 });
 
 router.post("/register", registerShippingPartnerController);
+router.post("/login", loginShippingPartnerController);
+router.get("/login/challenge", getPartnerLoginChallengeController);
+router.post("/login/verify-code", verifyPartnerLoginCodeController);
+router.post("/login/resend-code", resendPartnerLoginCodeController);
+router.post("/login/cancel", cancelPartnerLoginChallengeController);
+router.post("/forgot-password", forgotPartnerPasswordController);
+router.post(
+  "/verify-password-reset-code",
+  verifyPartnerPasswordResetCodeController,
+);
+router.get(
+  "/password-reset-session",
+  getPartnerPasswordResetSessionController,
+);
+router.post("/reset-password", resetPartnerPasswordController);
 router.post("/verify-email", verifyShippingPartnerEmailController);
 router.post(
   "/resend-verification-code",
   resendShippingPartnerVerificationCodeController,
 );
 router.get("/me", getCurrentShippingPartnerController);
+router.get("/dashboard", getPartnerDashboardController);
 router.post("/logout", logoutPartnerController);
 router.get("/google", startPartnerGoogleAuthController);
 router.get("/google/pending-profile", getPendingPartnerGoogleProfileController);

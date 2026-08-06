@@ -193,10 +193,13 @@ model ShippingPartner {
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
-  emailVerificationCodes ShippingPartnerEmailVerificationCode[]
-  onboardingSessions     ShippingPartnerOnboardingSession[]
-  oauthAccounts          ShippingPartnerOAuthAccount[]
-  application            ShippingPartnerApplication?
+  emailVerificationCodes      ShippingPartnerEmailVerificationCode[]
+  passwordResetCodes          ShippingPartnerPasswordResetCode[]
+  passwordResetAuthorizations ShippingPartnerPasswordResetAuthorization[]
+  loginChallenges             ShippingPartnerLoginChallenge[]
+  onboardingSessions          ShippingPartnerOnboardingSession[]
+  oauthAccounts               ShippingPartnerOAuthAccount[]
+  application                 ShippingPartnerApplication?
 
   @@index([email])
   @@index([phoneCountryCode, phoneNumber])
@@ -215,6 +218,60 @@ model ShippingPartnerEmailVerificationCode {
 
   @@index([partnerId])
   @@index([codeHash])
+}
+
+
+model ShippingPartnerPasswordResetCode {
+  id             String    @id @default(cuid())
+  codeHash       String
+  expiresAt      DateTime
+  usedAt         DateTime?
+  failedAttempts Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  authorization ShippingPartnerPasswordResetAuthorization?
+
+  @@index([partnerId])
+  @@index([codeHash])
+}
+
+model ShippingPartnerPasswordResetAuthorization {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  passwordResetCodeId String                                  @unique
+  passwordResetCode   ShippingPartnerPasswordResetCode        @relation(fields: [passwordResetCodeId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([expiresAt])
+}
+
+model ShippingPartnerLoginChallenge {
+  id             String    @id @default(cuid())
+  tokenHash      String    @unique
+  codeHash       String
+  codeExpiresAt  DateTime
+  expiresAt      DateTime
+  failedAttempts Int       @default(0)
+  emailSendCount Int       @default(1)
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+  @@index([expiresAt])
 }
 
 model ShippingPartnerOnboardingSession {

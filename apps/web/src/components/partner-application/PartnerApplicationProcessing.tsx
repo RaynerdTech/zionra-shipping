@@ -139,6 +139,7 @@ export default function PartnerApplicationProcessing() {
       <PartnerApplicationSubmittedView
         reference={submittedReference}
         showConfetti
+        showDashboardAction
       />
     );
   }

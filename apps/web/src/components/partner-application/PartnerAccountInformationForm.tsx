@@ -235,7 +235,7 @@ function AccountInformationEditor({
         <div className="mt-4">
           <FieldLabel>Company Logo</FieldLabel>
           <div className="relative w-fit">
-            <label className="relative flex h-[104px] w-[124px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-primary-04 bg-white text-center transition-colors hover:bg-primary-01">
+            <label className="relative flex h-[104px] w-[124px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-primary-04 bg-white text-center transition-colors hover:bg-primary-01 active:bg-primary-02">
               {data.application.companyLogoUrl ? (
                 <img src={data.application.companyLogoUrl} alt="Company logo preview" className="h-full w-full object-contain p-2" />
               ) : (
