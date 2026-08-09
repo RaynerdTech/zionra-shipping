@@ -27,7 +27,7 @@ const trackingSteps: TrackStepItem[] = [
 
 function HowItWorks() {
   return (
-    <section className="w-full bg-neutral-05/15">
+    <section id="how-it-works" className="w-full scroll-mt-20 bg-neutral-05/15">
       <div className="mx-auto w-full max-w-[1440px] px-4 pb-[26px] pt-[36px] sm:px-6 md:pb-[42px] md:pt-[42px] lg:px-[24px] lg:pb-[50px] lg:pt-[50px]">
         <div className="pt-0 lg:pt-[8px]">
           <h2 className="font-sans text-[24px] font-bold leading-none tracking-[-0.5px] text-primary-10 lg:text-[40px] lg:tracking-[-1.5px]">

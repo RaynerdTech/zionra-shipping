@@ -1527,7 +1527,10 @@ export default function QuoteShipmentSection() {
 
   return (
     <>
-      <section className="relative overflow-visible bg-transparent px-4 py-[30px] font-sans text-neutral-01 sm:px-6 bg-primary-09 lg:px-8">
+      <section
+        id="get-quote"
+        className="relative scroll-mt-20 overflow-visible bg-transparent px-4 py-[30px] font-sans text-neutral-01 sm:px-6 bg-primary-09 lg:px-8"
+      >
         <div
           className="absolute inset-0 hidden bg-cover bg-center bg-no-repeat lg:block"
           style={desktopBackgroundStyle}
