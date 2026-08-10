@@ -35,7 +35,7 @@ function HowItWorks() {
         </div>
 
         <HomepageReveal delay={220}>
-          <Link href={routes.web.homeHowItWorks} className="zion-btn zion-btn-md zion-btn-blue mt-12 min-w-[192px] px-6">
+          <Link href={routes.web.howItWorks} className="zion-btn zion-btn-md zion-btn-blue mt-12 min-w-[192px] px-6">
             Learn More
           </Link>
         </HomepageReveal>

@@ -14,6 +14,9 @@ export const routes = {
     homeReviews: "/#reviews",
     homePartners: "/#shipping-partners",
 
+    howItWorks: "/how-it-works",
+    aboutUs: "/about-us",
+
     customerLogin: "/login",
     customerLoginVerification: "/login/verify",
     customerCreateAccount: "/create-account",

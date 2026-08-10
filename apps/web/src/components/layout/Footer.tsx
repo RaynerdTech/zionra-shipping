@@ -20,8 +20,8 @@ const groups: FooterGroup[] = [
   {
     title: "Company",
     items: [
-      { label: "How it works", href: routes.web.homeHowItWorks },
-      { label: "About us" },
+      { label: "How it works", href: routes.web.howItWorks },
+      { label: "About us", href: routes.web.aboutUs },
     ],
   },
   {

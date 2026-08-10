@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { routes } from "@/config/routes";
 
@@ -11,16 +11,22 @@ const logoZionra = "/images/logo-zionra.png";
 
 const navItems = [
   { label: "Home", href: routes.web.home },
-  { label: "How it works", href: `${routes.web.home}#how-it-works` },
-  { label: "Get quote", href: `${routes.web.home}#quote` },
-  { label: "About us", href: `${routes.web.home}#about-us` },
+  { label: "How it works", href: routes.web.howItWorks },
+  { label: "Get quote", href: `${routes.web.home}#get-quote` },
+  { label: "About us", href: routes.web.aboutUs },
   { label: "Support", href: `${routes.web.home}#support` },
 ] as const;
 
 function Header() {
   const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+
   const mobileMenuId = useId();
+
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -30,13 +36,90 @@ function Header() {
     }
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      setIsHeaderVisible(true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+
+    function updateHeader() {
+      const currentScrollY = Math.max(window.scrollY, 0);
+      const previousScrollY = lastScrollY.current;
+      const difference = currentScrollY - previousScrollY;
+
+      /*
+       * Always keep the header visible near the top.
+       */
+      if (currentScrollY <= 12) {
+        setIsHeaderVisible(true);
+        lastScrollY.current = currentScrollY;
+        ticking.current = false;
+        return;
+      }
+
+      /*
+       * Require enough movement before changing state.
+       * This prevents tiny trackpad/momentum movements
+       * from making the header flicker.
+       */
+      if (Math.abs(difference) >= 8) {
+        if (difference > 0) {
+          /*
+           * Scrolling down:
+           * hide the header unless the mobile menu is open.
+           */
+          if (!isOpen) {
+            setIsHeaderVisible(false);
+          }
+        } else {
+          /*
+           * Scrolling up:
+           * reveal the header immediately.
+           */
+          setIsHeaderVisible(true);
+        }
+
+        lastScrollY.current = currentScrollY;
+      }
+
+      ticking.current = false;
+    }
+
+    function handleScroll() {
+      if (!ticking.current) {
+        ticking.current = true;
+        window.requestAnimationFrame(updateHeader);
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isOpen]);
+
   return (
-    <header className="sticky top-0 z-50 border-y border-neutral-03/70 bg-neutral-01/95 px-4 py-3 font-sans backdrop-blur-sm sm:px-6 sm:py-4 lg:px-8 lg:py-5">
-      <div className="relative mx-auto w-full max-w-[1320px]">
-        <div className="flex h-[64px] items-center rounded-[16px] border border-neutral-03 bg-white px-4 shadow-[0_1px_2px_rgba(7,22,44,0.04)] sm:h-[68px] sm:px-5 xl:h-[72px] xl:pl-6 xl:pr-4">
+    <header
+      className={`sticky top-0 z-50 bg-neutral-01 transition-transform duration-[260ms] ease-[cubic-bezier(.22,.61,.36,1)] will-change-transform motion-reduce:transition-none ${
+        isHeaderVisible || isOpen
+          ? "translate-y-0"
+          : "-translate-y-full"
+      }`}
+    >
+      <div className="relative mx-auto w-full max-w-[1276px] px-4 py-[15px] sm:px-6 xl:px-0">
+        <div className="relative flex h-[64px] items-center rounded-[40px] bg-white px-5 shadow-[0_1px_2px_rgba(7,22,44,0.04)] sm:px-6 xl:px-10">
           <Link
             href={routes.web.home}
             aria-label="Zionra home"
@@ -46,9 +129,23 @@ function Header() {
             <Logo />
           </Link>
 
-          <nav aria-label="Primary navigation" className="ml-[56px] hidden items-center gap-1 xl:flex 2xl:ml-[64px]">
+          <nav
+            aria-label="Primary navigation"
+            className="ml-[56px] hidden items-center gap-1 xl:flex 2xl:ml-[64px]"
+          >
             {navItems.map((item) => {
-              const active = item.href === routes.web.home && pathname === routes.web.home;
+              const isHome = item.href === routes.web.home;
+              const isHowItWorks =
+                item.href === routes.web.howItWorks;
+              const isAboutUs =
+                item.href === routes.web.aboutUs;
+
+              const active =
+                (isHome && pathname === routes.web.home) ||
+                (isHowItWorks &&
+                  pathname === routes.web.howItWorks) ||
+                (isAboutUs &&
+                  pathname === routes.web.aboutUs);
 
               return (
                 <Link
@@ -56,10 +153,13 @@ function Header() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={`group relative flex h-11 items-center px-[14px] text-[14px] font-medium leading-[22px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-06/35 focus-visible:ring-offset-2 ${
-                    active ? "text-primary-06" : "text-primary-10"
+                    active
+                      ? "text-primary-06"
+                      : "text-primary-10"
                   }`}
                 >
                   {item.label}
+
                   <span
                     aria-hidden="true"
                     className={`absolute bottom-[4px] left-[14px] right-[14px] rounded-full transition-all duration-100 ${
@@ -91,7 +191,11 @@ function Header() {
 
           <button
             type="button"
-            aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={
+              isOpen
+                ? "Close navigation menu"
+                : "Open navigation menu"
+            }
             aria-expanded={isOpen}
             aria-controls={mobileMenuId}
             onClick={() => setIsOpen((value) => !value)}
@@ -103,15 +207,29 @@ function Header() {
 
         <div
           id={mobileMenuId}
-          className={`absolute left-0 right-0 top-[72px] origin-top rounded-[16px] border border-neutral-03 bg-white p-4 shadow-[0_18px_40px_rgba(7,22,44,0.12)] transition duration-200 sm:top-[76px] xl:hidden ${
+          className={`absolute left-4 right-4 top-[84px] origin-top rounded-[16px] border border-neutral-03 bg-white p-4 shadow-[0_18px_40px_rgba(7,22,44,0.12)] transition duration-200 sm:left-6 sm:right-6 xl:hidden ${
             isOpen
               ? "visible translate-y-0 scale-y-100 opacity-100"
-              : "invisible -translate-y-2 scale-y-95 opacity-0 pointer-events-none"
+              : "pointer-events-none invisible -translate-y-2 scale-y-95 opacity-0"
           }`}
         >
-          <nav aria-label="Mobile primary navigation" className="flex flex-col gap-1">
+          <nav
+            aria-label="Mobile primary navigation"
+            className="flex flex-col gap-1"
+          >
             {navItems.map((item) => {
-              const active = item.href === routes.web.home && pathname === routes.web.home;
+              const isHome = item.href === routes.web.home;
+              const isHowItWorks =
+                item.href === routes.web.howItWorks;
+              const isAboutUs =
+                item.href === routes.web.aboutUs;
+
+              const active =
+                (isHome && pathname === routes.web.home) ||
+                (isHowItWorks &&
+                  pathname === routes.web.howItWorks) ||
+                (isAboutUs &&
+                  pathname === routes.web.aboutUs);
 
               return (
                 <Link
@@ -160,10 +278,10 @@ function Logo() {
       <Image
         src={logoZionra}
         alt=""
-        width={27}
-        height={31}
+        width={26}
+        height={26}
         priority
-        className="h-[31px] w-[27px] object-contain"
+        className="h-[26px] w-[26px] object-contain"
       />
 
       <span className="font-display text-[22px] font-bold leading-none tracking-[-0.5px] text-primary-06">
@@ -175,16 +293,37 @@ function Logo() {
 
 function MenuIcon() {
   return (
-    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
     </svg>
   );
 }
 
 function CloseIcon() {
   return (
-    <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
     </svg>
   );
 }
