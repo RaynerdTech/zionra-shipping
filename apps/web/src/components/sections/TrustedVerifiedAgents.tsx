@@ -1,236 +1,98 @@
-import type { ReactNode } from "react";
+import Link from "next/link";
 
-type Agent = {
+import { routes } from "@/config/routes";
+import HomepageReveal from "./HomepageReveal";
+
+type Partner = {
   id: string;
-  initials: string;
+  image: string;
   name: string;
-  desktopName: string;
   rating: string;
   reviews: string;
   transit: string;
-  accentClass: string;
-  cardClass: string;
-  buttonClass: string;
 };
 
-const agents: Agent[] = [
+const partners: Partner[] = [
   {
     id: "quickship",
-    initials: "Q",
-    name: "QuickShip Lagos",
-    desktopName: "QuickS********",
+    image: "/images/homepage/partner-quickship.jpg",
+    name: "QuickShi****",
     rating: "4.9",
-    reviews: "312 reviews",
+    reviews: "12 reviews",
     transit: "7–10 days",
-    accentClass: "bg-primary-06",
-    cardClass: "border-primary-06/25 border-t-primary-06",
-    buttonClass: "border-primary-06 text-primary-06 hover:bg-primary-06/5",
   },
   {
     id: "nigeriaxpress",
-    initials: "N",
-    name: "NigeriaXpress",
-    desktopName: "Niger*********",
+    image: "/images/homepage/partner-nigeriaxpress.jpg",
+    name: "NigeriaX****",
     rating: "4.8",
-    reviews: "247 reviews",
-    transit: "5–8 days",
-    accentClass: "bg-secondary-06",
-    cardClass: "border-secondary-06/30 border-t-secondary-06",
-    buttonClass:
-      "border-secondary-06 text-secondary-06 hover:bg-secondary-06/5",
+    reviews: "8 reviews",
+    transit: "7–14 days",
   },
   {
     id: "saferoute",
-    initials: "S",
-    name: "SafeRoute Co.",
-    desktopName: "Safe***********",
+    image: "/images/homepage/partner-saferoute.jpg",
+    name: "SafeRou****",
     rating: "4.7",
-    reviews: "198 reviews",
+    reviews: "4 reviews",
     transit: "10–14 days",
-    accentClass: "bg-tertiary-06",
-    cardClass: "border-tertiary-06/30 border-t-tertiary-06",
-    buttonClass: "border-tertiary-06 text-tertiary-06 hover:bg-tertiary-06/5",
   },
 ];
 
 function TrustedVerifiedAgents() {
   return (
-    <section className="w-full text-white">
-      <div className="mx-auto w-full max-w-[1440px] px-4 pb-[26px] pt-[36px] sm:px-6 md:pb-[42px] md:pt-[42px] lg:px-[24px] lg:pb-[50px] lg:pt-[52px]">
-        <div>
-          <h2 className="font-sans text-[24px] font-bold leading-[1.05] tracking-[-0.5px] text-primary-10 lg:text-[40px] lg:tracking-[-1.5px]">
-            Trusted Verified Agents
-          </h2>
-
-          <p className="mt-[10px] max-w-[720px] font-sans text-[14px] font-light leading-[1.55] text-neutral-08/80 lg:text-[18px]">
-            Every agent on Zionra is vetted, verified and rated by real
-            customers
-          </p>
+    <section id="shipping-partners" className="relative overflow-hidden bg-white px-4 py-16 font-sans sm:px-6 md:py-20 lg:px-8 lg:py-24">
+      <div className="relative mx-auto w-full max-w-[1277px]">
+        <div className="relative max-w-[590px] py-3">
+          <div className="pointer-events-none absolute bottom-0 left-[-80px] top-0 w-[660px] rounded-r-full bg-secondary-06/[0.04]" aria-hidden="true" />
+          <HomepageReveal>
+            <div className="relative">
+              <h2 className="font-display text-[34px] font-bold leading-[44px] tracking-[-1px] text-primary-10 sm:text-[40px] sm:leading-[52px] sm:tracking-[-1.5px]">
+                Verified shipping partnership
+              </h2>
+              <p className="mt-1 max-w-[530px] text-[16px] leading-[26px] text-neutral-06">
+                Submit your application and become a Zionra Shipping Partner. Access a wide range of customers.
+              </p>
+            </div>
+          </HomepageReveal>
         </div>
 
-        <div className="mt-[18px] grid grid-cols-1 gap-[26px] lg:mt-[22px] lg:grid-cols-3 lg:gap-[24px]">
-          {agents.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} />
+        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          {partners.map((partner, index) => (
+            <HomepageReveal key={partner.id} delay={index * 90} className={index === 2 ? "md:col-span-2 lg:col-span-1" : ""}>
+              <PartnerCard partner={partner} />
+            </HomepageReveal>
           ))}
         </div>
 
-        <div className="mt-[32px] lg:mt-[24px]">
-          <button
-            type="button"
-            className="zion-btn hidden bg-primary-06 px-[24px] font-light text-white lg:inline-flex"
+        <HomepageReveal delay={240} className="mt-12 flex justify-center">
+          <Link
+            href={routes.web.partnerApplication}
+            className="zion-btn zion-btn-md zion-btn-outline-blue min-w-[240px] px-5"
           >
-            Become a verified agent
-          </button>
-
-          <button
-            type="button"
-            className="zion-btn h-[42px] rounded-[8px] border border-primary-06/25  px-[22px] font-light text-primary-10 lg:hidden"
-          >
-            Become a verified agent
-          </button>
-        </div>
+            Become a shipping partner
+          </Link>
+        </HomepageReveal>
       </div>
     </section>
   );
 }
 
-function AgentCard({ agent }: { agent: Agent }) {
+function PartnerCard({ partner }: { partner: Partner }) {
   return (
-    <article
-      className={`min-w-0 rounded-b-[12px] border border-t-[4px] text-white px-[18px] pb-[18px] pt-[14px] ${agent.cardClass} lg:min-h-[158px] lg:px-[20px] lg:pb-[18px] lg:pt-[20px]`}
-    >
-      <div className="flex items-start justify-between gap-[16px]">
-        <div className="flex min-w-0 items-start gap-[12px] lg:block">
-          <div
-            className={`flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full font-sans text-[18px] font-semibold leading-none text-white lg:h-[60px] lg:w-[60px] lg:text-[21px] ${agent.accentClass}`}
-          >
-            {agent.initials}
-          </div>
-
-          <div className="min-w-0 pt-[2px] lg:mt-[16px] lg:pt-0">
-            <h3 className="font-sans text-[20px] font-bold leading-[1.15] text-primary-10 lg:hidden">
-              {agent.name}
-            </h3>
-
-            <h3 className="hidden font-sans text-[16px] font-bold leading-none text-primary-10 lg:block">
-              {agent.desktopName}
-            </h3>
-
-            <AgentMeta agent={agent} />
+    <article className="min-h-[186px] rounded-b-[16px] border border-neutral-04/50 bg-white px-6 py-6 transition duration-200 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(7,22,44,0.08)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <img src={partner.image} alt="" className="h-12 w-12 rounded-full object-cover" />
+          <div className="mt-5">
+            <h3 className="font-display text-[16px] font-bold leading-[24px] text-primary-10">{partner.name}</h3>
+            <p className="mt-1 text-[13px] leading-[18px] text-text-body-light">★ {partner.rating} · {partner.reviews}</p>
+            <p className="mt-1 text-[13px] leading-[18px] text-text-body-light">◷ Transit: {partner.transit}</p>
           </div>
         </div>
-
-        <VerifiedPill />
-      </div>
-
-      <div className="mt-[18px] lg:hidden">
-        <button
-          type="button"
-          className={`zion-btn h-[32px] rounded-[7px] border text-white px-[13px] text-[14px] font-light ${agent.buttonClass}`}
-        >
-          View profile →
-        </button>
+        <span className="inline-flex h-6 shrink-0 items-center gap-1 rounded-full bg-tertiary-10 px-2 text-[12px] leading-[18px] text-white">✓ Verified</span>
       </div>
     </article>
-  );
-}
-
-function AgentMeta({ agent }: { agent: Agent }) {
-  return (
-    <>
-      <div className="mt-[8px] flex min-w-0 items-center gap-[7px] font-sans text-[14px] font-light leading-none text-neutral-08/75 lg:text-[13px]">
-        <StarIcon />
-        <span>{agent.rating}</span>
-        <span>·</span>
-        <span className="truncate">{agent.reviews}</span>
-      </div>
-
-      <div className="mt-[8px] flex min-w-0 items-center gap-[7px] font-sans text-[14px] font-light leading-none text-neutral-08/75 lg:text-[13px]">
-        <span className="shrink-0 text-neutral-08/55">
-          <TransitClockIcon />
-        </span>
-        <span className="truncate">Transit: {agent.transit}</span>
-      </div>
-    </>
-  );
-}
-
-function VerifiedPill() {
-  return (
-    <div className="inline-flex h-[22px] shrink-0 items-center gap-[5px] rounded-full bg-tertiary-06/15 px-[10px] font-sans text-[12px] font-light leading-none text-tertiary-06">
-      <span className="text-[11px]">✓</span>
-      <span>Verified</span>
-    </div>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      className="shrink-0 text-neutral-08/70"
-    >
-      <path d="M12 3.75L14.5489 8.91543L20.25 9.74342L16.125 13.7646L17.0983 19.4421L12 16.7616L6.90167 19.4421L7.875 13.7646L3.75 9.74342L9.45111 8.91543L12 3.75Z" />
-    </svg>
-  );
-}
-
-function TransitClockIcon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 48 48"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path
-        d="M30.7241 21.716L21.4633 30.9768L17.0959 26.6094"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="24.0561"
-        cy="26.186"
-        r="16.216"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="24.1831"
-        cy="26.144"
-        r="12.5"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M39.6231 15.488L42.1516 12.638L33.8135 5.5975L31.359 8.512L39.6231 15.488Z"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.3767 15.488L5.8482 12.638L14.1863 5.5975L16.6408 8.512L8.3767 15.488Z"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 

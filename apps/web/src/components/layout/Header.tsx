@@ -35,7 +35,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-y border-neutral-03/70 bg-neutral-01/95 px-4 py-3 font-sans backdrop-blur-sm sm:px-6 sm:py-4 lg:px-8 lg:py-5">
-      <div className="relative mx-auto w-full max-w-[1440px]">
+      <div className="relative mx-auto w-full max-w-[1320px]">
         <div className="flex h-[64px] items-center rounded-[16px] border border-neutral-03 bg-white px-4 shadow-[0_1px_2px_rgba(7,22,44,0.04)] sm:h-[68px] sm:px-5 xl:h-[72px] xl:pl-6 xl:pr-4">
           <Link
             href={routes.web.home}

@@ -1,357 +1,111 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+
+import { routes } from "@/config/routes";
+import HomepageReveal from "./HomepageReveal";
+import HomepageTrackingPreview from "./HomepageTrackingPreview";
 
 const ukFlagSrc = "/images/United-Kingdom.svg";
 const ngFlagSrc = "/images/Nigeria.svg";
 
-type StepCardProps = {
-  step: string;
-  title: string;
-  description: string;
-  accentClass: string;
-  cardClass: string;
-  borderClass: string;
-  children: ReactNode;
-};
-
-type TrackStepItem = {
-  label: string;
-  active: boolean;
-};
-
-const trackingSteps: TrackStepItem[] = [
-  { label: "Booked", active: true },
-  { label: "Picked up", active: true },
-  { label: "In transit", active: true },
-  { label: "Delivered", active: false },
+const agentRows = [
+  { initial: "Q", name: "QuickShip Lagos", rating: "★★★★★" },
+  { initial: "N", name: "NigeriaXpress", rating: "★★★★☆" },
+  { initial: "S", name: "SafeRoute Co.", rating: "★★★★☆" },
 ];
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="w-full scroll-mt-20 bg-neutral-05/15">
-      <div className="mx-auto w-full max-w-[1440px] px-4 pb-[26px] pt-[36px] sm:px-6 md:pb-[42px] md:pt-[42px] lg:px-[24px] lg:pb-[50px] lg:pt-[50px]">
-        <div className="pt-0 lg:pt-[8px]">
-          <h2 className="font-sans text-[24px] font-bold leading-none tracking-[-0.5px] text-primary-10 lg:text-[40px] lg:tracking-[-1.5px]">
+    <section id="how-it-works" className="relative scroll-mt-24 overflow-hidden bg-white px-4 py-16 font-sans sm:px-6 md:py-20 lg:min-h-[680px] lg:px-8 lg:py-20">
+      <div className="pointer-events-none absolute -left-[170px] bottom-[-120px] h-[356px] w-[356px] rounded-full bg-error/[0.05]" aria-hidden="true" />
+      <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[220px] w-[600px] -translate-x-1/2 rounded-full bg-secondary-06/[0.04]" aria-hidden="true" />
+
+      <div className="relative mx-auto flex w-full max-w-[1272px] flex-col items-center">
+        <HomepageReveal className="text-center">
+          <h2 className="font-display text-[34px] font-bold leading-[44px] tracking-[-1px] text-primary-10 sm:text-[40px] sm:leading-[52px] sm:tracking-[-1.5px]">
             How It Works
           </h2>
+          <p className="mt-1 text-[16px] leading-[26px] text-text-body-light">Three simple steps to ship smarter</p>
+        </HomepageReveal>
 
-          <p className="mt-[10px] font-sans text-[14px] font-light leading-none text-tertiary-06 lg:text-[18px]">
-            Three simple steps to ship smarter
-          </p>
+        <div className="mt-12 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:mt-[60px] lg:grid-cols-3 lg:gap-6">
+          <HomepageReveal delay={0} className="h-full"><StepOne /></HomepageReveal>
+          <HomepageReveal delay={90} className="h-full"><StepTwo /></HomepageReveal>
+          <HomepageReveal delay={180} className="h-full md:col-span-2 lg:col-span-1"><StepThree /></HomepageReveal>
         </div>
 
-        <div className="mt-[18px] grid grid-cols-1 gap-[28px] lg:mt-[22px] lg:grid-cols-3 lg:gap-[22px]">
-          <StepCard
-            step="01"
-            title="Enter shipment details"
-            description="Tell us the origin, destination, weight and what you're sending. Takes under a minute."
-            accentClass="bg-primary-06"
-            cardClass="bg-primary-06/[0.08]"
-            borderClass="border-primary-06/20 border-t-primary-06"
-          >
-            <ShipmentPreview />
-          </StepCard>
-
-          <StepCard
-            step="02"
-            title="Compare verified agents"
-            description="Browse agents by price, transit time and rating. Filter to find your perfect match."
-            accentClass="bg-secondary-06"
-            cardClass="bg-secondary-06/[0.12]"
-            borderClass="border-secondary-06/25 border-t-secondary-06"
-          >
-            <AgentsPreview />
-          </StepCard>
-
-          <StepCard
-            step="03"
-            title="Book, pay and track"
-            description="Confirm your booking, pay securely and get real-time updates on every shipment."
-            accentClass="bg-tertiary-06"
-            cardClass="bg-tertiary-06/[0.10]"
-            borderClass="border-tertiary-06/30 border-t-tertiary-06"
-          >
-            <TrackingPreview />
-          </StepCard>
-        </div>
-
-        <div className="mt-[28px] lg:mt-[24px]">
-          <button
-            type="button"
-            className="zion-btn zion-btn-sm zion-btn-blue font-light"
-          >
-            Learn more
-          </button>
-        </div>
+        <HomepageReveal delay={220}>
+          <Link href={routes.web.homeHowItWorks} className="zion-btn zion-btn-md zion-btn-blue mt-12 min-w-[192px] px-6">
+            Learn More
+          </Link>
+        </HomepageReveal>
       </div>
     </section>
   );
 }
 
-function StepCard({
-  step,
-  title,
-  description,
-  accentClass,
-  cardClass,
-  borderClass,
-  children,
-}: StepCardProps) {
+function StepShell({ title, description, children }: { title: string; description: string; children: ReactNode }) {
   return (
-    <article
-      className={`min-w-0 rounded-b-[12px] border border-t-[4px] ${borderClass} ${cardClass} px-[19px] pb-[14px] pt-[16px] lg:min-h-[248px] lg:px-[18px] lg:pb-[18px] lg:pt-[18px]`}
-    >
-      <div
-        className={`inline-flex h-[30px] min-w-[38px] items-center justify-center rounded-full px-[10px] font-sans text-[14px] font-semibold leading-none text-white ${accentClass}`}
-      >
-        {step}
+    <article className="flex h-full min-h-[248px] flex-col rounded-[12px] border border-neutral-03 bg-white px-6 py-7 transition duration-200 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(7,22,44,0.08)] lg:px-6 lg:py-8">
+      <div>
+        <h3 className="font-display text-[16px] font-semibold leading-[22px] text-primary-10">{title}</h3>
+        <p className="mt-1 text-[13px] leading-[20px] text-text-body-light sm:text-[14px] sm:leading-[22px]">{description}</p>
       </div>
-
-      <h3 className="mt-[14px] font-sans text-[20px] font-bold leading-[1.15] text-primary-10 lg:text-[17px]">
-        {title}
-      </h3>
-
-      <p className="mt-[8px] max-w-[420px] font-sans text-[14px] leading-[1.7] text-neutral-08/70 lg:max-w-[340px] lg:leading-[1.65]">
-        {description}
-      </p>
-
-      <div className="mt-[16px]">{children}</div>
+      <div className="mt-4 flex-1">{children}</div>
     </article>
   );
 }
 
-function ShipmentPreview() {
+function StepOne() {
   return (
-    <div className="rounded-[8px] border border-primary-06/20 text-white/45 p-[9px] lg:p-[10px]">
-      <div className="grid grid-cols-2 gap-[8px]">
-        <LocationMiniField label="From">
-          <img
-            src={ukFlagSrc}
-            alt="United Kingdom flag"
-            className="h-[12px] w-[16px] shrink-0 rounded-[2px] object-cover"
-          />
-          <span className="truncate">United Kingdom</span>
-        </LocationMiniField>
-
-        <LocationMiniField label="To">
-          <img
-            src={ngFlagSrc}
-            alt="Nigeria flag"
-            className="h-[12px] w-[16px] shrink-0 rounded-[2px] object-cover"
-          />
-          <span className="truncate">Nigeria</span>
-        </LocationMiniField>
-      </div>
-
-      <div className="mt-[8px] hidden items-center gap-[8px] sm:flex">
-        <div className="flex h-[26px] w-[90px] shrink-0 items-center rounded-[5px] border border-navborder px-[9px] font-sans text-[12px] text-primary-10/80">
-          5 kg
-        </div>
-
-        <div className="inline-flex h-[26px] min-w-0 flex-1 items-center justify-center rounded-[5px] bg-primary-06 px-[18px] font-sans text-[12px] font-semibold text-white">
-          Get Quote →
+    <StepShell title="1. Enter shipment details" description="Tell us origin, destination, weight and what you’re sending.">
+      <div className="grid min-h-[120px] grid-cols-2 gap-x-3 gap-y-3 rounded-[8px] border border-primary-02 p-2.5">
+        <MiniField label="From"><img src={ngFlagSrc} alt="Nigeria flag" className="h-[10px] w-[14px]" /><span>Nigeria</span></MiniField>
+        <MiniField label="From" active><img src={ukFlagSrc} alt="United Kingdom flag" className="h-[10px] w-[14px]" /><span>United Kingdom</span></MiniField>
+        <MiniField label="From"><span>5 kg</span></MiniField>
+        <div className="min-w-0">
+          <span className="block font-display text-[10px] text-neutral-06">Quotation</span>
+          <div className="mt-1.5 flex h-[30px] items-center justify-center rounded-[6px] bg-primary-06 px-2 text-[11px] font-medium text-white">Get Quote →</div>
         </div>
       </div>
-
-      <div className="mt-[10px] sm:hidden">
-        <div className="inline-flex h-[32px] w-full items-center justify-center rounded-[5px] bg-primary-06 px-[18px] font-sans text-[12px] font-semibold text-white">
-          Get Quote →
-        </div>
-      </div>
-    </div>
+    </StepShell>
   );
 }
 
-function LocationMiniField({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function MiniField({ label, active = false, children }: { label: string; active?: boolean; children: ReactNode }) {
   return (
-    <div className="min-w-0 rounded-[5px] border border-navborder text-white/55 px-[8px] py-[6px]">
-      <div className="font-sans text-[12px] leading-none text-neutral-08/65">
-        {label}
-      </div>
-
-      <div className="mt-[5px] flex min-w-0 items-center gap-[6px] font-sans text-[12px] font-medium leading-none text-primary-10">
+    <div className="min-w-0">
+      <span className="block font-display text-[10px] text-neutral-06">{label}</span>
+      <div className={`mt-1.5 flex h-[30px] min-w-0 items-center gap-2 rounded-[6px] border bg-primary-01 px-2 text-[10px] text-primary-10 ${active ? "border-primary-06" : "border-neutral-03"}`}>
         {children}
       </div>
     </div>
   );
 }
 
-function AgentsPreview() {
+function StepTwo() {
   return (
-    <div className="rounded-[8px] border border-secondary-06/25 text-white/35 px-[10px] py-[8px] lg:px-[12px] lg:py-[10px]">
-      <AgentRow
-        initials="Q"
-        name="QuickShip Lagos"
-        rating="★★★★★"
-        meta="7-10 days"
-        barWidth="w-[86px] lg:w-[106px]"
-        badge="Top"
-      />
-
-      <AgentRow
-        initials="N"
-        name="NigeriaXpress"
-        rating="★★★★☆"
-        meta="5-8 days"
-        barWidth="w-[64px] lg:w-[84px]"
-      />
-
-      <AgentRow
-        initials="S"
-        name="SafeRoute Co."
-        rating="★★★★☆"
-        meta="10-14 days"
-        barWidth="w-[70px] lg:w-[92px]"
-        last
-      />
-    </div>
-  );
-}
-
-function AgentRow({
-  initials,
-  name,
-  rating,
-  meta,
-  barWidth,
-  badge,
-  last = false,
-}: {
-  initials: string;
-  name: string;
-  rating: string;
-  meta: string;
-  barWidth: string;
-  badge?: string;
-  last?: boolean;
-}) {
-  return (
-    <div className={`${last ? "" : "border-b border-black/[0.08]"} py-[5px]`}>
-      <div className="flex min-w-0 items-center gap-[8px]">
-        <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-secondary-06/80 font-sans text-[12px] font-semibold text-white">
-          {initials}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-[8px]">
-            <p className="min-w-0 truncate font-sans text-[12px] font-semibold leading-none text-primary-10">
-              {name}
-            </p>
-
-            <div
-              className={`hidden h-[4px] shrink-0 rounded-full bg-secondary-06 sm:block ${barWidth}`}
-            />
+    <StepShell title="2. Compare verified agents" description="Browse agents by price, transit time and rating. Filter to find your perfect match.">
+      <div className="flex min-h-[120px] flex-col justify-center gap-2 rounded-[8px] border border-primary-02 p-2.5">
+        {agentRows.map((agent) => (
+          <div key={agent.name} className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[9px] bg-primary-06 text-[11px] font-medium text-white">{agent.initial}</span>
+              <span className="truncate font-sans text-[11px] font-medium tracking-[1.4px] text-primary-10">{agent.name}</span>
+            </div>
+            <span className="shrink-0 font-display text-[9px] text-secondary-06">{agent.rating}</span>
           </div>
-
-          <div
-            className={`mt-[5px] h-[4px] rounded-full bg-secondary-06 sm:hidden ${barWidth}`}
-          />
-        </div>
-
-        <div className="flex shrink-0 flex-col items-start sm:items-end">
-          <div className="flex items-center gap-[6px]">
-            <span className="font-sans text-[16px] leading-none tracking-[2px] text-secondary-06">
-              {rating}
-            </span>
-
-            {badge ? (
-              <span className="inline-flex h-[14px] items-center rounded-full bg-tertiary-06/20 px-[6px] font-sans text-[12px] font-semibold text-tertiary-06">
-                ✓ {badge}
-              </span>
-            ) : null}
-          </div>
-
-          <span className="mt-[6px] font-sans text-[12px] leading-none text-neutral-08/60">
-            {meta}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TrackingPreview() {
-  return (
-    <div className="rounded-[8px] border border-tertiary-06/30 text-white/35 p-[10px] lg:p-[12px]">
-      <TrackLine />
-
-      <div className="mt-[10px] flex items-center gap-[7px] rounded-[5px] border border-tertiary-06 t px-[10px] py-[7px] font-sans text-[12px] leading-none text-primary-10">
-        <span className="inline-flex h-[11px] w-[11px] shrink-0 rounded-full bg-tertiary-06" />
-        <span className="min-w-0 truncate">
-          Live&nbsp; ZNR-20480 • Manc → Lagos · Est. 3 days
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function TrackLine() {
-  const completedCount = trackingSteps.filter((step) => step.active).length;
-  const progressRatio =
-    trackingSteps.length <= 1
-      ? 0
-      : (completedCount - 1) / (trackingSteps.length - 1);
-
-  return (
-    <div className="relative px-[3px]">
-      <div className="absolute left-[30px] right-[30px] top-[10px] h-[3px] bg-neutral-05/45" />
-
-      <div
-        className="absolute left-[30px] top-[10px] h-[3px] bg-tertiary-06"
-        style={{ width: `calc((100% - 60px) * ${progressRatio})` }}
-      />
-
-      <div className="relative grid grid-cols-4">
-        {trackingSteps.map((step) => (
-          <TrackStep key={step.label} label={step.label} active={step.active} />
         ))}
       </div>
-    </div>
+    </StepShell>
   );
 }
 
-function TrackStep({ label, active }: TrackStepItem) {
+function StepThree() {
   return (
-    <div className="flex min-w-0 flex-col items-center">
-      <div
-        className={`relative z-[1] flex h-[22px] w-[22px] items-center justify-center rounded-full ${
-          active
-            ? "bg-tertiary-06 text-white"
-            : "border-[4px] border-zion-muted-2/60 text-white"
-        }`}
-      >
-        {active ? <PlusTinyIcon /> : null}
-      </div>
-
-      <span className="mt-[6px] max-w-full truncate text-center font-sans text-[12px] leading-none text-neutral-08/65 lg:text-[10px]">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function PlusTinyIcon() {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M5 2V8M2 5H8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
+    <StepShell title="3. Book, pay and track" description="Confirm your booking, pay securely and get real-time updates on every shipment.">
+      <HomepageTrackingPreview />
+    </StepShell>
   );
 }
 

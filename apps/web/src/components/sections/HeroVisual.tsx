@@ -1,440 +1,217 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 
-type HeroVisualProps = {
-  ambientOnly?: boolean;
-};
-
-const colors = {
-  blue: "#286BDC",
-  blueLight: "#61A0FF",
-  blueSoft: "#153D7B",
-  teal: "#2EC4B6",
-  orange: "#FFA630",
-  green: "#2EC4B6",
-  white: "#FFFFFF",
-  surface: "#102A56",
-  muted: "#8FA3C5",
-  progress: "#5B9BFF",
-  progressBg: "#1E4788",
-  progressDot: "#234D91",
-  progressRing: "#9CC4FF",
-} as const;
-
-function HeroVisual({ ambientOnly = false }: HeroVisualProps) {
-  const cx = 310;
-  const cy = 287;
-
-  return (
-    <div className="relative h-[657px] w-[650px] overflow-visible font-sans">
-      <div
-        className="pointer-events-none absolute inset-0 hidden lg:block"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(40,107,220,0.045) 1px, transparent 1px)",
-          backgroundSize: "76px 100%",
-          backgroundPosition: "18px 0",
-        }}
-      />
-
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        viewBox="0 0 650 657"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Orbit rings */}
-        <circle
-          cx={cx}
-          cy={cy}
-          r="315"
-          stroke={colors.blue}
-          strokeOpacity="0.07"
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r="248"
-          stroke={colors.blue}
-          strokeOpacity="0.085"
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r="184"
-          stroke={colors.blue}
-          strokeOpacity="0.1"
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r="126"
-          stroke={colors.blue}
-          strokeOpacity="0.13"
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r="72"
-          stroke={colors.blue}
-          strokeOpacity="0.16"
-        />
-
-        {/* Center to top cards */}
-        <line
-          x1={cx}
-          y1={cy}
-          x2="188"
-          y2="202"
-          stroke={colors.blue}
-          strokeOpacity="0.16"
-        />
-        <line
-          x1={cx}
-          y1={cy}
-          x2="460"
-          y2="179"
-          stroke={colors.blue}
-          strokeOpacity="0.16"
-        />
-
-        {/* Port Harcourt to Glasgow middle connector */}
-        <path d="M156 304L310 313" stroke={colors.blue} strokeOpacity="0.25" />
-        <path d="M310 313L496 304" stroke={colors.blue} strokeOpacity="0.25" />
-
-        {/* Center to bottom cards */}
-        <line
-          x1={cx}
-          y1={cy}
-          x2="109"
-          y2="418"
-          stroke={colors.blue}
-          strokeOpacity="0.15"
-        />
-        <line
-          x1={cx}
-          y1={cy}
-          x2="452"
-          y2="471"
-          stroke={colors.blue}
-          strokeOpacity="0.15"
-        />
-      </svg>
-
-      {/* Center glow */}
-      <div
-        className="absolute h-[146px] w-[146px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/[0.035]"
-        style={{ left: cx, top: cy }}
-      />
-      <div
-        className="absolute h-[112px] w-[112px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/[0.075]"
-        style={{ left: cx, top: cy }}
-      />
-      <div
-        className="absolute h-[86px] w-[86px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-06/10"
-        style={{ left: cx, top: cy }}
-      />
-      <div
-        className="absolute h-[70px] w-[70px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary-06 bg-primary-08"
-        style={{ left: cx, top: cy }}
-      />
-      <div
-        className="absolute flex h-[54px] w-[54px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary-06 font-display text-[26px] font-bold leading-none text-white shadow-[0_0_28px_rgba(40,107,220,0.42)]"
-        style={{ left: cx, top: cy }}
-      >
-        Z
-        <span className="absolute right-[3px] top-[10px] h-[12px] w-[12px] rounded-full bg-secondary-06" />
-      </div>
-
-      {/* Route dots */}
-      <SmallPoint className="left-[222px] top-[222px]" color={colors.blue} />
-      <SmallPoint
-        className="left-[391px] top-[211px]"
-        color={colors.orange}
-        orange
-      />
-      <SmallPoint className="left-[396px] top-[402px]" color={colors.teal} />
-
-      {!ambientOnly && (
-        <>
-          <InfoCard
-            className="left-[104px] top-[110px]"
-            accent={colors.blue}
-            color={colors.blue}
-            title="Lagos"
-            subtitle="Received"
-            status="Active"
-            width="w-[101px]"
-          />
-
-          <InfoCard
-            className="left-[440px] top-[86px]"
-            accent={colors.orange}
-            color={colors.orange}
-            title="London"
-            subtitle="Origin"
-            status="Active"
-            orange
-            width="w-[110px]"
-          />
-
-          <InfoCard
-            className="left-[56px] top-[254px]"
-            accent={colors.teal}
-            color={colors.teal}
-            title="Port"
-            subtitle="Harcourt"
-            status="Active"
-            width="w-[100px]"
-          />
-
-          <InfoCard
-            className="left-[496px] top-[244px]"
-            accent={colors.teal}
-            color={colors.teal}
-            title="Glasgow"
-            subtitle="Origin"
-            status="Active"
-            width="w-[113px]"
-            largeDot
-          />
-
-          <InfoCard
-            className="left-[109px] top-[417px]"
-            accent={colors.blue}
-            color={colors.blue}
-            title="Abuja"
-            subtitle="Received"
-            status="Active"
-            width="w-[100px]"
-          />
-
-          <InfoCard
-            className="left-[432px] top-[422px]"
-            accent={colors.blue}
-            color={colors.blue}
-            title="Abuja"
-            subtitle="Received"
-            status="Active"
-            width="w-[100px]"
-          />
-
-          <div className="absolute left-[49px] top-[530px] h-[86px] w-[518px] rounded-[10px] border border-primary-06/55 bg-primary-09 shadow-[0_14px_28px_rgba(0,0,0,0.24)]">
-            <div className="absolute left-0 top-0 h-[4px] w-full rounded-t-[10px] bg-primary-06" />
-
-            <div className="px-[16px] pt-[16px]">
-              <div className="flex items-start gap-[10px]">
-                <span className="mt-[-1px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-tertiary-06/20">
-                  <span className="block h-[8px] w-[8px] rounded-full bg-tertiary-06" />
-                </span>
-
-                <div>
-                  <p className="text-[14px] font-light leading-none tracking-[-0.01em] text-white font-display">
-                    Live ZNR-20480
-                  </p>
-
-                  <p className="mt-[10px] text-[13px] leading-none text-neutral-05">
-                    Manchester → Lagos
-                    <span className="px-[7px]">·</span>
-                    In transit
-                    <span className="px-[7px]">·</span>
-                    Est. 3 days
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-[10px] flex items-center justify-between">
-                <div className="relative h-[16px] w-[382px]">
-                  <div className="absolute left-0 right-0 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-primary-06-bg" />
-                  <div className="absolute left-0 top-1/2 h-[6px] w-[226px] -translate-y-1/2 rounded-full bg-primary-06" />
-
-                  <ProgressDot active style={{ left: "0px" }} />
-                  <ProgressDot active style={{ left: "77px" }} />
-                  <ProgressDot active style={{ left: "154px" }} />
-                  <ProgressDot style={{ left: "231px" }} />
-                  <ProgressDot style={{ left: "308px" }} />
-                </div>
-
-                <p className="pb-[1px] text-[14px] font-semibold leading-none text-secondary-06">
-                  ETA 3 days
-                </p>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-type InfoCardProps = {
-  className?: string;
-  accent: string;
-  color: string;
+type RouteNodeProps = {
+  x: number;
+  y: number;
   title: string;
   subtitle: string;
-  status: string;
-  orange?: boolean;
-  largeDot?: boolean;
-  width: string;
+  origin?: boolean;
 };
 
-function InfoCard({
-  className = "",
-  accent,
-  color,
-  title,
-  subtitle,
-  status,
-  orange = false,
-  largeDot = false,
-  width,
-}: InfoCardProps) {
+type RoutePulse = {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  delay: number;
+};
+
+const BASE_WIDTH = 516;
+const BASE_HEIGHT = 520;
+
+const routePulses: RoutePulse[] = [
+  { startX: 383, startY: 75, endX: 258, endY: 217, delay: 200 },
+  { startX: 429, startY: 207, endX: 258, endY: 217, delay: 520 },
+  { startX: 255, startY: 217, endX: 103, endY: 95, delay: 900 },
+  { startX: 255, startY: 217, endX: 110, endY: 351, delay: 1150 },
+  { startX: 255, startY: 217, endX: 379, endY: 355, delay: 1400 },
+];
+
+function HeroVisual() {
+  const visualRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const visual = visualRef.current;
+    if (!visual) return;
+
+    const pulses = Array.from(visual.querySelectorAll<HTMLElement>("[data-route-pulse]"));
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let animations: Animation[] = [];
+    let wasInView = false;
+
+    const resetPulses = () => {
+      animations.forEach((animation) => animation.cancel());
+      animations = [];
+      pulses.forEach((pulse) => {
+        pulse.style.opacity = "0";
+      });
+    };
+
+    const playPulses = () => {
+      resetPulses();
+      if (reducedMotion.matches) return;
+
+      animations = pulses.flatMap((pulse, index) => {
+        const config = routePulses[index];
+        if (!config) return [];
+
+        const animation = pulse.animate(
+          [
+            {
+              left: `${(config.startX / BASE_WIDTH) * 100}%`,
+              top: `${(config.startY / BASE_HEIGHT) * 100}%`,
+              opacity: 0,
+            },
+            {
+              left: `${(config.startX / BASE_WIDTH) * 100}%`,
+              top: `${(config.startY / BASE_HEIGHT) * 100}%`,
+              opacity: 1,
+              offset: 0.12,
+            },
+            {
+              left: `${(config.endX / BASE_WIDTH) * 100}%`,
+              top: `${(config.endY / BASE_HEIGHT) * 100}%`,
+              opacity: 1,
+              offset: 0.88,
+            },
+            {
+              left: `${(config.endX / BASE_WIDTH) * 100}%`,
+              top: `${(config.endY / BASE_HEIGHT) * 100}%`,
+              opacity: 0,
+            },
+          ],
+          {
+            duration: 1400,
+            delay: config.delay,
+            easing: "cubic-bezier(.22,.61,.36,1)",
+            fill: "forwards",
+          },
+        );
+
+        return [animation];
+      });
+    };
+
+    if (reducedMotion.matches) {
+      resetPulses();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+
+        if (entry.isIntersecting && !wasInView) {
+          wasInView = true;
+          playPulses();
+          return;
+        }
+
+        if (!entry.isIntersecting) {
+          wasInView = false;
+          resetPulses();
+        }
+      },
+      { threshold: 0.3 },
+    );
+
+    observer.observe(visual);
+
+    const handleMotionPreference = () => {
+      if (reducedMotion.matches) {
+        resetPulses();
+      } else if (wasInView) {
+        playPulses();
+      }
+    };
+
+    reducedMotion.addEventListener("change", handleMotionPreference);
+
+    return () => {
+      observer.disconnect();
+      reducedMotion.removeEventListener("change", handleMotionPreference);
+      resetPulses();
+    };
+  }, []);
+
   return (
-    <div
-      className={`absolute ${width} h-[86px] rounded-[10px] border bg-primary-09  ${className}`}
-      style={{ borderColor: accent }}
-    >
-      <div
-        className="absolute left-0 top-0 h-[4px] w-full rounded-t-[10px]"
-        style={{ backgroundColor: accent }}
-      />
+    <div ref={visualRef} className="relative aspect-[516/520] w-full max-w-[516px] text-white">
+      <div className="absolute left-[-0.3876%] top-[-3.8462%] h-[100%] w-[100.7752%] rounded-full border border-white/[0.09]" />
+      <div className="absolute left-[11.2403%] top-[7.6923%] h-[76.9231%] w-[77.5194%] rounded-full border border-white/[0.09]" />
+      <div className="absolute left-[22.8682%] top-[19.2308%] h-[53.8462%] w-[54.2636%] rounded-full border border-tertiary-06/20" />
+      <div className="absolute left-[32.9457%] top-[29.2308%] h-[33.8462%] w-[34.1085%] rounded-full border border-tertiary-06/25" />
 
-      <div className="absolute left-[12px] top-[20px] flex items-start gap-[8px]">
-        <NodeIcon color={color} orange={orange} large={largeDot} />
+      <svg
+        className="absolute inset-0 h-full w-full text-white/20"
+        viewBox={`0 0 ${BASE_WIDTH} ${BASE_HEIGHT}`}
+        fill="none"
+        aria-hidden="true"
+      >
+        <path d="M106 98 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+        <path d="M386 78 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+        <path d="M379 358 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+        <path d="M110 354 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+        <path d="M432 210 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+        <path d="M66 218 L258 220" stroke="currentColor" strokeWidth="1.25" strokeDasharray="4 5" />
+      </svg>
 
-        <div className="min-w-0">
-          <p className="whitespace-nowrap text-[14px] font-semibold leading-[1.05] text-white font-sans">
-            {title}
-          </p>
-          <p className="mt-[4px] whitespace-nowrap text-[12px] leading-none text-neutral-05">
-            {subtitle}
-          </p>
-        </div>
-      </div>
+      <RouteNode x={86} y={72} title="Lagos" subtitle="Received" />
+      <RouteNode x={366} y={52} title="London" subtitle="Origin" origin />
+      <RouteNode x={359} y={332} title="Ibadan" subtitle="Received" />
+      <RouteNode x={90} y={328} title="Abuja" subtitle="Received" />
+      <RouteNode x={412} y={184} title="Glasgow" subtitle="Origin" origin />
+      <RouteNode x={46} y={192} title="Port" subtitle="Harcourt" />
 
-      <div className="absolute bottom-[11px] left-[13px] flex items-center gap-[8px]">
+      {routePulses.map((pulse) => (
         <span
-          className="h-[9px] w-[9px] rounded-full"
-          style={{ backgroundColor: color }}
+          key={`${pulse.startX}-${pulse.startY}-${pulse.delay}`}
+          data-route-pulse
+          aria-hidden="true"
+          className="pointer-events-none absolute z-[2] h-[7px] w-[7px] rounded-full bg-tertiary-06 opacity-0 shadow-[0_0_10px_currentColor] text-tertiary-06 motion-reduce:hidden"
+          style={{
+            left: `${(pulse.startX / BASE_WIDTH) * 100}%`,
+            top: `${(pulse.startY / BASE_HEIGHT) * 100}%`,
+          }}
         />
-        <p className="text-[12px] leading-none" style={{ color }}>
-          {status}
-        </p>
+      ))}
+
+      <div className="absolute left-[43.0233%] top-[35.3846%] flex h-[13.8462%] w-[13.9535%] items-center justify-center rounded-full bg-gradient-to-br from-primary-06 to-primary-08 shadow-[0_0_0_10px_rgba(40,107,220,0.12),0_0_44px_rgba(40,107,220,0.45)]">
+        <span className="font-display text-[30px] font-extrabold tracking-[-1px] text-white">
+          Z
+        </span>
+        <span className="absolute right-[2px] top-[20px] h-[10px] w-[10px] rounded-full border-2 border-primary-10 bg-tertiary-06" />
       </div>
     </div>
   );
 }
 
-function NodeIcon({
-  color,
-  orange = false,
-  large = false,
-}: {
-  color: string;
-  orange?: boolean;
-  large?: boolean;
-}) {
-  if (large) {
-    return (
-      <span
-        className="block h-[30px] w-[30px] shrink-0 rounded-full"
-        style={{ backgroundColor: color }}
-      />
-    );
-  }
-
-  const size = orange ? 28 : 24;
-  const fillOpacity = orange ? 0.14 : 0.2;
-  const inner = orange ? 12 : 12;
+function RouteNode({ x, y, title, subtitle, origin = false }: RouteNodeProps) {
+  const style: CSSProperties = {
+    left: `${(x / BASE_WIDTH) * 100}%`,
+    top: `${(y / BASE_HEIGHT) * 100}%`,
+  };
 
   return (
-    <span
-      className="relative block shrink-0"
-      style={{ width: size, height: size }}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        fill="none"
+    <div className="absolute flex items-start gap-2" style={style}>
+      <span
+        className={`mt-[14px] grid h-[24px] w-[24px] shrink-0 place-items-center rounded-full ${
+          origin ? "bg-primary-06/25" : "bg-tertiary-06/20"
+        }`}
       >
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={size / 2}
-          fill={color}
-          fillOpacity={fillOpacity}
-        />
-      </svg>
-
-      <span
-        className="absolute left-1/2 top-1/2 rounded-full"
-        style={{
-          width: inner,
-          height: inner,
-          backgroundColor: color,
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-    </span>
-  );
-}
-
-function SmallPoint({
-  className,
-  color,
-  orange = false,
-}: {
-  className: string;
-  color: string;
-  orange?: boolean;
-}) {
-  const size = orange ? 20 : 22;
-  const inner = orange ? 10 : 10;
-  const opacity = orange ? 0.14 : 0.2;
-
-  return (
-    <span
-      className={`absolute ${className}`}
-      style={{ width: size, height: size }}
-    >
-      <span
-        className="absolute inset-0 rounded-full"
-        style={{
-          backgroundColor: color,
-          opacity,
-        }}
-      />
-      <span
-        className="absolute left-1/2 top-1/2 rounded-full"
-        style={{
-          width: inner,
-          height: inner,
-          backgroundColor: color,
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-    </span>
-  );
-}
-
-function ProgressDot({
-  active = false,
-  style,
-}: {
-  active?: boolean;
-  style?: CSSProperties;
-}) {
-  return (
-    <span
-      className={`absolute top-1/2 h-[16px] w-[16px] -translate-x-1/2 -translate-y-1/2 rounded-full ${
-        active
-          ? "border-[4px] border-primary-06 text-white/90"
-          : "bg-primary-06-dot"
-      }`}
-      style={style}
-    />
+        <span className={`h-[10px] w-[10px] rounded-full ${origin ? "bg-primary-05" : "bg-tertiary-06"}`} />
+      </span>
+      <span className="pt-[14px]">
+        <strong className="block font-display text-[11px] font-semibold leading-4 text-white sm:text-[12px] lg:text-[13px]">
+          {title}
+        </strong>
+        <span className="block font-sans text-[10px] leading-[15px] text-text-on-dark-muted/70 sm:text-[11px] lg:text-[12px]">
+          {subtitle}
+        </span>
+      </span>
+    </div>
   );
 }
 

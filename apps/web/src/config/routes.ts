@@ -7,9 +7,12 @@
 export const routes = {
   web: {
     home: "/",
+    getStarted: "/get-started",
     homeHowItWorks: "/#how-it-works",
     homeQuote: "/#get-quote",
-    getStarted: "/get-started",
+    homeTrack: "/#track-shipment",
+    homeReviews: "/#reviews",
+    homePartners: "/#shipping-partners",
 
     customerLogin: "/login",
     customerLoginVerification: "/login/verify",

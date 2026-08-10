@@ -2,19 +2,14 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type {
-  CSSProperties,
   ComponentPropsWithoutRef,
-  Dispatch,
   KeyboardEvent,
   ReactNode,
-  SetStateAction,
 } from "react";
 
-import TrustFeatures from "./TrustFeatures";
 
 const ukFlagSrc = "/images/United-Kingdom.svg";
 const ngFlagSrc = "/images/Nigeria.svg";
-const desktopBgSrc = "/images/man-smiling.jpg";
 
 const PHOTON_ENDPOINT = "https://photon.komoot.io/api/";
 const GETADDRESS_ENDPOINT = "https://api.getAddress.io";
@@ -155,24 +150,12 @@ type MultiSelectDropdownFieldProps = {
   error?: string;
 };
 
-type ToggleableProps = {
-  mobile?: boolean;
-};
-
-type QuoteButtonProps = ToggleableProps & {
-  onClick?: () => void;
-};
-
 type QuoteFormErrors = {
   fromLocation?: string;
   toLocation?: string;
   itemTypes?: string;
-  pickupMode?: string;
-};
-
-type MobileTabsProps = {
-  activeTab: ActiveTab;
-  setActiveTab: Dispatch<SetStateAction<ActiveTab>>;
+  collectionMode?: string;
+  deliveryMode?: string;
 };
 
 const ITEM_TYPE_OPTIONS: DropdownOption[] = [
@@ -184,16 +167,15 @@ const ITEM_TYPE_OPTIONS: DropdownOption[] = [
   { value: "other", label: "Other item" },
 ];
 
-const PICKUP_OPTIONS: DropdownOption[] = [
+const COLLECTION_OPTIONS: DropdownOption[] = [
   { value: "collection", label: "Pickup from address" },
   { value: "dropoff", label: "Drop off at agent" },
+];
+
+const DELIVERY_OPTIONS: DropdownOption[] = [
   { value: "door-to-door", label: "Door-to-door delivery" },
   { value: "receiver-pickup", label: "Receiver pickup" },
 ];
-
-const desktopBackgroundStyle: CSSProperties = {
-  backgroundImage: `linear-gradient(90deg, rgba(7, 22, 44, 0.5), rgba(7, 22, 44, 0.18)), url(${desktopBgSrc})`,
-};
 
 function ChevronDownIcon({ className = "" }: IconProps) {
   return (
@@ -449,25 +431,16 @@ async function searchPhotonResults(
     })
     .filter((item) => item.label.length > 0);
 }
-
 function FieldLabel({ htmlFor, id, children }: FieldLabelProps) {
   return (
-    <label
-      id={id}
-      htmlFor={htmlFor}
-      className="mb-[6px] block text-[14px] font-light leading-none text-neutral-05"
-    >
+    <label id={id} htmlFor={htmlFor} className="mb-2 block font-sans text-[14px] leading-[22px] text-neutral-01">
       {children}
     </label>
   );
 }
 
 function HelperText({ children }: { children: ReactNode }) {
-  return (
-    <p className="mt-[8px] text-[14px] leading-none text-neutral-05 font-light">
-      {children}
-    </p>
-  );
+  return <p className="mt-2 font-sans text-[14px] leading-[22px] text-text-on-dark-muted">{children}</p>;
 }
 
 function LocationAutocomplete({
@@ -485,31 +458,22 @@ function LocationAutocomplete({
   const inputId = useId();
   const listboxId = useId();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-
-  const [query, setQuery] = useState<string>(value?.label ?? "");
+  const [query, setQuery] = useState(value?.label ?? "");
   const [results, setResults] = useState<LocationResult[]>([]);
-  const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
-
+  const [isFocused, setIsFocused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const trimmedQuery = query.trim();
   const isOpen = isFocused && trimmedQuery.length >= 2;
   const errorId = `${inputId}-error`;
 
   useEffect(() => {
     function handleClickOutside(event: globalThis.MouseEvent) {
-      const target = event.target;
-
-      if (
-        target instanceof Node &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(target)
-      ) {
+      if (event.target instanceof Node && wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setIsFocused(false);
         setActiveIndex(-1);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -517,7 +481,6 @@ function LocationAutocomplete({
   useEffect(() => {
     let isActive = true;
     const controller = new AbortController();
-
     const timeoutId = window.setTimeout(async () => {
       if (trimmedQuery.length < 2) {
         setResults([]);
@@ -525,36 +488,22 @@ function LocationAutocomplete({
         setActiveIndex(-1);
         return;
       }
-
       try {
         setIsLoading(true);
-
         const mappedResults =
           countryCode === "GB" && hasUkAddressProvider()
             ? await searchGetAddressResults(trimmedQuery, controller.signal)
-            : await searchPhotonResults(
-                trimmedQuery,
-                countryCode,
-                controller.signal,
-              );
-
+            : await searchPhotonResults(trimmedQuery, countryCode, controller.signal);
         if (!isActive) return;
-
         setResults(mappedResults);
         setActiveIndex(mappedResults.length > 0 ? 0 : -1);
-      } catch (error) {
+      } catch (caught) {
         if (!isActive) return;
-
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
+        if (caught instanceof DOMException && caught.name === "AbortError") return;
         setResults([]);
         setActiveIndex(-1);
       } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
+        if (isActive) setIsLoading(false);
       }
     }, trimmedQuery.length < 2 ? 0 : 280);
 
@@ -568,46 +517,25 @@ function LocationAutocomplete({
   async function selectResult(result: LocationResult) {
     setIsFocused(false);
     setActiveIndex(-1);
-
-    const selectedResult =
-      result.source === "getaddress"
-        ? await resolveGetAddressResult(result)
-        : result;
-
-    setQuery(selectedResult.label);
-    onChange(selectedResult);
+    const selected = result.source === "getaddress" ? await resolveGetAddressResult(result) : result;
+    setQuery(selected.label);
+    onChange(selected);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (!isOpen) return;
-
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActiveIndex((current) =>
-        results.length === 0
-          ? -1
-          : current >= results.length - 1
-            ? 0
-            : current + 1,
-      );
+      setActiveIndex((current) => (results.length === 0 ? -1 : current >= results.length - 1 ? 0 : current + 1));
     }
-
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActiveIndex((current) =>
-        results.length === 0
-          ? -1
-          : current <= 0
-            ? results.length - 1
-            : current - 1,
-      );
+      setActiveIndex((current) => (results.length === 0 ? -1 : current <= 0 ? results.length - 1 : current - 1));
     }
-
     if (event.key === "Enter" && activeIndex >= 0 && results[activeIndex]) {
       event.preventDefault();
       void selectResult(results[activeIndex]);
     }
-
     if (event.key === "Escape") {
       setIsFocused(false);
       setActiveIndex(-1);
@@ -617,14 +545,10 @@ function LocationAutocomplete({
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
       <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
-
       <div className="relative">
-        <img
-          src={flagSrc}
-          alt={flagAlt}
-          className="pointer-events-none absolute left-[13px] top-1/2 z-20 h-[17px] w-[24px] -translate-y-1/2 rounded-[2px] object-cover"
-        />
-
+        <span className="pointer-events-none absolute left-3 top-1/2 z-10 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full bg-neutral-01">
+          <img src={flagSrc} alt={flagAlt} className="h-[10px] w-[14px] rounded-[1px] object-cover" />
+        </span>
         <input
           id={inputId}
           value={query}
@@ -642,23 +566,12 @@ function LocationAutocomplete({
           aria-autocomplete="list"
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`h-[48px] w-full rounded-[8px] border bg-primary-09 pl-[55px] pr-4 font-sans text-[15px] leading-[1.25] text-neutral-01 outline-none placeholder:text-neutral-05 ${
-            error
-              ? "border-error focus:border-error"
-              : "border-neutral-03 focus:border-neutral-03"
-          }`}
+          className={`h-12 w-full rounded-[10px] border bg-white pl-12 pr-3 font-sans text-[14px] text-primary-10 outline-none transition placeholder:text-neutral-05 hover:border-primary-05 focus:border-primary-06 focus:ring-[3px] focus:ring-primary-06/20 ${error ? "border-error" : "border-neutral-03"}`}
         />
-
         {isOpen ? (
-          <div
-            id={listboxId}
-            role="listbox"
-            className="absolute left-0 right-0 top-[56px] z-[999] max-h-[278px] overflow-y-auto rounded-[12px] border border-neutral-03 bg-primary-09 p-1"
-          >
+          <div id={listboxId} role="listbox" className="absolute left-0 right-0 top-[54px] z-[60] max-h-[260px] overflow-y-auto rounded-[10px] border border-neutral-03 bg-white p-1 shadow-[0_14px_34px_rgba(7,22,44,0.16)]">
             {isLoading ? (
-              <div className="px-4 py-3 text-[14px] leading-[1.45] text-neutral-05">
-                Searching locations...
-              </div>
+              <div className="px-3 py-3 text-[14px] text-text-body-light">Searching locations...</div>
             ) : results.length > 0 ? (
               results.map((result, index) => (
                 <button
@@ -667,73 +580,35 @@ function LocationAutocomplete({
                   role="option"
                   aria-selected={activeIndex === index}
                   onMouseDown={(event) => event.preventDefault()}
+                  onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => void selectResult(result)}
-                  className={`flex w-full items-start gap-3 rounded-[8px] px-3 py-[11px] text-left font-sans transition ${
-                    activeIndex === index
-                      ? "bg-primary-08 text-neutral-01"
-                      : "bg-transparent text-neutral-01 hover:bg-primary-08"
-                  }`}
+                  className={`flex w-full items-start gap-3 rounded-[8px] px-3 py-2.5 text-left transition ${activeIndex === index ? "bg-primary-01" : "hover:bg-neutral-01"}`}
                 >
-                  <img
-                    src={flagSrc}
-                    alt=""
-                    className="mt-[2px] h-[14px] w-[21px] shrink-0 rounded-[2px] object-cover"
-                  />
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-medium leading-[1.25]">
-                      {result.primary}
-                    </span>
-
-                    {result.secondary ? (
-                      <span className="mt-[4px] block text-[12.5px] leading-[1.35] text-neutral-05">
-                        {result.secondary}
-                      </span>
-                    ) : null}
+                  <img src={flagSrc} alt="" className="mt-1 h-[12px] w-[18px] rounded-[1px] object-cover" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-[14px] font-medium text-primary-10">{result.primary}</span>
+                    {result.secondary ? <span className="mt-1 block text-[12px] leading-[16px] text-text-body-light">{result.secondary}</span> : null}
                   </span>
                 </button>
               ))
             ) : (
-              <div className="px-4 py-3 text-[14px] leading-[1.45] text-neutral-05">
-                No matching locations found
-              </div>
+              <div className="px-3 py-3 text-[14px] text-text-body-light">No matching locations found</div>
             )}
           </div>
         ) : null}
       </div>
-
       {helper ? <HelperText>{helper}</HelperText> : null}
-
-      {error ? (
-        <p
-          id={errorId}
-          className="mt-[7px] text-[12px] leading-none text-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <p id={errorId} className="mt-1.5 text-[12px] text-error-on-dark">{error}</p> : null}
     </div>
   );
 }
 
-function TextInput({
-  label,
-  placeholder,
-  unit,
-  type = "text",
-  defaultValue = "",
-  value,
-  onChange,
-  className = "",
-  error,
-}: TextInputProps) {
+function TextInput({ label, placeholder, unit, type = "text", defaultValue = "", value, onChange, className = "", error }: TextInputProps) {
   const inputId = useId();
   const errorId = `${inputId}-error`;
-
   return (
     <div className={className}>
       <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
-
       <div className="relative">
         <input
           id={inputId}
@@ -744,68 +619,28 @@ function TextInput({
           placeholder={placeholder}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`h-[48px] w-full rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] text-neutral-01 outline-none placeholder:text-neutral-05 ${
-            error
-              ? "border-error focus:border-error"
-              : "border-neutral-03 focus:border-neutral-03"
-          }`}
+          className={`h-12 w-full rounded-[10px] border bg-white px-3 font-sans text-[14px] text-primary-10 outline-none transition placeholder:text-neutral-05 hover:border-primary-05 focus:border-primary-06 focus:ring-[3px] focus:ring-primary-06/20 ${error ? "border-error" : "border-neutral-03"}`}
         />
-
-        {unit ? (
-          <span className="pointer-events-none absolute right-[15px] top-1/2 -translate-y-1/2 text-[14px] text-neutral-05">
-            {unit}
-          </span>
-        ) : null}
+        {unit ? <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[13px] text-neutral-06">{unit}</span> : null}
       </div>
-
-      {error ? (
-        <p
-          id={errorId}
-          className="mt-[7px] text-[12px] leading-none text-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <p id={errorId} className="mt-1.5 text-[12px] text-error-on-dark">{error}</p> : null}
     </div>
   );
 }
 
-function DropdownField({
-  label,
-  placeholder,
-  options,
-  value,
-  onChange,
-  className = "",
-  error,
-}: DropdownFieldProps) {
+function DropdownField({ label, placeholder, options, value, onChange, className = "", error }: DropdownFieldProps) {
   const labelId = useId();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-
-  const selectedOption = useMemo(
-    () => options.find((option) => option.value === value) ?? null,
-    [options, value],
-  );
-
+  const selectedOption = useMemo(() => options.find((option) => option.value === value) ?? null, [options, value]);
   const errorId = `${labelId}-error`;
 
   useEffect(() => {
     function handleClickOutside(event: globalThis.MouseEvent) {
-      const target = event.target;
-
-      if (
-        target instanceof Node &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(target)
-      ) {
-        setIsOpen(false);
-      }
+      if (event.target instanceof Node && wrapperRef.current && !wrapperRef.current.contains(event.target)) setIsOpen(false);
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -819,39 +654,25 @@ function DropdownField({
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-
-      if (isOpen && options[activeIndex]) {
-        selectOption(options[activeIndex]);
-      } else {
-        setIsOpen(true);
-      }
+      if (isOpen && options[activeIndex]) selectOption(options[activeIndex]);
+      else setIsOpen(true);
     }
-
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) =>
-        current >= options.length - 1 ? 0 : current + 1,
-      );
+      setActiveIndex((current) => (current >= options.length - 1 ? 0 : current + 1));
     }
-
     if (event.key === "ArrowUp") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) =>
-        current <= 0 ? options.length - 1 : current - 1,
-      );
+      setActiveIndex((current) => (current <= 0 ? options.length - 1 : current - 1));
     }
-
-    if (event.key === "Escape") {
-      setIsOpen(false);
-    }
+    if (event.key === "Escape") setIsOpen(false);
   }
 
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
       <FieldLabel id={labelId}>{label}</FieldLabel>
-
       <button
         ref={buttonRef}
         type="button"
@@ -863,34 +684,15 @@ function DropdownField({
         aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
-          error
-            ? "border-error focus:border-error"
-            : "border-neutral-03 focus:border-neutral-03"
-        }`}
+        className={`group flex h-12 w-full items-center justify-between rounded-[10px] border bg-white px-3 text-left font-sans text-[14px] outline-none transition hover:border-primary-05 focus:border-primary-06 focus:ring-[3px] focus:ring-primary-06/20 ${error ? "border-error" : "border-neutral-03"}`}
       >
-        <span
-          className={
-            selectedOption
-              ? "truncate text-neutral-01"
-              : "truncate text-neutral-05"
-          }
-        >
-          {selectedOption?.label ?? placeholder}
+        <span className={selectedOption ? "truncate text-primary-10" : "truncate text-neutral-05"}>{selectedOption?.label ?? placeholder}</span>
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-01 text-primary-10 transition group-hover:bg-primary-01">
+          <ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         </span>
-
-        <ChevronDownIcon
-          className={`shrink-0 rounded-full p-1 text-neutral-05 transition-[background-color,color,transform] md:group-hover:bg-primary-08 md:group-hover:text-neutral-01 group-active:bg-primary-08 group-active:text-neutral-01 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
       </button>
-
       {isOpen ? (
-        <div
-          role="listbox"
-          className="absolute left-0 right-0 top-[74px] z-[999] max-h-[220px] overflow-y-auto rounded-[12px] border border-neutral-03 bg-primary-09 p-1"
-        >
+        <div role="listbox" className="absolute left-0 right-0 top-[78px] z-[60] max-h-[220px] overflow-y-auto rounded-[10px] border border-neutral-03 bg-white p-1 shadow-[0_14px_34px_rgba(7,22,44,0.16)]">
           {options.map((option, index) => (
             <button
               key={option.value}
@@ -900,119 +702,62 @@ function DropdownField({
               onMouseEnter={() => setActiveIndex(index)}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => selectOption(option)}
-              className={`block w-full rounded-[8px] px-3 py-[10px] text-left font-sans text-[14px] leading-[1.25] transition ${
-                option.value === value || activeIndex === index
-                  ? "bg-primary-08 text-neutral-01"
-                  : "bg-transparent text-neutral-01 hover:bg-primary-08"
-              }`}
+              className={`block w-full rounded-[8px] px-3 py-2.5 text-left text-[14px] text-primary-10 transition ${option.value === value || activeIndex === index ? "bg-primary-01" : "hover:bg-neutral-01"}`}
             >
               {option.label}
             </button>
           ))}
         </div>
       ) : null}
-
-      {error ? (
-        <p
-          id={errorId}
-          className="mt-[7px] text-[12px] leading-none text-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <p id={errorId} className="mt-1.5 text-[12px] text-error-on-dark">{error}</p> : null}
     </div>
   );
 }
 
-function MultiSelectDropdownField({
-  label,
-  placeholder,
-  options,
-  values,
-  onChange,
-  className = "",
-  error,
-}: MultiSelectDropdownFieldProps) {
+function MultiSelectDropdownField({ label, placeholder, options, values, onChange, className = "", error }: MultiSelectDropdownFieldProps) {
   const labelId = useId();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-
-  const selectedOptions = useMemo(
-    () => options.filter((option) => values.includes(option.value)),
-    [options, values],
-  );
-
-  const selectedLabel =
-    selectedOptions.length > 0
-      ? selectedOptions.map((option) => option.label).join(", ")
-      : placeholder;
-
+  const selectedOptions = useMemo(() => options.filter((option) => values.includes(option.value)), [options, values]);
+  const selectedLabel = selectedOptions.length > 0 ? selectedOptions.map((option) => option.label).join(", ") : placeholder;
   const errorId = `${labelId}-error`;
 
   useEffect(() => {
     function handleClickOutside(event: globalThis.MouseEvent) {
-      const target = event.target;
-
-      if (
-        target instanceof Node &&
-        wrapperRef.current &&
-        !wrapperRef.current.contains(target)
-      ) {
-        setIsOpen(false);
-      }
+      if (event.target instanceof Node && wrapperRef.current && !wrapperRef.current.contains(event.target)) setIsOpen(false);
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   function toggleOption(option: DropdownOption) {
-    const nextValues = values.includes(option.value)
-      ? values.filter((value) => value !== option.value)
-      : [...values, option.value];
-
-    onChange(nextValues);
+    onChange(values.includes(option.value) ? values.filter((item) => item !== option.value) : [...values, option.value]);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-
-      if (isOpen && options[activeIndex]) {
-        toggleOption(options[activeIndex]);
-      } else {
-        setIsOpen(true);
-      }
+      if (isOpen && options[activeIndex]) toggleOption(options[activeIndex]);
+      else setIsOpen(true);
     }
-
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) =>
-        current >= options.length - 1 ? 0 : current + 1,
-      );
+      setActiveIndex((current) => (current >= options.length - 1 ? 0 : current + 1));
     }
-
     if (event.key === "ArrowUp") {
       event.preventDefault();
       setIsOpen(true);
-      setActiveIndex((current) =>
-        current <= 0 ? options.length - 1 : current - 1,
-      );
+      setActiveIndex((current) => (current <= 0 ? options.length - 1 : current - 1));
     }
-
-    if (event.key === "Escape") {
-      setIsOpen(false);
-    }
+    if (event.key === "Escape") setIsOpen(false);
   }
 
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
       <FieldLabel id={labelId}>{label}</FieldLabel>
-
       <button
         ref={buttonRef}
         type="button"
@@ -1024,540 +769,246 @@ function MultiSelectDropdownField({
         aria-describedby={error ? errorId : undefined}
         onClick={() => setIsOpen((current) => !current)}
         onKeyDown={handleKeyDown}
-        className={`group flex h-[48px] w-full items-center justify-between rounded-[8px] border bg-primary-09 px-[15px] font-sans text-[15px] leading-[1.25] outline-none transition ${
-          error
-            ? "border-error focus:border-error"
-            : "border-neutral-03 focus:border-neutral-03"
-        }`}
+        className={`group flex h-12 w-full items-center justify-between rounded-[10px] border bg-white px-3 text-left font-sans text-[14px] outline-none transition hover:border-primary-05 focus:border-primary-06 focus:ring-[3px] focus:ring-primary-06/20 ${error ? "border-error" : "border-neutral-03"}`}
       >
-        <span
-          className={
-            selectedOptions.length > 0
-              ? "truncate text-neutral-01"
-              : "truncate text-neutral-05"
-          }
-        >
-          {selectedLabel}
+        <span className={selectedOptions.length > 0 ? "truncate text-primary-10" : "truncate text-neutral-05"}>{selectedLabel}</span>
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-01 text-primary-10 transition group-hover:bg-primary-01">
+          <ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         </span>
-
-        <ChevronDownIcon
-          className={`shrink-0 rounded-full p-1 text-neutral-05 transition-[background-color,color,transform] md:group-hover:bg-primary-08 md:group-hover:text-neutral-01 group-active:bg-primary-08 group-active:text-neutral-01 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
       </button>
-
       {isOpen ? (
-        <div
-          role="listbox"
-          aria-multiselectable="true"
-          className="absolute left-0 right-0 top-[74px] z-[999] max-h-[220px] overflow-y-auto rounded-[12px] border border-neutral-03 bg-primary-09 p-1"
-        >
+        <div role="listbox" aria-multiselectable="true" className="absolute left-0 right-0 top-[78px] z-[60] max-h-[240px] overflow-y-auto rounded-[10px] border border-neutral-03 bg-white p-1 shadow-[0_14px_34px_rgba(7,22,44,0.16)]">
           {options.map((option, index) => {
-            const isSelected = values.includes(option.value);
-
+            const selected = values.includes(option.value);
             return (
               <button
                 key={option.value}
                 type="button"
                 role="option"
-                aria-selected={isSelected}
+                aria-selected={selected}
                 onMouseEnter={() => setActiveIndex(index)}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => toggleOption(option)}
-                className={`flex w-full items-center gap-2 rounded-[8px] px-3 py-[10px] text-left font-sans text-[14px] leading-[1.25] transition ${
-                  isSelected || activeIndex === index
-                    ? "bg-primary-08 text-neutral-01"
-                    : "bg-transparent text-neutral-01 hover:bg-primary-08"
-                }`}
+                className={`flex w-full items-center justify-between rounded-[8px] px-3 py-2.5 text-left text-[14px] text-primary-10 transition ${selected || activeIndex === index ? "bg-primary-01" : "hover:bg-neutral-01"}`}
               >
-                <span
-                  className={`flex h-[16px] w-[16px] shrink-0 items-center justify-center rounded-[4px] border text-[11px] leading-none ${
-                    isSelected
-                      ? "border-primary-06 bg-primary-06 text-neutral-01"
-                      : "border-neutral-03 text-transparent"
-                  }`}
-                >
-                  ✓
-                </span>
-
-                <span className="min-w-0 flex-1 truncate">{option.label}</span>
+                <span>{option.label}</span>
+                <span className={`grid h-4 w-4 place-items-center rounded-[4px] border text-[10px] ${selected ? "border-primary-06 bg-primary-06 text-white" : "border-neutral-03"}`}>{selected ? "✓" : ""}</span>
               </button>
             );
           })}
         </div>
       ) : null}
-
-      {error ? (
-        <p
-          id={errorId}
-          className="mt-[7px] text-[12px] leading-none text-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <p id={errorId} className="mt-1.5 text-[12px] text-error-on-dark">{error}</p> : null}
     </div>
   );
 }
 
-function BenefitsRow({ mobile = false }: ToggleableProps) {
-  return (
-    <div
-      className={
-        mobile
-          ? "mt-[15px] flex items-center justify-between gap-3 overflow-hidden whitespace-nowrap text-[11px] leading-none text-neutral-05"
-          : "mt-[8px] flex flex-wrap items-center gap-x-[23px] gap-y-2 text-[14px] leading-none text-neutral-05"
-      }
-    >
-      <span>✓&nbsp; Free to use</span>
-      <span>✓&nbsp; No hidden fees</span>
-      <span>✓&nbsp; Save up to 40%</span>
-    </div>
-  );
-}
-
-function QuoteButton({ mobile = false, onClick }: QuoteButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        mobile
-          ? "zion-btn zion-btn-sm zion-btn-orange w-full mt-[36px]"
-          : "zion-btn zion-btn-sm zion-btn-orange mt-[34px]"
-      }
-    >
-      Get Quote
-      <span className="ml-2 text-[19px] leading-none">→</span>
-    </button>
-  );
-}
-
-function QuoteForm({ mobile = false }: ToggleableProps) {
+function QuoteForm() {
   const [fromLocation, setFromLocation] = useState<LocationResult | null>(null);
   const [toLocation, setToLocation] = useState<LocationResult | null>(null);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
-  const [pickupMode, setPickupMode] = useState("");
+  const [collectionMode, setCollectionMode] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState("");
   const [errors, setErrors] = useState<QuoteFormErrors>({});
 
   function clearError(field: keyof QuoteFormErrors) {
-    setErrors((current) => {
-      if (!current[field]) return current;
-
-      return {
-        ...current,
-        [field]: undefined,
-      };
-    });
+    setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
   }
 
-  function validateQuoteForm(): boolean {
+  function validateQuoteForm() {
     const nextErrors: QuoteFormErrors = {};
-
-    if (!fromLocation) {
-      nextErrors.fromLocation = "This field is required";
-    }
-
-    if (!toLocation) {
-      nextErrors.toLocation = "This field is required";
-    }
-
-    if (itemTypes.length === 0) {
-      nextErrors.itemTypes = "Select at least one item";
-    }
-
-    if (!pickupMode) {
-      nextErrors.pickupMode = "This field is required";
-    }
-
+    if (!fromLocation) nextErrors.fromLocation = "This field is required";
+    if (!toLocation) nextErrors.toLocation = "This field is required";
+    if (itemTypes.length === 0) nextErrors.itemTypes = "Select at least one item";
+    if (!collectionMode) nextErrors.collectionMode = "This field is required";
+    if (!deliveryMode) nextErrors.deliveryMode = "This field is required";
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
 
   function handleQuoteSubmit() {
-    const isValid = validateQuoteForm();
-
-    if (!isValid) {
-      return;
-    }
-
-    // Form is valid here. Connect this block to the quote API when ready.
-  }
-
-  if (mobile) {
-    return (
-      <div className="px-[13px] pb-[27px] pt-[17px]">
-        <LocationAutocomplete
-          label="From"
-          helper="Enter postcode"
-          placeholder="Collection Location"
-          flagSrc={ukFlagSrc}
-          flagAlt="United Kingdom flag"
-          countryCode="GB"
-          value={fromLocation}
-          onChange={(value) => {
-            setFromLocation(value);
-            clearError("fromLocation");
-          }}
-          error={errors.fromLocation}
-        />
-
-        <LocationAutocomplete
-          label="To"
-          helper="Enter delivery location"
-          placeholder="Delivery Location"
-          flagSrc={ngFlagSrc}
-          flagAlt="Nigeria flag"
-          countryCode="NG"
-          value={toLocation}
-          onChange={(value) => {
-            setToLocation(value);
-            clearError("toLocation");
-          }}
-          className="mt-[22px]"
-          error={errors.toLocation}
-        />
-
-        <div className="mt-[22px] grid grid-cols-[124px_minmax(0,1fr)] gap-x-[35px]">
-          <TextInput label="Weight" unit="kg" type="number" defaultValue={0} />
-
-          <MultiSelectDropdownField
-            label="What are you sending"
-            placeholder="Select item type"
-            options={ITEM_TYPE_OPTIONS}
-            values={itemTypes}
-            onChange={(values) => {
-              setItemTypes(values);
-              clearError("itemTypes");
-            }}
-            error={errors.itemTypes}
-          />
-        </div>
-
-        <div className="mt-[22px] grid grid-cols-[137px_minmax(0,1fr)] gap-x-[24px]">
-          <TextInput label="Length" placeholder="Item length" />
-          <TextInput label="Width" placeholder="Item width" />
-        </div>
-
-        <DropdownField
-          label="Pickup / drop off"
-          placeholder="Select item type"
-          options={PICKUP_OPTIONS}
-          value={pickupMode}
-          onChange={(value) => {
-            setPickupMode(value);
-            clearError("pickupMode");
-          }}
-          className="mt-[22px] w-[225px]"
-          error={errors.pickupMode}
-        />
-
-        <QuoteButton mobile onClick={handleQuoteSubmit} />
-        <BenefitsRow mobile />
-      </div>
-    );
+    if (!validateQuoteForm()) return;
+    // The current codebase has no quote API submission yet. Preserve the validated state until that API exists.
   }
 
   return (
-    <div className="px-[22px] pb-[25px] pt-[16px]">
-      <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_110px] gap-x-[18px] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_135px] xl:gap-x-[26px]">
+    <div className="w-full px-4 pb-8 pt-7 sm:px-6 lg:px-2 lg:pb-10 lg:pt-6">
+      <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 xl:grid-cols-4">
         <LocationAutocomplete
-          label="From"
+          label="From*"
           helper="Enter postcode"
-          placeholder="flat 12, 3 fell road, croydon"
+          placeholder="e.g Cr0 12t"
           flagSrc={ukFlagSrc}
           flagAlt="United Kingdom flag"
           countryCode="GB"
           value={fromLocation}
-          onChange={(value) => {
-            setFromLocation(value);
+          onChange={(next) => {
+            setFromLocation(next);
             clearError("fromLocation");
           }}
           error={errors.fromLocation}
         />
-
         <LocationAutocomplete
-          label="To"
+          label="To*"
           helper="Enter delivery location"
-          placeholder="Magodo phase 2"
+          placeholder="Enter full address"
           flagSrc={ngFlagSrc}
           flagAlt="Nigeria flag"
           countryCode="NG"
           value={toLocation}
-          onChange={(value) => {
-            setToLocation(value);
+          onChange={(next) => {
+            setToLocation(next);
             clearError("toLocation");
           }}
           error={errors.toLocation}
         />
-
-        <TextInput label="Weight" unit="kg" type="number" defaultValue={0} />
-      </div>
-
-      <div className="mt-[28px] grid grid-cols-[minmax(150px,1.25fr)_minmax(90px,0.75fr)_minmax(100px,0.9fr)_minmax(150px,1.25fr)] gap-x-[18px] xl:grid-cols-[minmax(190px,1.25fr)_minmax(110px,0.75fr)_minmax(130px,0.9fr)_minmax(190px,1.25fr)] xl:gap-x-[25px]">
         <MultiSelectDropdownField
-          label="What are you sending"
-          placeholder="Select item type"
+          label="What are you sending?*"
+          placeholder="e.g Letters, Furniture etc"
           options={ITEM_TYPE_OPTIONS}
           values={itemTypes}
-          onChange={(values) => {
-            setItemTypes(values);
+          onChange={(next) => {
+            setItemTypes(next);
             clearError("itemTypes");
           }}
           error={errors.itemTypes}
         />
-
+        <TextInput label="Kg*" placeholder="0" type="number" />
         <TextInput label="Length" placeholder="Item length" />
         <TextInput label="Width" placeholder="Item width" />
-
         <DropdownField
-          label="Pickup / drop off"
-          placeholder="Select item type"
-          options={PICKUP_OPTIONS}
-          value={pickupMode}
-          onChange={(value) => {
-            setPickupMode(value);
-            clearError("pickupMode");
+          label="Collection method"
+          placeholder="Select an option"
+          options={COLLECTION_OPTIONS}
+          value={collectionMode}
+          onChange={(next) => {
+            setCollectionMode(next);
+            clearError("collectionMode");
           }}
-          error={errors.pickupMode}
+          error={errors.collectionMode}
+        />
+        <DropdownField
+          label="Delivery method"
+          placeholder="Select an option"
+          options={DELIVERY_OPTIONS}
+          value={deliveryMode}
+          onChange={(next) => {
+            setDeliveryMode(next);
+            clearError("deliveryMode");
+          }}
+          error={errors.deliveryMode}
         />
       </div>
-
-      <BenefitsRow />
-      <QuoteButton onClick={handleQuoteSubmit} />
+      <div className="mt-8 flex justify-center">
+        <button type="button" onClick={handleQuoteSubmit} className="zion-btn zion-btn-md zion-btn-blue min-w-[144px] px-4">
+          Get a quote <ArrowIcon />
+        </button>
+      </div>
     </div>
   );
 }
 
-function TrackShipmentForm({ mobile = false }: ToggleableProps) {
+function TrackShipmentForm() {
+  const [trackingNumber, setTrackingNumber] = useState("");
   return (
-    <div
-      className={
-        mobile
-          ? "px-[13px] pb-[27px] pt-[18px]"
-          : "relative z-10 px-[30px] pt-[16px] before:absolute before:left-[-1px] before:top-[-72px] before:z-30 before:h-[326px] before:w-px before:bg-primary-08 before:content-['']"
-      }
+    <div className="flex min-h-[350px] w-full flex-col items-center justify-between px-4 pb-10 pt-10 sm:px-6 lg:min-h-[412px] lg:pt-11">
+      <div className="w-full max-w-[408px]">
+        <TextInput
+          label="Enter your tracking number"
+          placeholder="e.g. ZNR-240518-7XQ9"
+          value={trackingNumber}
+          onChange={setTrackingNumber}
+        />
+        <p className="mt-2 font-sans text-[14px] leading-[22px] text-text-on-dark-muted">
+          You’ll find your tracking number in your booking confirmation email.
+        </p>
+      </div>
+      <button type="button" className="zion-btn zion-btn-md zion-btn-blue mt-10 px-4">
+        Track shipment <ArrowIcon />
+      </button>
+    </div>
+  );
+}
+
+function QuoteTabs({ activeTab, onChange }: { activeTab: ActiveTab; onChange: (tab: ActiveTab) => void }) {
+  return (
+    <div className="grid w-full max-w-[723px] grid-cols-2 overflow-hidden rounded-t-[16px]">
+      <TabButton active={activeTab === "quote"} onClick={() => onChange("quote")} type="quote" title="Get an estimated quote" subtitle="Compare agents instantly" />
+      <TabButton active={activeTab === "track"} onClick={() => onChange("track")} type="track" title="Track Shipment" subtitle="Track your shipment" />
+    </div>
+  );
+}
+
+function TabButton({ active, onClick, type, title, subtitle }: { active: boolean; onClick: () => void; type: ActiveTab; title: string; subtitle: string }) {
+  const filled = type === "quote" ? "bg-primary-06" : "bg-secondary-09";
+  const bar = type === "quote" ? "bg-secondary-06" : "bg-primary-06";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      id={type === "track" ? "track-shipment" : undefined}
+      className={`relative min-h-[72px] px-2 pb-4 pt-2 text-center transition ${active ? filled : "bg-white/[0.07] hover:bg-white/[0.04]"}`}
     >
-      <TextInput
-        label="Enter your tracking number"
-        placeholder="e.g. ZNR-240518-7XQ9"
-        className={mobile ? "w-full" : "w-full max-w-[374px]"}
-      />
-
-      <button
-        type="button"
-        className={
-          mobile
-            ? "mt-[12px] block w-full text-right font-sans text-[14px] text-neutral-05"
-            : "mt-[12px] block w-full max-w-[374px] text-right font-sans text-[14px] text-neutral-05"
-        }
-      >
-        How to find your tracking number?
-      </button>
-
-      <button
-        type="button"
-        className={
-          mobile
-            ? "zion-btn zion-btn zion-btn-sm zion-btn-blue w-full mt-[28px]"
-            : "zion-btn zion-btn zion-btn-sm zion-btn-blue mt-[29px]"
-        }
-      >
-        Track Shipment
-        <span className="ml-2 text-[19px] leading-none">→</span>
-      </button>
-    </div>
+      <span className="flex items-center justify-center gap-1 text-neutral-01">
+        {type === "quote" ? <CalculatorIcon /> : <PackageIcon />}
+        <strong className="font-sans text-[13px] font-normal leading-[20px] sm:text-[16px] sm:leading-[26px]">{title}</strong>
+      </span>
+      <span className="block font-sans text-[11px] leading-[18px] text-text-on-dark-muted sm:text-[12px]">{subtitle}</span>
+      <span className={`absolute bottom-0 left-0 h-3 w-full ${active ? bar : "bg-white/[0.05]"}`} />
+    </button>
   );
 }
 
-function DesktopHeaders() {
+function CalculatorIcon() {
   return (
-    <div className="grid h-[72px] grid-cols-[minmax(0,1fr)_minmax(360px,420px)] overflow-hidden rounded-t-[0px] xl:grid-cols-[minmax(0,1fr)_minmax(440px,515px)]">
-      <div className="relative bg-primary-06 text-neutral-01">
-        <div className="flex h-[58px] items-center justify-center gap-[82px]">
-          <div className="flex h-[36px] w-[36px] items-center justify-center rounded-[40px] bg-primary-07 ">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 22 22"
-              fill="none"
-            >
-              <rect
-                x="0.720001"
-                y="0.719971"
-                width="20"
-                height="20"
-                stroke="white"
-                strokeWidth="1.44"
-                strokeLinecap="square"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9.35999 5.52002H11.28"
-                stroke="white"
-                strokeWidth="1.44"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2.16 9.35999H18.48"
-                stroke="white"
-                strokeWidth="1.44"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M5.51999 13.2H6.47999M14.16 13.2H15.12M10.8 13.2H9.83998"
-                stroke="white"
-                strokeWidth="1.44"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M5.51999 17.0399H6.47999M14.16 17.0399H15.12M10.8 17.0399H9.83998"
-                stroke="white"
-                strokeWidth="1.44"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-
-          <div className="text-center">
-            <h2 className="font-display lg:text-[18px] text-[16px] font-bold lg:font-light leading-none text-white">
-              Get a Quote
-            </h2>
-            <p className="mt-[8px] font-display text-[14px] leading-none font-light text-white">
-              Find the best rate from trusted agents
-            </p>
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 h-[13px] w-full bg-secondary-06" />
-      </div>
-
-      <div className="flex h-[72px] items-center gap-[17px] bg-secondary-06 pl-[28px] text-primary-10">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M11.998 10L20.998 6L11.998 2L2.99805 6L11.998 10Z"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16.498 4L7.49805 8"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M3.00195 6V18L11.998 22M11.998 22L21.002 18V6.01357M11.998 22V10"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M5.99805 11L8.49805 12"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-
-        <div>
-          <h2 className="font-sans lg:text-[18px] text-[16px] lg:font-light leading-none text-black font-bold">
-            Track Shipment
-          </h2>
-          <p className="mt-[9px] font-sans text-[14px] leading-none text-secondary-10 font-light">
-            Find the best rate from trusted agents
-          </p>
-        </div>
-      </div>
-    </div>
+    <svg className="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="2" width="18" height="20" rx="3" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M3 10h18M15 6h2M7 14h10M7 18h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   );
 }
 
-function MobileTabs({ activeTab, setActiveTab }: MobileTabsProps) {
+function PackageIcon() {
   return (
-    <div className="relative grid h-[58px] grid-cols-[195px_minmax(0,1fr)] overflow-hidden bg-primary-09">
-      <span
-        aria-hidden="true"
-        className="absolute left-[195px] top-1/2 z-20 h-[76%] w-px -translate-y-1/2 bg-primary-06/30"
-      />
+    <svg className="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2.5 3 7.2v9.6l9 4.7 9-4.7V7.2L12 2.5Z" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M3 7.2 12 12l9-4.8M12 12v9.5M7.5 4.8l9 4.7" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
 
-      <button
-        type="button"
-        onClick={() => setActiveTab("quote")}
-        className={`relative px-[17px] text-left font-sans text-[15px] ${
-          activeTab === "quote"
-            ? "bg-primary-06 font-semibold text-neutral-01 after:absolute after:bottom-0 after:left-0 after:h-[4px] after:w-full after:bg-secondary-06"
-            : "bg-primary-09 font-medium text-neutral-05"
-        }`}
-      >
-        Get a Quote
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setActiveTab("track")}
-        className={`relative px-[18px] text-left font-sans text-[15px] ${
-          activeTab === "track"
-            ? "bg-primary-06 font-semibold text-neutral-01 after:absolute after:bottom-0 after:left-0 after:h-[4px] after:w-full after:bg-secondary-06"
-            : "bg-primary-09 font-medium text-neutral-05"
-        }`}
-      >
-        Track Shipment
-      </button>
-    </div>
+function ArrowIcon() {
+  return (
+    <svg className="h-[14px] w-[14px]" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M1 7h12M8 2.5 12.5 7 8 11.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
 export default function QuoteShipmentSection() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("quote");
 
+  useEffect(() => {
+    function syncTabWithHash() {
+      if (window.location.hash === "#track-shipment") {
+        setActiveTab("track");
+      } else if (window.location.hash === "#get-quote") {
+        setActiveTab("quote");
+      }
+    }
+
+    syncTabWithHash();
+    window.addEventListener("hashchange", syncTabWithHash);
+    return () => window.removeEventListener("hashchange", syncTabWithHash);
+  }, []);
+
   return (
-    <>
-      <section
-        id="get-quote"
-        className="relative scroll-mt-20 overflow-visible bg-transparent px-4 py-[30px] font-sans text-neutral-01 sm:px-6 bg-primary-09 lg:px-8"
-      >
-        <div
-          className="absolute inset-0 hidden bg-cover bg-center bg-no-repeat lg:block"
-          style={desktopBackgroundStyle}
-          aria-hidden="true"
-        />
-
-        <div className="relative mx-auto hidden min-h-[409px] max-w-[1420px] overflow-visible rounded-b-[14px] bg-primary-09 lg:block">
-          <DesktopHeaders />
-
-          <div className="grid min-h-[337px] grid-cols-[minmax(0,1fr)_minmax(360px,420px)] overflow-visible xl:grid-cols-[minmax(0,1fr)_minmax(440px,515px)]">
-            <QuoteForm />
-            <TrackShipmentForm />
-          </div>
-        </div>
-
-        <div className="relative mx-auto max-w-[365px] overflow-visible rounded-b-[14px] bg-primary-09 lg:hidden">
-          <MobileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-          {activeTab === "quote" ? (
-            <QuoteForm mobile />
-          ) : (
-            <TrackShipmentForm mobile />
-          )}
-        </div>
-      </section>
-
-      <TrustFeatures />
-    </>
+    <section id="get-quote" className="scroll-mt-24 bg-neutral-01 px-4 py-5 font-sans sm:px-6 lg:py-7">
+      <div className="mx-auto flex w-full max-w-[1272px] flex-col items-center overflow-visible rounded-[16px] border border-primary-06/20 bg-primary-09">
+        <QuoteTabs activeTab={activeTab} onChange={setActiveTab} />
+        {activeTab === "quote" ? <QuoteForm /> : <TrackShipmentForm />}
+      </div>
+    </section>
   );
 }
