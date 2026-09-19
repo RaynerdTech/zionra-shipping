@@ -351,8 +351,12 @@ model ShippingPartnerApplication {
   shipmentFrequency          String?
   airCargoPricePerKg         Decimal?                       @db.Decimal(12, 2)
   seaCargoPricePerKg         Decimal?                       @db.Decimal(12, 2)
+  pricePerKg                 Decimal?                       @db.Decimal(12, 2)
   pricePerBarrel             Decimal?                       @db.Decimal(12, 2)
   insuranceAvailable         Boolean?
+  maxLength                  Decimal?                       @db.Decimal(12, 2)
+  maxHeight                  Decimal?                       @db.Decimal(12, 2)
+  maxWidth                   Decimal?                       @db.Decimal(12, 2)
   upfrontImmigrationCharge   Boolean?
 
   companyLogoUrl             String?

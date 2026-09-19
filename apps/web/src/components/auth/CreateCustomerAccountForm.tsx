@@ -35,6 +35,7 @@ const REFERRAL_OPTIONS = [
   "Online Ad",
   "Email Campaign",
   "Event or Conference",
+  "Other",
 ] as const;
 
 type FormValues = {

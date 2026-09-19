@@ -132,6 +132,15 @@ function BusinessInformationEditor({
   const [formError, setFormError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  const nextRoute =
+    searchParams.get("returnTo") === "review"
+      ? routes.web.partnerApplicationReview
+      : routes.web.partnerOperationalDetails;
+
+  useEffect(() => {
+    router.prefetch(nextRoute);
+  }, [nextRoute, router]);
+
   function updateField<K extends keyof Omit<BusinessValues, "contacts">>(field: K, value: BusinessValues[K]) {
     setValues((current) => (current ? { ...current, [field]: value } : current));
     setErrors((current) => { const next = { ...current }; delete next[field]; return next; });
@@ -178,7 +187,7 @@ function BusinessInformationEditor({
         setErrors(result.errors ?? {});
         throw new Error(result.message ?? "Unable to save business information.");
       }
-      router.push(searchParams.get("returnTo") === "review" ? routes.web.partnerApplicationReview : routes.web.partnerOperationalDetails);
+      router.push(nextRoute);
     } catch (submitError) {
       setFormError(submitError instanceof Error ? submitError.message : "Unable to save business information.");
     } finally {
