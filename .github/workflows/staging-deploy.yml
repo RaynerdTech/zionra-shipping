@@ -54,8 +54,6 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
 
       - name: Upload web build artifact
         env:
@@ -63,7 +61,12 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          scp             -P "$SSH_PORT"             /tmp/zionra-web-next.tgz             "$SSH_USER@$SSH_HOST:/home/zionraco/zionra-web-next.tgz"
+          scp \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            -P "$SSH_PORT" \
+            /tmp/zionra-web-next.tgz \
+            "$SSH_USER@$SSH_HOST:/home/zionraco/zionra-web-next.tgz"
 
       - name: Deploy and restart on WhoGoHost
         env:
@@ -71,7 +74,11 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
+          ssh \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
           set -eo pipefail
 
           API_ROOT="/home/zionraco/zionra-staging/apps/api"
