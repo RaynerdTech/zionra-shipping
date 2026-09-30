@@ -13,6 +13,7 @@ import {
   QUOTE_COLLECTION_OPTIONS,
   QUOTE_DELIVERY_OPTIONS,
   QUOTE_ITEM_OPTIONS,
+  readQuoteDraft,
   toQuoteLocation,
   writeQuoteDraft,
 } from "@/lib/quoteFlow";
@@ -811,6 +812,58 @@ function QuoteForm() {
   const [lengthCm, setLengthCm] = useState("");
   const [widthCm, setWidthCm] = useState("");
   const [errors, setErrors] = useState<QuoteFormErrors>({});
+  const [hydrated, setHydrated] = useState(false);
+  const shippingMethodRef = useRef("");
+
+  useEffect(() => {
+    const stored = readQuoteDraft();
+    const toLocationResult = (location: typeof stored.from, source: LocationResult["source"]): LocationResult | null => {
+      if (!location) return null;
+      return {
+        id: `stored-${source}-${location.label}`,
+        label: location.label,
+        primary: location.primary,
+        secondary: location.secondary,
+        coordinates: location.coordinates,
+        raw: {
+          properties: {
+            name: location.primary,
+            city: location.city,
+            postcode: location.postcode,
+            state: location.state,
+            country: location.country,
+          },
+        },
+        source,
+      };
+    };
+
+    setFromLocation(toLocationResult(stored.from, "photon"));
+    setToLocation(toLocationResult(stored.to, "photon"));
+    setItemTypes(stored.itemTypes ?? []);
+    setCollectionMode(stored.collectionMode ?? "");
+    setDeliveryMode(stored.deliveryMode ?? "");
+    setWeightKg(stored.weightKg ?? "");
+    setLengthCm(stored.lengthCm ?? "");
+    setWidthCm(stored.widthCm ?? "");
+    shippingMethodRef.current = stored.shippingMethod ?? "";
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    writeQuoteDraft({
+      from: fromLocation ? toQuoteLocation(fromLocation, "GB") : null,
+      to: toLocation ? toQuoteLocation(toLocation, "NG") : null,
+      itemTypes,
+      weightKg,
+      lengthCm,
+      widthCm,
+      collectionMode,
+      deliveryMode,
+      shippingMethod: shippingMethodRef.current,
+    });
+  }, [collectionMode, deliveryMode, fromLocation, hydrated, itemTypes, lengthCm, toLocation, weightKg, widthCm]);
 
   function clearError(field: keyof QuoteFormErrors) {
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));

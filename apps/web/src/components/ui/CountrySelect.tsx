@@ -124,8 +124,8 @@ export default function CountrySelect({
         aria-expanded={isOpen}
         aria-controls={listboxId}
         onClick={() => setIsOpen((current) => !current)}
-        className={`zion-input group flex h-[52px] items-center text-left md:h-12 ${
-          compact ? "gap-2 px-3" : "gap-2 pr-3"
+        className={`zion-input group flex h-[52px] w-full min-w-0 items-center text-left md:h-12 ${
+          compact ? "gap-1.5 px-2.5" : "gap-2 pr-3"
         } ${error ? "zion-input-error" : ""}`}
       >
         <CountryFlag country={selectedCountry} />
@@ -143,7 +143,7 @@ export default function CountrySelect({
         <span
           className={`pointer-events-none inline-flex shrink-0 items-center justify-center rounded-full text-primary-08 transition-colors duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
             compact
-              ? "ml-auto h-5 w-5"
+              ? "ml-auto h-5 w-5 shrink-0"
               : "h-8 w-8 rounded-full bg-primary-01"
           }`}
         >
@@ -157,7 +157,7 @@ export default function CountrySelect({
           role="listbox"
           aria-label={ariaLabel}
           className={`absolute z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-neutral-02 bg-white p-1 shadow-lg ${
-            compact ? "left-0 w-[290px]" : "inset-x-0"
+            compact ? "left-0 w-[min(290px,calc(100vw-64px))]" : "inset-x-0"
           }`}
         >
           {COUNTRY_OPTIONS.map((country) => {

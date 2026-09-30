@@ -13,6 +13,8 @@ type Props = {
   onSelect: (agentId: string) => void;
 };
 
+const agentProfileCache = new Map<string, QuoteAgentDetail>();
+
 function relativeDate(value: string) {
   const days = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 86_400_000));
   if (days === 0) return "Today";
@@ -52,6 +54,15 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
 
   useEffect(() => {
     if (!agentId) return;
+    const cached = agentProfileCache.get(agentId);
+    if (cached) {
+      setAgent(cached);
+      setLoading(false);
+      setError("");
+      setReviewsOpen(false);
+      setVisibleReviews(3);
+      return;
+    }
     const controller = new AbortController();
     let active = true;
     setLoading(true);
@@ -65,7 +76,10 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
         if (!response.ok) throw new Error("Unable to load this agent.");
         return response.json() as Promise<QuoteAgentDetail>;
       })
-      .then((body) => { if (active) setAgent(body); })
+      .then((body) => {
+        agentProfileCache.set(agentId, body);
+        if (active) setAgent(body);
+      })
       .catch((caught) => {
         if (active && !(caught instanceof DOMException && caught.name === "AbortError")) setError(caught instanceof Error ? caught.message : "Unable to load this agent.");
       })

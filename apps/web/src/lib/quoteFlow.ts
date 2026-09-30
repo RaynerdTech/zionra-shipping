@@ -4,6 +4,9 @@ export type QuoteLocation = {
   secondary: string;
   city: string;
   coordinates: [number, number] | null;
+  postcode?: string;
+  state?: string;
+  country?: string;
 };
 
 export type QuoteDraft = {
@@ -81,8 +84,14 @@ function readJson<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const stored = window.sessionStorage.getItem(key);
-    return stored ? (JSON.parse(stored) as T) : null;
+    const stored = window.localStorage.getItem(key);
+    if (stored) return JSON.parse(stored) as T;
+
+    // Migrate quote-flow state created by older builds from sessionStorage.
+    const legacy = window.sessionStorage.getItem(key);
+    if (!legacy) return null;
+    window.localStorage.setItem(key, legacy);
+    return JSON.parse(legacy) as T;
   } catch {
     return null;
   }
@@ -92,9 +101,9 @@ function writeJson(key: string, value: unknown) {
   if (typeof window === "undefined") return;
 
   try {
-    window.sessionStorage.setItem(key, JSON.stringify(value));
+    window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // A blocked/full sessionStorage should not stop the quote flow.
+    // A blocked/full localStorage should not stop the quote flow.
   }
 }
 
@@ -157,6 +166,7 @@ function cityFromPhoton(raw: unknown) {
   return (
     getString(properties?.city) ||
     getString(properties?.locality) ||
+    getString(properties?.name) ||
     getString(properties?.district) ||
     getString(properties?.county)
   );
@@ -170,6 +180,24 @@ function cityFromGetAddress(raw: unknown) {
     getString(address?.district) ||
     getString(address?.county)
   );
+}
+
+function postcodeFromLocation(raw: unknown) {
+  const object = getObject(raw);
+  const properties = getObject(object?.properties);
+  return getString(properties?.postcode) || getString(object?.postcode);
+}
+
+function stateFromLocation(raw: unknown) {
+  const object = getObject(raw);
+  const properties = getObject(object?.properties);
+  return getString(properties?.state) || getString(object?.county);
+}
+
+function countryFromLocation(raw: unknown) {
+  const object = getObject(raw);
+  const properties = getObject(object?.properties);
+  return getString(properties?.country) || getString(object?.country);
 }
 
 export function toQuoteLocation(
@@ -202,6 +230,9 @@ export function toQuoteLocation(
     secondary: result.secondary,
     city: city || fallbackCity || (countryCode === "GB" ? result.primary : result.primary),
     coordinates: result.coordinates,
+    postcode: postcodeFromLocation(result.raw),
+    state: stateFromLocation(result.raw),
+    country: countryFromLocation(result.raw),
   };
 }
 

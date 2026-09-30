@@ -127,6 +127,37 @@ function scoreAgent(input: QuoteAgentSearchInput, application: {
 }
 
 export async function searchQuoteAgents(input: QuoteAgentSearchInput) {
+  const pickupCandidates = [...new Set([
+    input.pickupCity.trim(),
+    ...input.pickupLabel
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .slice(0, 4),
+  ].filter(Boolean))];
+
+  const collectionMethods = input.collectionMode === "collection"
+    ? ["Pickup Only", "Both Pickup & Drop-off"]
+    : input.collectionMode === "dropoff"
+      ? ["Drop-off Only", "Both Pickup & Drop-off"]
+      : [];
+  const deliveryMethods = input.deliveryMode === "door-to-door"
+    ? ["Home delivery", "Both"]
+    : input.deliveryMode === "receiver-pickup"
+      ? ["Depo Pickup", "Both"]
+      : [];
+  const shippingMethods = input.shippingMethod === "air"
+    ? ["Air cargo", "Both"]
+    : input.shippingMethod === "sea"
+      ? ["Sea cargo", "Both"]
+      : [];
+  const itemFilters = input.itemTypes.flatMap((item) => {
+    const normalized = normalizeText(item);
+    const mapped = ITEM_CATEGORY_MAP[normalized] ?? [];
+    if (normalized === "parcel" || normalized === "other" || mapped.length === 0) return [];
+    return [{ itemsHandled: { hasSome: mapped } }];
+  });
+
   const partners = await prisma.shippingPartner.findMany({
     where: {
       status: "APPROVED",
@@ -134,11 +165,33 @@ export async function searchQuoteAgents(input: QuoteAgentSearchInput) {
         is: {
           currentStep: "SUBMITTED",
           submittedAt: { not: null },
+          collectionCities: { hasSome: pickupCandidates },
+          ...(collectionMethods.length > 0 ? { collectionMethod: { in: collectionMethods } } : {}),
+          ...(deliveryMethods.length > 0 ? { deliveryMethod: { in: deliveryMethods } } : {}),
+          ...(shippingMethods.length > 0 ? { shippingMethod: { in: shippingMethods } } : {}),
+          ...(itemFilters.length > 0 ? { AND: itemFilters } : {}),
         },
       },
     },
-    include: {
-      application: true,
+    select: {
+      id: true,
+      application: {
+        select: {
+          registeredBusinessName: true,
+          companyLogoUrl: true,
+          collectionCities: true,
+          itemsHandled: true,
+          shippingMethod: true,
+          shipmentFrequency: true,
+          pricePerKg: true,
+          insuranceAvailable: true,
+          maxLength: true,
+          maxWidth: true,
+          responseTime: true,
+          collectionMethod: true,
+          deliveryMethod: true,
+        },
+      },
     },
   });
 
@@ -240,8 +293,24 @@ export async function getQuoteAgent(agentId: string) {
         },
       },
     },
-    include: {
-      application: true,
+    select: {
+      id: true,
+      application: {
+        select: {
+          registeredBusinessName: true,
+          companyLogoUrl: true,
+          companyBio: true,
+          responseTime: true,
+          collectionMethod: true,
+          deliveryMethod: true,
+          insuranceAvailable: true,
+          shipmentFrequency: true,
+          shippingMethod: true,
+          collectionCities: true,
+          itemsHandled: true,
+          pricePerKg: true,
+        },
+      },
       reviews: {
         orderBy: { reviewedAt: "desc" },
         select: {

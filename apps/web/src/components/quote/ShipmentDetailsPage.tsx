@@ -14,11 +14,14 @@ import {
   quoteItemLabel,
   readQuoteDraft,
   readSelectedQuoteAgent,
+  readShipmentDraft,
   type QuoteDraft,
+  type QuoteLocation,
   type SelectedQuoteAgent,
   writeShipmentDraft,
 } from "@/lib/quoteFlow";
 import QuoteSummaryBar from "./QuoteSummaryBar";
+import QuoteLocationInput from "./QuoteLocationInput";
 
 type CustomerResponse = {
   customer?: {
@@ -66,6 +69,19 @@ function postcodeFromLabel(label: string) {
   return match?.[0]?.toUpperCase() ?? "";
 }
 
+function locationFromForm(address: string, city: string, postcode: string, state = ""): QuoteLocation | null {
+  if (!address.trim()) return null;
+  return {
+    label: address,
+    primary: address.split(",")[0]?.trim() || address,
+    secondary: [city, state, postcode].filter(Boolean).join(", "),
+    city,
+    coordinates: null,
+    postcode,
+    state,
+  };
+}
+
 function money(value: number | null) {
   if (value === null) return "—";
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
@@ -91,7 +107,7 @@ function SectionHeading({ children }: { children: ReactNode }) {
   );
 }
 
-function AgentSummaryCard({ agent, onUnselect }: { agent: SelectedQuoteAgent; onUnselect: () => void }) {
+function AgentSummaryCard({ agent, onUnselect, returning = false }: { agent: SelectedQuoteAgent; onUnselect: () => void; returning?: boolean }) {
   return (
     <section className="grid gap-4 rounded-[10px] border border-neutral-02 bg-white px-5 py-4 sm:grid-cols-[minmax(0,1fr)_120px]">
       <div className="flex min-w-0 gap-3">
@@ -102,7 +118,7 @@ function AgentSummaryCard({ agent, onUnselect }: { agent: SelectedQuoteAgent; on
           <div className="mt-3 flex flex-wrap gap-2 text-[9px] text-neutral-08"><span className="rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1">Response Time: {agent.responseTime ?? "Not provided"}</span><span className="rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1">Collection Method: {agent.collectionMethod ?? "Not provided"}</span><span className="rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1">Delivery Method: {agent.deliveryMethod ?? "Not provided"}</span></div>
         </div>
       </div>
-      <div className="flex flex-col items-end justify-center border-t border-neutral-02 pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0"><strong className="font-display text-[17px] text-primary-10">{money(agent.estimatedPriceGbp)}</strong><button type="button" onClick={onUnselect} className="zion-btn zion-btn-orange mt-3 min-h-[38px] min-w-[96px] text-[12px]">Unselect</button></div>
+      <div className="flex flex-col items-stretch justify-center border-t border-neutral-02 pt-3 sm:items-end sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0"><strong className="font-display text-[17px] text-primary-10 sm:text-right">{money(agent.estimatedPriceGbp)}</strong><button type="button" onClick={onUnselect} disabled={returning} className="zion-btn zion-btn-orange mt-3 min-h-[42px] w-full text-[12px] disabled:cursor-wait disabled:opacity-70 sm:min-h-[38px] sm:w-auto sm:min-w-[96px]">{returning ? "Returning…" : "Unselect"}</button></div>
     </section>
   );
 }
@@ -115,6 +131,9 @@ export default function ShipmentDetailsPage() {
   const [agent, setAgent] = useState<SelectedQuoteAgent | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [agentLoading, setAgentLoading] = useState(false);
+  const [pickupLocation, setPickupLocation] = useState<QuoteLocation | null>(null);
+  const [deliveryLocation, setDeliveryLocation] = useState<QuoteLocation | null>(null);
+  const [returningToAgents, setReturningToAgents] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState("");
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState<FormState>({
@@ -143,6 +162,7 @@ export default function ShipmentDetailsPage() {
   useEffect(() => {
     const storedDraft = readQuoteDraft();
     const storedAgent = readSelectedQuoteAgent();
+    const storedShipment = readShipmentDraft();
     const controller = new AbortController();
     let active = true;
 
@@ -181,18 +201,32 @@ export default function ShipmentDetailsPage() {
         .finally(() => { if (active) setAgentLoading(false); });
     }
 
-    setForm((current) => ({
-      ...current,
-      pickupAddress: storedDraft.from?.label ?? "",
-      pickupCity: storedDraft.from?.city ?? "",
-      pickupPostcode: storedDraft.from ? postcodeFromLabel(storedDraft.from.label) : "",
-      deliveryAddress: storedDraft.to?.label ?? "",
-      deliveryCity: storedDraft.to?.city ?? "",
-      itemsDescription: storedDraft.itemTypes.map(quoteItemLabel).join(", "),
-      weightKg: storedDraft.weightKg,
-      lengthCm: storedDraft.lengthCm,
-      widthCm: storedDraft.widthCm,
-    }));
+    const nextForm: FormState = {
+      senderFullName: storedShipment?.senderFullName ?? "",
+      senderPhoneCountryCode: countryCodeFromCallingCode(storedShipment?.senderPhoneCountryCode ?? "", "GB"),
+      senderPhoneNumber: storedShipment?.senderPhoneNumber ?? "",
+      senderEmail: storedShipment?.senderEmail ?? "",
+      pickupAddress: storedShipment?.pickupAddress || storedDraft.from?.label || "",
+      pickupCity: storedShipment?.pickupCity || storedDraft.from?.city || "",
+      pickupPostcode: storedShipment?.pickupPostcode || storedDraft.from?.postcode || (storedDraft.from ? postcodeFromLabel(storedDraft.from.label) : ""),
+      receiverFullName: storedShipment?.receiverFullName ?? "",
+      receiverPhoneCountryCode: countryCodeFromCallingCode(storedShipment?.receiverPhoneCountryCode ?? "", "NG"),
+      receiverPhoneNumber: storedShipment?.receiverPhoneNumber ?? "",
+      receiverEmail: storedShipment?.receiverEmail ?? "",
+      deliveryAddress: storedShipment?.deliveryAddress || storedDraft.to?.label || "",
+      deliveryCity: storedShipment?.deliveryCity || storedDraft.to?.city || "",
+      deliveryState: storedShipment?.deliveryState || storedDraft.to?.state || "",
+      deliveryPostcode: storedShipment?.deliveryPostcode || storedDraft.to?.postcode || "",
+      itemsDescription: storedShipment?.itemsDescription || storedDraft.itemTypes.map(quoteItemLabel).join(", "),
+      weightKg: storedShipment?.weightKg || storedDraft.weightKg,
+      lengthCm: storedShipment?.lengthCm || storedDraft.lengthCm,
+      widthCm: storedShipment?.widthCm || storedDraft.widthCm,
+      declaredValueGbp: storedShipment?.declaredValueGbp ?? "",
+    };
+
+    setForm(nextForm);
+    setPickupLocation(storedDraft.from?.label === nextForm.pickupAddress ? storedDraft.from : locationFromForm(nextForm.pickupAddress, nextForm.pickupCity, nextForm.pickupPostcode));
+    setDeliveryLocation(storedDraft.to?.label === nextForm.deliveryAddress ? storedDraft.to : locationFromForm(nextForm.deliveryAddress, nextForm.deliveryCity, nextForm.deliveryPostcode, nextForm.deliveryState));
     setHydrated(true);
 
     return () => {
@@ -200,6 +234,10 @@ export default function ShipmentDetailsPage() {
       controller.abort();
     };
   }, [agentId]);
+
+  useEffect(() => {
+    router.prefetch(routes.web.quote);
+  }, [router]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -212,7 +250,7 @@ export default function ShipmentDetailsPage() {
         setForm((current) => ({
           ...current,
           senderFullName: current.senderFullName || `${customer.firstName} ${customer.lastName}`.trim(),
-          senderPhoneCountryCode: countryCodeFromCallingCode(customer.phoneCountryCode, "GB"),
+          senderPhoneCountryCode: current.senderPhoneNumber ? current.senderPhoneCountryCode : countryCodeFromCallingCode(customer.phoneCountryCode, "GB"),
           senderPhoneNumber: current.senderPhoneNumber || customer.phoneNumber,
           senderEmail: current.senderEmail || customer.email,
         }));
@@ -221,7 +259,55 @@ export default function ShipmentDetailsPage() {
     return () => controller.abort();
   }, [hydrated]);
 
+  useEffect(() => {
+    if (!hydrated || !agentId) return;
+    writeShipmentDraft({
+      agentId,
+      senderFullName: form.senderFullName,
+      senderPhoneCountryCode: callingCode(form.senderPhoneCountryCode),
+      senderPhoneNumber: form.senderPhoneNumber,
+      senderEmail: form.senderEmail,
+      pickupAddress: form.pickupAddress,
+      pickupCity: form.pickupCity,
+      pickupPostcode: form.pickupPostcode,
+      receiverFullName: form.receiverFullName,
+      receiverPhoneCountryCode: callingCode(form.receiverPhoneCountryCode),
+      receiverPhoneNumber: form.receiverPhoneNumber,
+      receiverEmail: form.receiverEmail,
+      deliveryAddress: form.deliveryAddress,
+      deliveryCity: form.deliveryCity,
+      deliveryState: form.deliveryState,
+      deliveryPostcode: form.deliveryPostcode,
+      itemsDescription: form.itemsDescription,
+      weightKg: form.weightKg,
+      lengthCm: form.lengthCm,
+      widthCm: form.widthCm,
+      declaredValueGbp: form.declaredValueGbp,
+    });
+  }, [agentId, form, hydrated]);
+
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((current) => ({ ...current, [key]: value }));
+  const selectPickupLocation = (value: QuoteLocation | null) => {
+    setPickupLocation(value);
+    if (!value) return;
+    setForm((current) => ({
+      ...current,
+      pickupAddress: value.label,
+      pickupCity: value.city,
+      pickupPostcode: value.postcode || postcodeFromLabel(value.label) || current.pickupPostcode,
+    }));
+  };
+  const selectDeliveryLocation = (value: QuoteLocation | null) => {
+    setDeliveryLocation(value);
+    if (!value) return;
+    setForm((current) => ({
+      ...current,
+      deliveryAddress: value.label,
+      deliveryCity: value.city,
+      deliveryState: value.state || current.deliveryState,
+      deliveryPostcode: value.postcode || current.deliveryPostcode,
+    }));
+  };
   const numericWeight = Number(form.weightKg);
   const shipping = agent?.pricePerKgEur !== null && agent?.pricePerKgEur !== undefined && Number.isFinite(numericWeight) && numericWeight > 0
     ? Math.round(agent.pricePerKgEur * numericWeight * agent.eurToGbpRate * 100) / 100
@@ -267,6 +353,12 @@ export default function ShipmentDetailsPage() {
     setPaymentNotice("Shipment details saved. Payment integration is the next step in this flow.");
   }
 
+  function returnToAgents() {
+    if (returningToAgents) return;
+    setReturningToAgents(true);
+    router.push(routes.web.quote);
+  }
+
   if (!hydrated || !draft || agentLoading) {
     return <main className="min-h-screen bg-neutral-01"><div className="mx-auto max-w-[900px] animate-pulse px-4 py-12"><div className="h-32 rounded bg-white" /><div className="mt-4 h-[640px] rounded bg-white" /></div></main>;
   }
@@ -281,7 +373,7 @@ export default function ShipmentDetailsPage() {
       <main className="min-h-screen bg-neutral-01 pb-16 font-sans">
         <div className="mx-auto w-full max-w-[900px] px-4 pt-5 sm:px-6">
           <p className="mb-4 text-[11px] text-neutral-07">Home <span className="mx-2">/</span> Get a quote <span className="mx-2">/</span> Compare agents <span className="mx-2">/</span> <span className="text-primary-10">Shipment details</span></p>
-          <AgentSummaryCard agent={agent} onUnselect={() => router.push(routes.web.quote)} />
+          <AgentSummaryCard agent={agent} returning={returningToAgents} onUnselect={returnToAgents} />
 
           <div className="mt-4 rounded-[10px] border border-neutral-02 bg-white px-5 py-4 text-[12px] leading-[20px] text-neutral-08">{agent.companyName} is a verified Zionra shipping partner. Complete the shipment details below to continue with this quote.</div>
 
@@ -292,9 +384,9 @@ export default function ShipmentDetailsPage() {
               <SectionHeading>Sender Details</SectionHeading>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Full Name" required value={form.senderFullName} onChange={(value) => update("senderFullName", value)} placeholder="e.g. Chinedu Okafor" />
-                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid grid-cols-[96px_1fr] gap-2"><CountrySelect id="sender-country" value={form.senderPhoneCountryCode} onChange={(country) => update("senderPhoneCountryCode", country.code)} compact ariaLabel="Sender phone country" /><input value={form.senderPhoneNumber} onChange={(event) => update("senderPhoneNumber", event.target.value)} className="zion-input h-[48px] text-[13px]" placeholder="7123 456789" /></div></div>
+                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="sender-country" value={form.senderPhoneCountryCode} onChange={(country) => update("senderPhoneCountryCode", country.code)} compact ariaLabel="Sender phone country" /><input value={form.senderPhoneNumber} onChange={(event) => update("senderPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="7123 456789" /></div></div>
                 <Field label="Email Address" required type="email" value={form.senderEmail} onChange={(value) => update("senderEmail", value)} placeholder="you@example.com" />
-                <Field label="Pickup Address" required value={form.pickupAddress} onChange={(value) => update("pickupAddress", value)} placeholder="Enter full address" span="md:col-span-2" />
+                <div className="md:col-span-2"><QuoteLocationInput label="Pickup Address" required placeholder="Enter full address" countryCode="GB" flagSrc="/images/United-Kingdom.svg" value={pickupLocation} onInputChange={(value) => setForm((current) => ({ ...current, pickupAddress: value, pickupCity: "", pickupPostcode: "" }))} onChange={selectPickupLocation} /></div>
                 <Field label="City" required value={form.pickupCity} onChange={(value) => update("pickupCity", value)} placeholder="London" />
                 <Field label="Postcode" value={form.pickupPostcode} onChange={(value) => update("pickupPostcode", value)} placeholder="SW1A 1AA" />
               </div>
@@ -304,9 +396,9 @@ export default function ShipmentDetailsPage() {
               <SectionHeading>Receiver Details</SectionHeading>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Full Name" required value={form.receiverFullName} onChange={(value) => update("receiverFullName", value)} placeholder="e.g. John Adeyemi" />
-                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid grid-cols-[96px_1fr] gap-2"><CountrySelect id="receiver-country" value={form.receiverPhoneCountryCode} onChange={(country) => update("receiverPhoneCountryCode", country.code)} compact ariaLabel="Receiver phone country" /><input value={form.receiverPhoneNumber} onChange={(event) => update("receiverPhoneNumber", event.target.value)} className="zion-input h-[48px] text-[13px]" placeholder="801 234 5678" /></div></div>
+                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="receiver-country" value={form.receiverPhoneCountryCode} onChange={(country) => update("receiverPhoneCountryCode", country.code)} compact ariaLabel="Receiver phone country" /><input value={form.receiverPhoneNumber} onChange={(event) => update("receiverPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="801 234 5678" /></div></div>
                 <Field label="Email Address (Optional)" type="email" value={form.receiverEmail} onChange={(value) => update("receiverEmail", value)} placeholder="receiver@example.com" />
-                <Field label="Delivery Address" required value={form.deliveryAddress} onChange={(value) => update("deliveryAddress", value)} placeholder="Enter full address" span="md:col-span-2" />
+                <div className="md:col-span-2"><QuoteLocationInput label="Delivery Address" required placeholder="Enter full address" countryCode="NG" flagSrc="/images/Nigeria.svg" value={deliveryLocation} onInputChange={(value) => setForm((current) => ({ ...current, deliveryAddress: value, deliveryCity: "", deliveryState: "", deliveryPostcode: "" }))} onChange={selectDeliveryLocation} /></div>
                 <Field label="City" required value={form.deliveryCity} onChange={(value) => update("deliveryCity", value)} placeholder="Lagos" />
                 <Field label="State" required value={form.deliveryState} onChange={(value) => update("deliveryState", value)} placeholder="Lagos" />
                 <Field label="Postcode (Optional)" value={form.deliveryPostcode} onChange={(value) => update("deliveryPostcode", value)} placeholder="e.g. 100001" />

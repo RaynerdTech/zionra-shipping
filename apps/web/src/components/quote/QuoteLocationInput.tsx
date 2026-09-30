@@ -13,6 +13,9 @@ type Result = {
   secondary: string;
   city: string;
   coordinates: [number, number] | null;
+  postcode?: string;
+  state?: string;
+  country?: string;
 };
 
 type Props = {
@@ -23,6 +26,7 @@ type Props = {
   flagSrc: string;
   value: QuoteLocation | null;
   onChange: (value: QuoteLocation | null) => void;
+  onInputChange?: (value: string) => void;
   required?: boolean;
   tone?: "light" | "dark";
 };
@@ -39,6 +43,7 @@ export default function QuoteLocationInput({
   flagSrc,
   value,
   onChange,
+  onInputChange,
   required = false,
   tone = "light",
 }: Props) {
@@ -87,7 +92,7 @@ export default function QuoteLocationInput({
           const coordinates = Array.isArray(rawCoordinates) && typeof rawCoordinates[0] === "number" && typeof rawCoordinates[1] === "number"
             ? [rawCoordinates[0], rawCoordinates[1]] as [number, number]
             : null;
-          const city = text(p.city) || text(p.locality) || text(p.district) || text(p.county) || primary;
+          const city = text(p.city) || text(p.locality) || text(p.name) || text(p.district) || text(p.county) || primary;
           return {
             id: `${text(p.osm_type) || "osm"}-${String(p.osm_id ?? index)}-${index}`,
             label: [primary, ...secondaryParts].filter((part, i, all) => all.indexOf(part) === i).join(", "),
@@ -95,6 +100,9 @@ export default function QuoteLocationInput({
             secondary: secondaryParts.filter((part, i, all) => all.indexOf(part) === i).join(", "),
             city,
             coordinates,
+            postcode: text(p.postcode),
+            state: text(p.state) || text(p.county),
+            country: text(p.country),
           };
         });
         if (active) setResults(next);
@@ -125,7 +133,12 @@ export default function QuoteLocationInput({
         <input
           id={inputId}
           value={query}
-          onChange={(event) => { setQuery(event.target.value); onChange(null); }}
+          onChange={(event) => {
+            const next = event.target.value;
+            setQuery(next);
+            onInputChange?.(next);
+            onChange(null);
+          }}
           onFocus={() => setFocused(true)}
           placeholder={placeholder}
           autoComplete="off"

@@ -36,6 +36,47 @@ const SORT_OPTIONS: readonly [SortMode, string][] = [
   ["rating", "Highest rated"],
 ];
 
+const AGENT_RESULTS_CACHE_KEY = "zionra.quote-agent-results.v1";
+
+type AgentResultsCache = {
+  queryKey: string;
+  response: QuoteAgentsResponse;
+};
+
+function buildAgentQuery(draft: QuoteDraft) {
+  const params = new URLSearchParams({
+    pickupCity: draft.from?.city ?? "",
+    pickupLabel: draft.from?.label ?? "",
+    itemTypes: draft.itemTypes.join(","),
+    collectionMode: draft.collectionMode,
+    deliveryMode: draft.deliveryMode,
+  });
+  if (draft.weightKg) params.set("weightKg", draft.weightKg);
+  if (draft.lengthCm) params.set("lengthCm", draft.lengthCm);
+  if (draft.widthCm) params.set("widthCm", draft.widthCm);
+  if (draft.shippingMethod) params.set("shippingMethod", draft.shippingMethod);
+  return params.toString();
+}
+
+function readAgentResultsCache(): AgentResultsCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const value = window.localStorage.getItem(AGENT_RESULTS_CACHE_KEY);
+    return value ? JSON.parse(value) as AgentResultsCache : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeAgentResultsCache(cache: AgentResultsCache) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(AGENT_RESULTS_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // Cache failure should not block quote comparison.
+  }
+}
+
 function formatMoney(value: number | null) {
   if (value === null) return "Quote required";
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
@@ -53,7 +94,7 @@ function AgentLogo({ agent }: { agent: QuoteAgentSummary }) {
   );
 }
 
-function AgentCard({ agent, best, onProfile, onSelect }: { agent: QuoteAgentSummary; best: boolean; onProfile: () => void; onSelect: () => void }) {
+function AgentCard({ agent, best, onProfile, onSelect, selecting = false }: { agent: QuoteAgentSummary; best: boolean; onProfile: () => void; onSelect: () => void; selecting?: boolean }) {
   return (
     <article className="grid gap-5 rounded-[14px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(7,22,44,0.02)] md:grid-cols-[minmax(0,1fr)_150px] md:px-7">
       <div className="min-w-0">
@@ -89,7 +130,7 @@ function AgentCard({ agent, best, onProfile, onSelect }: { agent: QuoteAgentSumm
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" /><path d="M8 5v3l2 1" stroke="currentColor" strokeLinecap="round" /></svg>
           {agent.deliveryEstimate ?? agent.shippingMethod ?? "Delivery time varies"}
         </span>
-        <button type="button" onClick={onSelect} className="zion-btn zion-btn-blue mt-4 min-h-[48px] w-full text-[15px]">Select</button>
+        <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-4 min-h-[48px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select"}</button>
       </div>
     </article>
   );
@@ -251,11 +292,25 @@ export default function CompareAgentsPage() {
   const [eurToGbpRate, setEurToGbpRate] = useState(0.86);
   const [quoteEditorExpanded, setQuoteEditorExpanded] = useState(false);
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+  const [resolvedQueryKey, setResolvedQueryKey] = useState("");
+  const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
 
   useEffect(() => {
-    setDraft(readQuoteDraft());
+    const storedDraft = readQuoteDraft();
+    const storedQueryKey = buildAgentQuery(storedDraft);
+    const cached = readAgentResultsCache();
+    setDraft(storedDraft);
+    if (cached?.queryKey === storedQueryKey) {
+      setAgents(cached.response.agents);
+      setEurToGbpRate(cached.response.rate.value);
+      setResolvedQueryKey(storedQueryKey);
+    }
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    router.prefetch(routes.web.quoteShipment);
+  }, [router]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -270,10 +325,18 @@ export default function CompareAgentsPage() {
   }, [mobileToolsOpen]);
 
   const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && draft.deliveryMode && Number(draft.weightKg) > 0);
+  const queryKey = canSearch ? buildAgentQuery(draft) : "";
 
   useEffect(() => {
     if (!hydrated || !canSearch || !draft.from) {
       setAgents([]);
+      setLoading(false);
+      setError("");
+      setResolvedQueryKey("");
+      return;
+    }
+
+    if (queryKey && resolvedQueryKey === queryKey) {
       setLoading(false);
       setError("");
       return;
@@ -281,24 +344,12 @@ export default function CompareAgentsPage() {
 
     const controller = new AbortController();
     let active = true;
+    setLoading(true);
+    setError("");
     const timer = window.setTimeout(async () => {
       if (!active) return;
-      setLoading(true);
-      setError("");
       try {
-        const params = new URLSearchParams({
-          pickupCity: draft.from?.city ?? "",
-          pickupLabel: draft.from?.label ?? "",
-          itemTypes: draft.itemTypes.join(","),
-          collectionMode: draft.collectionMode,
-          deliveryMode: draft.deliveryMode,
-        });
-        if (draft.weightKg) params.set("weightKg", draft.weightKg);
-        if (draft.lengthCm) params.set("lengthCm", draft.lengthCm);
-        if (draft.widthCm) params.set("widthCm", draft.widthCm);
-        if (draft.shippingMethod) params.set("shippingMethod", draft.shippingMethod);
-
-        const response = await fetch(`${buildApiUrl(routes.api.quote.agents)}?${params.toString()}`, { signal: controller.signal });
+        const response = await fetch(`${buildApiUrl(routes.api.quote.agents)}?${queryKey}`, { signal: controller.signal });
         if (!response.ok) {
           const body = await response.json().catch(() => null) as { message?: string } | null;
           throw new Error(body?.message || "Unable to compare shipping agents.");
@@ -307,6 +358,8 @@ export default function CompareAgentsPage() {
         if (!active) return;
         setAgents(body.agents);
         setEurToGbpRate(body.rate.value);
+        setResolvedQueryKey(queryKey);
+        writeAgentResultsCache({ queryKey, response: body });
       } catch (caught) {
         if (active && !(caught instanceof DOMException && caught.name === "AbortError")) {
           setError(caught instanceof Error ? caught.message : "Unable to compare shipping agents.");
@@ -315,10 +368,10 @@ export default function CompareAgentsPage() {
       } finally {
         if (active) setLoading(false);
       }
-    }, 260);
+    }, 220);
 
     return () => { active = false; window.clearTimeout(timer); controller.abort(); };
-  }, [canSearch, draft.collectionMode, draft.deliveryMode, draft.from, draft.itemTypes, draft.lengthCm, draft.shippingMethod, draft.weightKg, draft.widthCm, hydrated]);
+  }, [canSearch, draft.from, hydrated, queryKey, resolvedQueryKey]);
 
   const sortedAgents = useMemo(() => {
     const next = [...agents];
@@ -329,6 +382,8 @@ export default function CompareAgentsPage() {
   }, [agents, sortMode]);
 
   function selectAgent(agentId: string) {
+    if (pendingAgentId) return;
+    setPendingAgentId(agentId);
     const agent = agents.find((item) => item.id === agentId);
     if (agent) {
       writeSelectedQuoteAgent({
@@ -403,7 +458,7 @@ export default function CompareAgentsPage() {
                   <div className="rounded-[14px] bg-white px-6 py-14 text-center"><p className="text-[14px] text-error">{error}</p></div>
                 ) : sortedAgents.length === 0 ? (
                   <div className="rounded-[14px] bg-white px-6 py-14 text-center"><h2 className="font-display text-[20px] font-semibold text-primary-10">No matching agents yet</h2><p className="mx-auto mt-2 max-w-lg text-[13px] leading-[20px] text-neutral-06">No approved shipping partner currently matches this pickup city and shipment. Try adjusting the filters or check again later.</p></div>
-                ) : sortedAgents.map((agent, index) => <AgentCard key={agent.id} agent={agent} best={sortMode === "best" && index === 0} onProfile={() => setProfileAgentId(agent.id)} onSelect={() => selectAgent(agent.id)} />)}
+                ) : sortedAgents.map((agent, index) => <AgentCard key={agent.id} agent={agent} best={sortMode === "best" && index === 0} selecting={pendingAgentId === agent.id} onProfile={() => setProfileAgentId(agent.id)} onSelect={() => selectAgent(agent.id)} />)}
               </div>
             </section>
           </div>
