@@ -97,9 +97,26 @@ function AgentCard({ agent, best, onProfile, onSelect }: { agent: QuoteAgentSumm
 
 function SkeletonCard() {
   return (
-    <div className="grid animate-pulse gap-5 rounded-[14px] bg-white px-7 py-6 md:grid-cols-[minmax(0,1fr)_150px]">
-      <div><div className="flex gap-3"><div className="h-11 w-11 rounded-full bg-neutral-02" /><div className="flex-1"><div className="h-5 w-44 rounded bg-neutral-02" /><div className="mt-3 h-3 w-28 rounded bg-neutral-02" /></div></div><div className="mt-6 flex gap-2"><div className="h-6 w-28 rounded-full bg-neutral-02" /><div className="h-6 w-40 rounded-full bg-neutral-02" /><div className="h-6 w-36 rounded-full bg-neutral-02" /></div></div>
-      <div className="border-l border-neutral-02 pl-5"><div className="h-7 w-24 rounded bg-neutral-02" /><div className="mt-3 h-4 w-20 rounded bg-neutral-02" /><div className="mt-4 h-12 rounded bg-primary-02" /></div>
+    <div className="grid min-w-0 animate-pulse gap-5 overflow-hidden rounded-[14px] bg-white px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_150px] md:px-7 md:py-6">
+      <div className="min-w-0">
+        <div className="flex min-w-0 gap-3">
+          <div className="h-11 w-11 shrink-0 rounded-full bg-neutral-02" />
+          <div className="min-w-0 flex-1">
+            <div className="h-5 w-full max-w-44 rounded bg-neutral-02" />
+            <div className="mt-3 h-3 w-full max-w-28 rounded bg-neutral-02" />
+          </div>
+        </div>
+        <div className="mt-6 flex min-w-0 flex-wrap gap-2">
+          <div className="h-6 w-28 max-w-full rounded-full bg-neutral-02" />
+          <div className="h-6 w-40 max-w-full rounded-full bg-neutral-02" />
+          <div className="h-6 w-36 max-w-full rounded-full bg-neutral-02" />
+        </div>
+      </div>
+      <div className="min-w-0 border-t border-neutral-02 pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+        <div className="h-7 w-24 max-w-full rounded bg-neutral-02" />
+        <div className="mt-3 h-4 w-20 max-w-full rounded bg-neutral-02" />
+        <div className="mt-4 h-12 w-full rounded bg-primary-02" />
+      </div>
     </div>
   );
 }
