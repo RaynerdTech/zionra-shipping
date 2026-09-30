@@ -176,6 +176,10 @@ enum ShippingPartnerStatus {
   SUSPENDED
 }
 
+enum ShippingPartnerReviewSource {
+  GOOGLE
+}
+
 model ShippingPartner {
   id                 String                @id @default(cuid())
   firstName          String
@@ -200,10 +204,31 @@ model ShippingPartner {
   onboardingSessions          ShippingPartnerOnboardingSession[]
   oauthAccounts               ShippingPartnerOAuthAccount[]
   application                 ShippingPartnerApplication?
+  reviews                     ShippingPartnerReview[]
 
   @@index([email])
   @@index([phoneCountryCode, phoneNumber])
   @@index([status])
+}
+
+
+model ShippingPartnerReview {
+  id               String                      @id @default(cuid())
+  source           ShippingPartnerReviewSource @default(GOOGLE)
+  externalReviewId String
+  authorName       String
+  authorPhotoUrl   String?
+  rating           Int
+  comment          String?
+  reviewedAt       DateTime
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @updatedAt
+
+  partnerId String
+  partner   ShippingPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([source, externalReviewId])
+  @@index([partnerId, reviewedAt])
 }
 
 model ShippingPartnerEmailVerificationCode {

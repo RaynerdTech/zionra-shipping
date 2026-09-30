@@ -13,6 +13,7 @@ export const API_ROUTES = {
   partnerAuthBase: "/api/partner/auth",
   partnerLoginBase: "/api/partner/auth/login",
   partnerGoogleBase: "/api/partner/auth/google",
+  quoteBase: "/api/quotes",
 } as const;
 
 export const WEB_ROUTES = {

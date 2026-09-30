@@ -16,6 +16,8 @@ export const routes = {
 
     howItWorks: "/how-it-works",
     aboutUs: "/about-us",
+    quote: "/get-quote",
+    quoteShipment: "/get-quote/shipment",
 
     customerLogin: "/login",
     customerLoginVerification: "/login/verify",
@@ -57,6 +59,10 @@ export const routes = {
   },
 
   api: {
+    quote: {
+      agents: "/api/quotes/agents",
+    },
+
     partnerAuth: {
       register: "/api/partner/auth/register",
       login: "/api/partner/auth/login",

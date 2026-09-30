@@ -1,12 +1,21 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type {
   ComponentPropsWithoutRef,
   KeyboardEvent,
   ReactNode,
 } from "react";
 
+import { routes } from "@/config/routes";
+import {
+  QUOTE_COLLECTION_OPTIONS,
+  QUOTE_DELIVERY_OPTIONS,
+  QUOTE_ITEM_OPTIONS,
+  toQuoteLocation,
+  writeQuoteDraft,
+} from "@/lib/quoteFlow";
 
 const ukFlagSrc = "/images/United-Kingdom.svg";
 const ngFlagSrc = "/images/Nigeria.svg";
@@ -156,26 +165,14 @@ type QuoteFormErrors = {
   itemTypes?: string;
   collectionMode?: string;
   deliveryMode?: string;
+  weightKg?: string;
 };
 
-const ITEM_TYPE_OPTIONS: DropdownOption[] = [
-  { value: "parcel", label: "Parcel / package" },
-  { value: "documents", label: "Documents" },
-  { value: "clothing", label: "Clothing" },
-  { value: "electronics", label: "Electronics" },
-  { value: "household", label: "Household items" },
-  { value: "other", label: "Other item" },
-];
+const ITEM_TYPE_OPTIONS: DropdownOption[] = QUOTE_ITEM_OPTIONS.map((option) => ({ ...option }));
 
-const COLLECTION_OPTIONS: DropdownOption[] = [
-  { value: "collection", label: "Pickup from address" },
-  { value: "dropoff", label: "Drop off at agent" },
-];
+const COLLECTION_OPTIONS: DropdownOption[] = QUOTE_COLLECTION_OPTIONS.map((option) => ({ ...option }));
 
-const DELIVERY_OPTIONS: DropdownOption[] = [
-  { value: "door-to-door", label: "Door-to-door delivery" },
-  { value: "receiver-pickup", label: "Receiver pickup" },
-];
+const DELIVERY_OPTIONS: DropdownOption[] = QUOTE_DELIVERY_OPTIONS.map((option) => ({ ...option }));
 
 function ChevronDownIcon({ className = "" }: IconProps) {
   return (
@@ -804,11 +801,15 @@ function MultiSelectDropdownField({ label, placeholder, options, values, onChang
 }
 
 function QuoteForm() {
+  const router = useRouter();
   const [fromLocation, setFromLocation] = useState<LocationResult | null>(null);
   const [toLocation, setToLocation] = useState<LocationResult | null>(null);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
   const [collectionMode, setCollectionMode] = useState("");
   const [deliveryMode, setDeliveryMode] = useState("");
+  const [weightKg, setWeightKg] = useState("");
+  const [lengthCm, setLengthCm] = useState("");
+  const [widthCm, setWidthCm] = useState("");
   const [errors, setErrors] = useState<QuoteFormErrors>({});
 
   function clearError(field: keyof QuoteFormErrors) {
@@ -822,13 +823,27 @@ function QuoteForm() {
     if (itemTypes.length === 0) nextErrors.itemTypes = "Select at least one item";
     if (!collectionMode) nextErrors.collectionMode = "This field is required";
     if (!deliveryMode) nextErrors.deliveryMode = "This field is required";
+    if (!weightKg || !Number.isFinite(Number(weightKg)) || Number(weightKg) <= 0) nextErrors.weightKg = "Enter a valid weight";
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
 
   function handleQuoteSubmit() {
-    if (!validateQuoteForm()) return;
-    // The current codebase has no quote API submission yet. Preserve the validated state until that API exists.
+    if (!validateQuoteForm() || !fromLocation || !toLocation) return;
+
+    writeQuoteDraft({
+      from: toQuoteLocation(fromLocation, "GB"),
+      to: toQuoteLocation(toLocation, "NG"),
+      itemTypes,
+      weightKg,
+      lengthCm,
+      widthCm,
+      collectionMode,
+      deliveryMode,
+      shippingMethod: "",
+    });
+
+    router.push(routes.web.quote);
   }
 
   return (
@@ -873,9 +888,9 @@ function QuoteForm() {
           }}
           error={errors.itemTypes}
         />
-        <TextInput label="Kg*" placeholder="0" type="number" />
-        <TextInput label="Length" placeholder="Item length" />
-        <TextInput label="Width" placeholder="Item width" />
+        <TextInput label="Kg*" placeholder="0" type="number" value={weightKg} onChange={(next) => { setWeightKg(next); clearError("weightKg"); }} error={errors.weightKg} />
+        <TextInput label="Length" placeholder="Item length" type="number" value={lengthCm} onChange={setLengthCm} />
+        <TextInput label="Width" placeholder="Item width" type="number" value={widthCm} onChange={setWidthCm} />
         <DropdownField
           label="Collection method"
           placeholder="Select an option"
