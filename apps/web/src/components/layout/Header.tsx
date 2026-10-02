@@ -12,7 +12,7 @@ const logoZionra = "/images/logo-zionra.png";
 const navItems = [
   { label: "Home", href: routes.web.home },
   { label: "How it works", href: routes.web.howItWorks },
-  { label: "Get quote", href: `${routes.web.home}#get-quote` },
+  { label: "Get quote", href: routes.web.quote },
   { label: "About us", href: routes.web.aboutUs },
   { label: "Support", href: `${routes.web.home}#support` },
 ] as const;
@@ -139,13 +139,15 @@ function Header() {
                 item.href === routes.web.howItWorks;
               const isAboutUs =
                 item.href === routes.web.aboutUs;
+              const isQuote = item.href === routes.web.quote;
 
               const active =
                 (isHome && pathname === routes.web.home) ||
                 (isHowItWorks &&
                   pathname === routes.web.howItWorks) ||
                 (isAboutUs &&
-                  pathname === routes.web.aboutUs);
+                  pathname === routes.web.aboutUs) ||
+                (isQuote && pathname.startsWith(routes.web.quote));
 
               return (
                 <Link
@@ -223,13 +225,15 @@ function Header() {
                 item.href === routes.web.howItWorks;
               const isAboutUs =
                 item.href === routes.web.aboutUs;
+              const isQuote = item.href === routes.web.quote;
 
               const active =
                 (isHome && pathname === routes.web.home) ||
                 (isHowItWorks &&
                   pathname === routes.web.howItWorks) ||
                 (isAboutUs &&
-                  pathname === routes.web.aboutUs);
+                  pathname === routes.web.aboutUs) ||
+                (isQuote && pathname.startsWith(routes.web.quote));
 
               return (
                 <Link

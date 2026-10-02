@@ -1,5 +1,5 @@
-import CompareAgentsPage from "@/components/quote/CompareAgentsPage";
+import DedicatedQuotePage from "@/components/quote/DedicatedQuotePage";
 
 export default function GetQuotePage() {
-  return <CompareAgentsPage />;
+  return <DedicatedQuotePage />;
 }

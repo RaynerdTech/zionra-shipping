@@ -13,9 +13,11 @@ import {
   QUOTE_COLLECTION_OPTIONS,
   QUOTE_DELIVERY_OPTIONS,
   QUOTE_ITEM_OPTIONS,
+  QUOTE_SHIPPING_METHOD_OPTIONS,
   readQuoteDraft,
   toQuoteLocation,
   writeQuoteDraft,
+  type QuoteDraft,
 } from "@/lib/quoteFlow";
 
 const ukFlagSrc = "/images/United-Kingdom.svg";
@@ -166,6 +168,7 @@ type QuoteFormErrors = {
   itemTypes?: string;
   collectionMode?: string;
   deliveryMode?: string;
+  shippingMethod?: string;
   weightKg?: string;
 };
 
@@ -174,6 +177,8 @@ const ITEM_TYPE_OPTIONS: DropdownOption[] = QUOTE_ITEM_OPTIONS.map((option) => (
 const COLLECTION_OPTIONS: DropdownOption[] = QUOTE_COLLECTION_OPTIONS.map((option) => ({ ...option }));
 
 const DELIVERY_OPTIONS: DropdownOption[] = QUOTE_DELIVERY_OPTIONS.map((option) => ({ ...option }));
+
+const SHIPPING_OPTIONS: DropdownOption[] = QUOTE_SHIPPING_METHOD_OPTIONS.map((option) => ({ ...option }));
 
 function ChevronDownIcon({ className = "" }: IconProps) {
   return (
@@ -801,19 +806,25 @@ function MultiSelectDropdownField({ label, placeholder, options, values, onChang
   );
 }
 
-function QuoteForm() {
+export function QuoteForm({
+  variant = "homepage",
+  onDraftChange,
+}: {
+  variant?: "homepage" | "dedicated";
+  onDraftChange?: (draft: QuoteDraft) => void;
+}) {
   const router = useRouter();
   const [fromLocation, setFromLocation] = useState<LocationResult | null>(null);
   const [toLocation, setToLocation] = useState<LocationResult | null>(null);
   const [itemTypes, setItemTypes] = useState<string[]>([]);
   const [collectionMode, setCollectionMode] = useState("");
   const [deliveryMode, setDeliveryMode] = useState("");
+  const [shippingMethod, setShippingMethod] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [lengthCm, setLengthCm] = useState("");
   const [widthCm, setWidthCm] = useState("");
   const [errors, setErrors] = useState<QuoteFormErrors>({});
   const [hydrated, setHydrated] = useState(false);
-  const shippingMethodRef = useRef("");
 
   useEffect(() => {
     const stored = readQuoteDraft();
@@ -843,16 +854,16 @@ function QuoteForm() {
     setItemTypes(stored.itemTypes ?? []);
     setCollectionMode(stored.collectionMode ?? "");
     setDeliveryMode(stored.deliveryMode ?? "");
+    setShippingMethod(stored.shippingMethod ?? "");
     setWeightKg(stored.weightKg ?? "");
     setLengthCm(stored.lengthCm ?? "");
     setWidthCm(stored.widthCm ?? "");
-    shippingMethodRef.current = stored.shippingMethod ?? "";
     setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    writeQuoteDraft({
+    const nextDraft: QuoteDraft = {
       from: fromLocation ? toQuoteLocation(fromLocation, "GB") : null,
       to: toLocation ? toQuoteLocation(toLocation, "NG") : null,
       itemTypes,
@@ -861,9 +872,11 @@ function QuoteForm() {
       widthCm,
       collectionMode,
       deliveryMode,
-      shippingMethod: shippingMethodRef.current,
-    });
-  }, [collectionMode, deliveryMode, fromLocation, hydrated, itemTypes, lengthCm, toLocation, weightKg, widthCm]);
+      shippingMethod,
+    };
+    writeQuoteDraft(nextDraft);
+    onDraftChange?.(nextDraft);
+  }, [collectionMode, deliveryMode, fromLocation, hydrated, itemTypes, lengthCm, onDraftChange, shippingMethod, toLocation, weightKg, widthCm]);
 
   function clearError(field: keyof QuoteFormErrors) {
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
@@ -875,7 +888,11 @@ function QuoteForm() {
     if (!toLocation) nextErrors.toLocation = "This field is required";
     if (itemTypes.length === 0) nextErrors.itemTypes = "Select at least one item";
     if (!collectionMode) nextErrors.collectionMode = "This field is required";
-    if (!deliveryMode) nextErrors.deliveryMode = "This field is required";
+    if (variant === "dedicated") {
+      if (!shippingMethod) nextErrors.shippingMethod = "This field is required";
+    } else if (!deliveryMode) {
+      nextErrors.deliveryMode = "This field is required";
+    }
     if (!weightKg || !Number.isFinite(Number(weightKg)) || Number(weightKg) <= 0) nextErrors.weightKg = "Enter a valid weight";
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -884,7 +901,7 @@ function QuoteForm() {
   function handleQuoteSubmit() {
     if (!validateQuoteForm() || !fromLocation || !toLocation) return;
 
-    writeQuoteDraft({
+    const nextDraft: QuoteDraft = {
       from: toQuoteLocation(fromLocation, "GB"),
       to: toQuoteLocation(toLocation, "NG"),
       itemTypes,
@@ -893,14 +910,21 @@ function QuoteForm() {
       widthCm,
       collectionMode,
       deliveryMode,
-      shippingMethod: "",
-    });
+      shippingMethod: variant === "dedicated" ? shippingMethod : "",
+    };
 
-    router.push(routes.web.quote);
+    writeQuoteDraft(nextDraft);
+    onDraftChange?.(nextDraft);
+    router.prefetch(routes.web.compareAgents);
+    router.push(routes.web.compareAgents);
   }
 
+  const formSpacing = variant === "dedicated"
+    ? "w-full px-4 pb-8 pt-6 sm:px-6 lg:px-0 lg:pb-8 lg:pt-9"
+    : "w-full px-4 pb-8 pt-7 sm:px-6 lg:px-2 lg:pb-10 lg:pt-6";
+
   return (
-    <div className="w-full px-4 pb-8 pt-7 sm:px-6 lg:px-2 lg:pb-10 lg:pt-6">
+    <div className={formSpacing}>
       <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 xl:grid-cols-4">
         <LocationAutocomplete
           label="From*"
@@ -955,21 +979,35 @@ function QuoteForm() {
           }}
           error={errors.collectionMode}
         />
-        <DropdownField
-          label="Delivery method"
-          placeholder="Select an option"
-          options={DELIVERY_OPTIONS}
-          value={deliveryMode}
-          onChange={(next) => {
-            setDeliveryMode(next);
-            clearError("deliveryMode");
-          }}
-          error={errors.deliveryMode}
-        />
+        {variant === "dedicated" ? (
+          <DropdownField
+            label="Shipment method"
+            placeholder="Select an option"
+            options={SHIPPING_OPTIONS}
+            value={shippingMethod}
+            onChange={(next) => {
+              setShippingMethod(next);
+              clearError("shippingMethod");
+            }}
+            error={errors.shippingMethod}
+          />
+        ) : (
+          <DropdownField
+            label="Delivery method"
+            placeholder="Select an option"
+            options={DELIVERY_OPTIONS}
+            value={deliveryMode}
+            onChange={(next) => {
+              setDeliveryMode(next);
+              clearError("deliveryMode");
+            }}
+            error={errors.deliveryMode}
+          />
+        )}
       </div>
-      <div className="mt-8 flex justify-center">
+      <div className={`${variant === "dedicated" ? "mt-16" : "mt-8"} flex justify-center`}>
         <button type="button" onClick={handleQuoteSubmit} className="zion-btn zion-btn-md zion-btn-blue min-w-[144px] px-4">
-          Get a quote <ArrowIcon />
+          Get a quote {variant === "homepage" ? <ArrowIcon /> : null}
         </button>
       </div>
     </div>

@@ -236,7 +236,7 @@ export default function ShipmentDetailsPage() {
   }, [agentId]);
 
   useEffect(() => {
-    router.prefetch(routes.web.quote);
+    router.prefetch(routes.web.compareAgents);
   }, [router]);
 
   useEffect(() => {
@@ -356,7 +356,7 @@ export default function ShipmentDetailsPage() {
   function returnToAgents() {
     if (returningToAgents) return;
     setReturningToAgents(true);
-    router.push(routes.web.quote);
+    router.push(routes.web.compareAgents);
   }
 
   if (!hydrated || !draft || agentLoading) {
@@ -364,7 +364,7 @@ export default function ShipmentDetailsPage() {
   }
 
   if (!agent || !agentId) {
-    return <><QuoteSummaryBar draft={draft} /><main className="min-h-[60vh] bg-neutral-01 px-4 py-16 text-center"><h1 className="font-display text-[24px] font-semibold text-primary-10">Select an agent to continue</h1><p className="mt-2 text-[14px] text-neutral-06">Your quote details are still saved.</p><button type="button" onClick={() => router.push(routes.web.quote)} className="zion-btn zion-btn-blue zion-btn-md mt-6">Compare agents</button></main></>;
+    return <><QuoteSummaryBar draft={draft} /><main className="min-h-[60vh] bg-neutral-01 px-4 py-16 text-center"><h1 className="font-display text-[24px] font-semibold text-primary-10">Select an agent to continue</h1><p className="mt-2 text-[14px] text-neutral-06">Your quote details are still saved.</p><button type="button" onClick={() => router.push(routes.web.compareAgents)} className="zion-btn zion-btn-blue zion-btn-md mt-6">Compare agents</button></main></>;
   }
 
   return (

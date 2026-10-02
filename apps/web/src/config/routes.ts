@@ -9,7 +9,7 @@ export const routes = {
     home: "/",
     getStarted: "/get-started",
     homeHowItWorks: "/#how-it-works",
-    homeQuote: "/#get-quote",
+    homeQuote: "/get-quote",
     homeTrack: "/#track-shipment",
     homeReviews: "/#reviews",
     homePartners: "/#shipping-partners",
@@ -17,6 +17,7 @@ export const routes = {
     howItWorks: "/how-it-works",
     aboutUs: "/about-us",
     quote: "/get-quote",
+    compareAgents: "/get-quote/compare-agents",
     quoteShipment: "/get-quote/shipment",
 
     customerLogin: "/login",

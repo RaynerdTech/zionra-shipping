@@ -324,7 +324,7 @@ export default function CompareAgentsPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileToolsOpen]);
 
-  const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && draft.deliveryMode && Number(draft.weightKg) > 0);
+  const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && Number(draft.weightKg) > 0);
   const queryKey = canSearch ? buildAgentQuery(draft) : "";
 
   useEffect(() => {
@@ -453,7 +453,7 @@ export default function CompareAgentsPage() {
 
               <div className="space-y-4" aria-live="polite">
                 {!hydrated || loading ? <><SkeletonCard /><SkeletonCard /><SkeletonCard /></> : !canSearch ? (
-                  <div className="rounded-[14px] bg-white px-6 py-14 text-center"><h2 className="font-display text-[20px] font-semibold text-primary-10">Complete your quote details</h2><p className="mx-auto mt-2 max-w-lg text-[13px] leading-[20px] text-neutral-06">Choose your pickup and delivery locations, item type, collection method and delivery method to compare eligible shipping agents.</p></div>
+                  <div className="rounded-[14px] bg-white px-6 py-14 text-center"><h2 className="font-display text-[20px] font-semibold text-primary-10">Complete your quote details</h2><p className="mx-auto mt-2 max-w-lg text-[13px] leading-[20px] text-neutral-06">Choose your pickup and delivery locations, item type and collection method to compare eligible shipping agents. You can narrow the results further by delivery or shipping method.</p></div>
                 ) : error ? (
                   <div className="rounded-[14px] bg-white px-6 py-14 text-center"><p className="text-[14px] text-error">{error}</p></div>
                 ) : sortedAgents.length === 0 ? (
