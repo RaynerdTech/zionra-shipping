@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { consumeCustomerAuthReturnTo } from "@/lib/authReturn";
+import { useCustomerAuth } from "./CustomerAuthProvider";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 import AuthPasswordField from "./shared/AuthPasswordField";
@@ -54,6 +56,7 @@ export default function LinkGoogleAccountForm({
   accountType = "customer",
 }: LinkGoogleAccountFormProps) {
   const router = useRouter();
+  const { refreshCustomer } = useCustomerAuth();
   const config = LINK_CONFIG[accountType];
 
   const [profile, setProfile] = useState<PendingGoogleProfile | null>(null);
@@ -174,7 +177,14 @@ export default function LinkGoogleAccountForm({
         return;
       }
 
-      router.replace(result.redirectTo ?? config.defaultRedirect);
+      if (accountType === "customer") {
+        await refreshCustomer();
+        router.replace(
+          consumeCustomerAuthReturnTo(result.redirectTo ?? config.defaultRedirect),
+        );
+      } else {
+        router.replace(result.redirectTo ?? config.defaultRedirect);
+      }
       router.refresh();
     } catch (error) {
       console.error("Google account linking failed:", error);

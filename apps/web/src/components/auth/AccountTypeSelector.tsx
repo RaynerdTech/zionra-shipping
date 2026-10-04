@@ -9,7 +9,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { normalizeCustomerReturnTo, storeCustomerAuthReturnTo, withCustomerReturnTo } from "@/lib/authReturn";
 import NavigationButtonContent from "../ui/NavigationButtonContent";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
 import AuthBackButton from "./shared/AuthBackButton";
@@ -142,9 +143,10 @@ function ShippingPartnerIcon() {
 
 type ActionPanelProps = {
   type: AccountType;
+  returnTo?: string | null;
 };
 
-function ActionPanel({ type }: ActionPanelProps) {
+function ActionPanel({ type, returnTo }: ActionPanelProps) {
   const isCustomer = type === "customer";
 
   return (
@@ -158,7 +160,7 @@ function ActionPanel({ type }: ActionPanelProps) {
       </p>
 
       <Link
-        href={isCustomer ? ROUTES.customerLogin : ROUTES.partnerLogin}
+        href={isCustomer ? withCustomerReturnTo(ROUTES.customerLogin, returnTo) : ROUTES.partnerLogin}
         prefetch={false}
         className={`zion-btn zion-btn-md w-full min-w-0 ${
           isCustomer ? "zion-btn-blue" : "zion-btn-orange"
@@ -170,7 +172,7 @@ function ActionPanel({ type }: ActionPanelProps) {
       <Link
         href={
           isCustomer
-            ? ROUTES.customerCreateAccount
+            ? withCustomerReturnTo(ROUTES.customerCreateAccount, returnTo)
             : ROUTES.partnerApplication
         }
         prefetch={false}
@@ -185,9 +187,14 @@ function ActionPanel({ type }: ActionPanelProps) {
 }
 
 
-export default function AccountTypeSelector() {
+export default function AccountTypeSelector({ returnTo = "" }: { returnTo?: string }) {
+  const safeReturnTo = normalizeCustomerReturnTo(returnTo);
   const [mobileOpenType, setMobileOpenType] =
     useState<AccountType | null>(null);
+
+  useEffect(() => {
+    if (safeReturnTo) storeCustomerAuthReturnTo(safeReturnTo);
+  }, [safeReturnTo]);
 
 
   function toggleMobileType(type: AccountType) {
@@ -274,7 +281,7 @@ export default function AccountTypeSelector() {
 
             {mobileOpenType === "customer" ? (
               <div id="mobile-customer-actions">
-                <ActionPanel type="customer" />
+                <ActionPanel type="customer" returnTo={safeReturnTo} />
               </div>
             ) : null}
           </div>
@@ -306,7 +313,7 @@ export default function AccountTypeSelector() {
 
             {mobileOpenType === "partner" ? (
               <div id="mobile-partner-actions">
-                <ActionPanel type="partner" />
+                <ActionPanel type="partner" returnTo={safeReturnTo} />
               </div>
             ) : null}
           </div>

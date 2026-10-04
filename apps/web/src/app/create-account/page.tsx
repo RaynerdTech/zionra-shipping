@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 type CreateAccountPageProps = {
   searchParams: Promise<{
     googleStatus?: string | string[];
+    returnTo?: string | string[];
   }>;
 };
 
@@ -25,11 +26,14 @@ export default async function CreateAccountPage({
   const googleStatus = Array.isArray(params.googleStatus)
     ? params.googleStatus[0]
     : params.googleStatus;
+  const returnTo = Array.isArray(params.returnTo)
+    ? params.returnTo[0]
+    : params.returnTo;
 
   return (
     <>
       <CreateAccountGoogleStatusNotice status={googleStatus} />
-      <CreateCustomerAccountForm />
+      <CreateCustomerAccountForm returnTo={returnTo ?? ""} />
     </>
   );
 }

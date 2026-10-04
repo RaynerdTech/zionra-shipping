@@ -15,6 +15,7 @@ type LoginPageProps = {
   searchParams: Promise<{
     verified?: string | string[];
     email?: string | string[];
+    returnTo?: string | string[];
   }>;
 };
 
@@ -26,11 +27,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const verified = firstQueryValue(params.verified);
   const email = firstQueryValue(params.email) ?? "";
+  const returnTo = firstQueryValue(params.returnTo) ?? "";
 
   return (
     <CustomerLoginForm
       initialEmail={email}
       wasVerified={verified === "1"}
+      returnTo={returnTo}
     />
   );
 }

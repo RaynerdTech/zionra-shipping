@@ -4,8 +4,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useCustomerAuth } from "@/components/auth/CustomerAuthProvider";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { storeCustomerAuthReturnTo, withCustomerReturnTo } from "@/lib/authReturn";
 import {
   EMPTY_QUOTE_DRAFT,
   QUOTE_COLLECTION_OPTIONS,
@@ -247,6 +249,7 @@ function FilterIcon() {
 
 export default function CompareAgentsPage() {
   const router = useRouter();
+  const { status: authStatus, refreshCustomer } = useCustomerAuth();
   const [draft, setDraft] = useState<QuoteDraft>(EMPTY_QUOTE_DRAFT);
   const [hydrated, setHydrated] = useState(false);
   const [agents, setAgents] = useState<QuoteAgentSummary[]>([]);
@@ -345,9 +348,10 @@ export default function CompareAgentsPage() {
     return next.sort((a, b) => b.bestMatchScore - a.bestMatchScore || (a.estimatedPriceGbp ?? Number.POSITIVE_INFINITY) - (b.estimatedPriceGbp ?? Number.POSITIVE_INFINITY));
   }, [agents, sortMode]);
 
-  function selectAgent(agentId: string) {
+  async function selectAgent(agentId: string) {
     if (pendingAgentId) return;
     setPendingAgentId(agentId);
+
     const agent = agents.find((item) => item.id === agentId);
     if (agent) {
       writeSelectedQuoteAgent({
@@ -368,8 +372,23 @@ export default function CompareAgentsPage() {
         eurToGbpRate,
       });
     }
+
     setProfileAgentId(null);
-    router.push(`${routes.web.quoteShipment}?agent=${encodeURIComponent(agentId)}`);
+
+    const destination = `${routes.web.quoteShipment}?agent=${encodeURIComponent(agentId)}`;
+    let signedIn = authStatus === "authenticated";
+
+    if (authStatus === "loading" || authStatus === "error") {
+      signedIn = Boolean(await refreshCustomer());
+    }
+
+    if (!signedIn) {
+      storeCustomerAuthReturnTo(destination);
+      router.push(withCustomerReturnTo(routes.web.customerLogin, destination));
+      return;
+    }
+
+    router.push(destination);
   }
 
   function submitExpandedQuote() {

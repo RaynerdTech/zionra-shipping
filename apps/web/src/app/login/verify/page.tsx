@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description: "Verify the code sent to your email to finish signing in.",
 };
 
-export default function LoginVerificationPage() {
-  return <LoginVerificationCodeForm />;
+type LoginVerificationPageProps = {
+  searchParams: Promise<{ returnTo?: string | string[] }>;
+};
+
+export default async function LoginVerificationPage({ searchParams }: LoginVerificationPageProps) {
+  const params = await searchParams;
+  const returnTo = Array.isArray(params.returnTo) ? params.returnTo[0] : params.returnTo;
+  return <LoginVerificationCodeForm returnTo={returnTo ?? ""} />;
 }

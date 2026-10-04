@@ -1,14 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentPropsWithoutRef, FormEvent, ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CountryCode } from "libphonenumber-js";
 import type { QuoteAgentDetail } from "./types";
 import CountrySelect from "@/components/ui/CountrySelect";
+import { useCustomerAuth } from "@/components/auth/CustomerAuthProvider";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { storeCustomerAuthReturnTo, withCustomerReturnTo } from "@/lib/authReturn";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import {
   quoteItemLabel,
@@ -24,15 +26,7 @@ import {
 import QuoteBanner from "./QuoteBanner";
 import QuoteLocationInput from "./QuoteLocationInput";
 
-type CustomerResponse = {
-  customer?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneCountryCode: string;
-    phoneNumber: string;
-  };
-};
+
 
 type FormState = {
   senderFullName: string;
@@ -126,6 +120,7 @@ function AgentSummaryCard({ agent, onUnselect, returning = false }: { agent: Sel
 
 export default function ShipmentDetailsPage() {
   const router = useRouter();
+  const { customer, status: authStatus } = useCustomerAuth();
   const searchParams = useSearchParams();
   const agentId = searchParams.get("agent") ?? "";
   const [draft, setDraft] = useState<QuoteDraft | null>(null);
@@ -136,6 +131,7 @@ export default function ShipmentDetailsPage() {
   const [deliveryLocation, setDeliveryLocation] = useState<QuoteLocation | null>(null);
   const [returningToAgents, setReturningToAgents] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState("");
+  const authRedirectStarted = useRef(false);
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState<FormState>({
     senderFullName: "",
@@ -241,24 +237,32 @@ export default function ShipmentDetailsPage() {
   }, [router]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    const controller = new AbortController();
-    void fetch(buildApiUrl(routes.api.customerAuth.me), { credentials: "include", signal: controller.signal })
-      .then(async (response) => response.ok ? response.json() as Promise<CustomerResponse> : null)
-      .then((body) => {
-        const customer = body?.customer;
-        if (!customer) return;
-        setForm((current) => ({
-          ...current,
-          senderFullName: current.senderFullName || `${customer.firstName} ${customer.lastName}`.trim(),
-          senderPhoneCountryCode: current.senderPhoneNumber ? current.senderPhoneCountryCode : countryCodeFromCallingCode(customer.phoneCountryCode, "GB"),
-          senderPhoneNumber: current.senderPhoneNumber || customer.phoneNumber,
-          senderEmail: current.senderEmail || customer.email,
-        }));
-      })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [hydrated]);
+    if (!hydrated || !customer) return;
+
+    setForm((current) => ({
+      ...current,
+      senderFullName: current.senderFullName || `${customer.firstName} ${customer.lastName}`.trim(),
+      senderPhoneCountryCode: current.senderPhoneNumber
+        ? current.senderPhoneCountryCode
+        : countryCodeFromCallingCode(customer.phoneCountryCode, "GB"),
+      senderPhoneNumber: current.senderPhoneNumber || customer.phoneNumber,
+      senderEmail: current.senderEmail || customer.email,
+    }));
+  }, [customer, hydrated]);
+
+  useEffect(() => {
+    if (authStatus === "loading" || authStatus === "authenticated" || authRedirectStarted.current) {
+      return;
+    }
+
+    const destination = agentId
+      ? `${routes.web.quoteShipment}?agent=${encodeURIComponent(agentId)}`
+      : routes.web.quoteShipment;
+
+    authRedirectStarted.current = true;
+    storeCustomerAuthReturnTo(destination);
+    router.replace(withCustomerReturnTo(routes.web.customerLogin, destination));
+  }, [agentId, authStatus, router]);
 
   useEffect(() => {
     if (!hydrated || !agentId) return;
@@ -367,6 +371,17 @@ export default function ShipmentDetailsPage() {
 
   function applyQuoteFromBanner() {
     router.push(routes.web.compareAgents);
+  }
+
+  if (authStatus !== "authenticated") {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center bg-neutral-01 px-4">
+        <div className="flex items-center gap-3 text-primary-06" role="status">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary-03 border-t-primary-06" />
+          <span className="text-[13px] text-neutral-06">Checking your account…</span>
+        </div>
+      </main>
+    );
   }
 
   if (!hydrated || !draft || agentLoading) {

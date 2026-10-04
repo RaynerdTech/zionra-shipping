@@ -13,6 +13,12 @@ export const metadata: Metadata = {
     "Choose whether to continue as a Zionra customer or shipping partner.",
 };
 
-export default function GetStartedPage() {
-  return <AccountTypeSelector />;
+type GetStartedPageProps = {
+  searchParams: Promise<{ returnTo?: string | string[] }>;
+};
+
+export default async function GetStartedPage({ searchParams }: GetStartedPageProps) {
+  const params = await searchParams;
+  const returnTo = Array.isArray(params.returnTo) ? params.returnTo[0] : params.returnTo;
+  return <AccountTypeSelector returnTo={returnTo ?? ""} />;
 }
