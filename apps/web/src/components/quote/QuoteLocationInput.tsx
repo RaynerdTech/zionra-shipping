@@ -126,7 +126,7 @@ export default function QuoteLocationInput({
         htmlFor={inputId}
         className={`mb-2 block font-sans text-[13px] leading-[20px] ${tone === "dark" ? "text-neutral-01" : "text-neutral-10"}`}
       >
-        {label}{required ? <span className="text-error">*</span> : null}
+        {label}{required ? <span className="text-error-bright">*</span> : null}
       </label>
       <div className="relative">
         <span className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2"><img src={flagSrc} alt="" className="h-[12px] w-[18px] rounded-[1px] object-cover" /></span>

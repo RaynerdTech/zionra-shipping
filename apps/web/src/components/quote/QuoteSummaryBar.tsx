@@ -29,7 +29,7 @@ export default function QuoteSummaryBar({ draft, expanded = false, onToggle }: P
           <span className="text-neutral-01"><CalculatorIcon /></span>
           <div>
             <p className="font-sans text-[14px] font-semibold leading-[20px] sm:text-[15px]">Get an estimated quote</p>
-            <p className="mt-0.5 max-w-[62vw] truncate font-sans text-[11px] leading-[16px] text-primary-02 sm:max-w-none">{route}</p>
+            <p className="mt-2 max-w-[62vw] truncate font-sans text-[11px] leading-[16px] text-primary-02 sm:max-w-none">{route}</p>
           </div>
         </div>
 
@@ -46,11 +46,7 @@ export default function QuoteSummaryBar({ draft, expanded = false, onToggle }: P
               <path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-        ) : (
-          <span aria-hidden="true" className="absolute right-4 grid h-11 w-11 place-items-center rounded-full bg-primary-01 text-primary-10 sm:right-6">
-            <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none"><path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </span>
-        )}
+        ) : null}
       </div>
     </section>
   );

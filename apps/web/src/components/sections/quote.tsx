@@ -435,9 +435,13 @@ async function searchPhotonResults(
     .filter((item) => item.label.length > 0);
 }
 function FieldLabel({ htmlFor, id, children }: FieldLabelProps) {
+  const text = typeof children === "string" ? children : null;
+  const required = Boolean(text?.endsWith("*"));
+  const label = required ? text?.slice(0, -1) : children;
+
   return (
     <label id={id} htmlFor={htmlFor} className="mb-2 block font-sans text-[14px] leading-[22px] text-neutral-01">
-      {children}
+      {label}{required ? <span className="text-error-bright">*</span> : null}
     </label>
   );
 }
@@ -969,7 +973,7 @@ export function QuoteForm({
         <TextInput label="Length" placeholder="Item length" type="number" value={lengthCm} onChange={setLengthCm} />
         <TextInput label="Width" placeholder="Item width" type="number" value={widthCm} onChange={setWidthCm} />
         <DropdownField
-          label="Collection method"
+          label="Collection method*"
           placeholder="Select an option"
           options={COLLECTION_OPTIONS}
           value={collectionMode}
@@ -981,7 +985,7 @@ export function QuoteForm({
         />
         {variant === "dedicated" ? (
           <DropdownField
-            label="Shipment method"
+            label="Shipment method*"
             placeholder="Select an option"
             options={SHIPPING_OPTIONS}
             value={shippingMethod}
@@ -993,7 +997,7 @@ export function QuoteForm({
           />
         ) : (
           <DropdownField
-            label="Delivery method"
+            label="Delivery method*"
             placeholder="Select an option"
             options={DELIVERY_OPTIONS}
             value={deliveryMode}

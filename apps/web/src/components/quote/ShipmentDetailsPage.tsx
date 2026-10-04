@@ -18,9 +18,10 @@ import {
   type QuoteDraft,
   type QuoteLocation,
   type SelectedQuoteAgent,
+  writeQuoteDraft,
   writeShipmentDraft,
 } from "@/lib/quoteFlow";
-import QuoteSummaryBar from "./QuoteSummaryBar";
+import QuoteBanner from "./QuoteBanner";
 import QuoteLocationInput from "./QuoteLocationInput";
 
 type CustomerResponse = {
@@ -90,7 +91,7 @@ function money(value: number | null) {
 function Field({ label, required = false, value, onChange, placeholder, type = "text", span = "" }: { label: string; required?: boolean; value: string; onChange: (value: string) => void; placeholder?: string; type?: ComponentPropsWithoutRef<"input">["type"]; span?: string }) {
   return (
     <label className={span}>
-      <span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">{label}{required ? <span className="text-error"> *</span> : null}</span>
+      <span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">{label}{required ? <span className="text-error-bright"> *</span> : null}</span>
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="zion-input h-[44px] text-[13px]" />
     </label>
   );
@@ -359,17 +360,26 @@ export default function ShipmentDetailsPage() {
     router.push(routes.web.compareAgents);
   }
 
+  function updateQuoteFromBanner(nextDraft: QuoteDraft) {
+    setDraft(nextDraft);
+    writeQuoteDraft(nextDraft);
+  }
+
+  function applyQuoteFromBanner() {
+    router.push(routes.web.compareAgents);
+  }
+
   if (!hydrated || !draft || agentLoading) {
     return <main className="min-h-screen bg-neutral-01"><div className="mx-auto max-w-[900px] animate-pulse px-4 py-12"><div className="h-32 rounded bg-white" /><div className="mt-4 h-[640px] rounded bg-white" /></div></main>;
   }
 
   if (!agent || !agentId) {
-    return <><QuoteSummaryBar draft={draft} /><main className="min-h-[60vh] bg-neutral-01 px-4 py-16 text-center"><h1 className="font-display text-[24px] font-semibold text-primary-10">Select an agent to continue</h1><p className="mt-2 text-[14px] text-neutral-06">Your quote details are still saved.</p><button type="button" onClick={() => router.push(routes.web.compareAgents)} className="zion-btn zion-btn-blue zion-btn-md mt-6">Compare agents</button></main></>;
+    return <><QuoteBanner draft={draft} onDraftChange={updateQuoteFromBanner} onSubmit={applyQuoteFromBanner} /><main className="min-h-[60vh] bg-neutral-01 px-4 py-16 text-center"><h1 className="font-display text-[24px] font-semibold text-primary-10">Select an agent to continue</h1><p className="mt-2 text-[14px] text-neutral-06">Your quote details are still saved.</p><button type="button" onClick={() => router.push(routes.web.compareAgents)} className="zion-btn zion-btn-blue zion-btn-md mt-6">Compare agents</button></main></>;
   }
 
   return (
     <>
-      <QuoteSummaryBar draft={draft} />
+      <QuoteBanner draft={draft} onDraftChange={updateQuoteFromBanner} onSubmit={applyQuoteFromBanner} />
       <main className="min-h-screen bg-neutral-01 pb-16 font-sans">
         <div className="mx-auto w-full max-w-[900px] px-4 pt-5 sm:px-6">
           <p className="mb-4 text-[11px] text-neutral-07">Home <span className="mx-2">/</span> Get a quote <span className="mx-2">/</span> Compare agents <span className="mx-2">/</span> <span className="text-primary-10">Shipment details</span></p>
@@ -384,7 +394,7 @@ export default function ShipmentDetailsPage() {
               <SectionHeading>Sender Details</SectionHeading>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Full Name" required value={form.senderFullName} onChange={(value) => update("senderFullName", value)} placeholder="e.g. Chinedu Okafor" />
-                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="sender-country" value={form.senderPhoneCountryCode} onChange={(country) => update("senderPhoneCountryCode", country.code)} compact ariaLabel="Sender phone country" /><input value={form.senderPhoneNumber} onChange={(event) => update("senderPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="7123 456789" /></div></div>
+                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error-bright">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="sender-country" value={form.senderPhoneCountryCode} onChange={(country) => update("senderPhoneCountryCode", country.code)} compact ariaLabel="Sender phone country" /><input value={form.senderPhoneNumber} onChange={(event) => update("senderPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="7123 456789" /></div></div>
                 <Field label="Email Address" required type="email" value={form.senderEmail} onChange={(value) => update("senderEmail", value)} placeholder="you@example.com" />
                 <div className="md:col-span-2"><QuoteLocationInput label="Pickup Address" required placeholder="Enter full address" countryCode="GB" flagSrc="/images/United-Kingdom.svg" value={pickupLocation} onInputChange={(value) => setForm((current) => ({ ...current, pickupAddress: value, pickupCity: "", pickupPostcode: "" }))} onChange={selectPickupLocation} /></div>
                 <Field label="City" required value={form.pickupCity} onChange={(value) => update("pickupCity", value)} placeholder="London" />
@@ -396,7 +406,7 @@ export default function ShipmentDetailsPage() {
               <SectionHeading>Receiver Details</SectionHeading>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Full Name" required value={form.receiverFullName} onChange={(value) => update("receiverFullName", value)} placeholder="e.g. John Adeyemi" />
-                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="receiver-country" value={form.receiverPhoneCountryCode} onChange={(country) => update("receiverPhoneCountryCode", country.code)} compact ariaLabel="Receiver phone country" /><input value={form.receiverPhoneNumber} onChange={(event) => update("receiverPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="801 234 5678" /></div></div>
+                <div><span className="mb-2 block text-[12px] leading-[18px] text-neutral-10">Phone Number <span className="text-error-bright">*</span></span><div className="grid min-w-0 grid-cols-[108px_minmax(0,1fr)] gap-2 sm:grid-cols-[112px_minmax(0,1fr)]"><CountrySelect id="receiver-country" value={form.receiverPhoneCountryCode} onChange={(country) => update("receiverPhoneCountryCode", country.code)} compact ariaLabel="Receiver phone country" /><input value={form.receiverPhoneNumber} onChange={(event) => update("receiverPhoneNumber", event.target.value)} className="zion-input h-[48px] min-w-0 text-[13px]" placeholder="801 234 5678" /></div></div>
                 <Field label="Email Address (Optional)" type="email" value={form.receiverEmail} onChange={(value) => update("receiverEmail", value)} placeholder="receiver@example.com" />
                 <div className="md:col-span-2"><QuoteLocationInput label="Delivery Address" required placeholder="Enter full address" countryCode="NG" flagSrc="/images/Nigeria.svg" value={deliveryLocation} onInputChange={(value) => setForm((current) => ({ ...current, deliveryAddress: value, deliveryCity: "", deliveryState: "", deliveryPostcode: "" }))} onChange={selectDeliveryLocation} /></div>
                 <Field label="City" required value={form.deliveryCity} onChange={(value) => update("deliveryCity", value)} placeholder="Lagos" />

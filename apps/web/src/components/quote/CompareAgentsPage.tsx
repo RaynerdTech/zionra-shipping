@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
@@ -20,7 +20,7 @@ import {
 } from "@/lib/quoteFlow";
 import AgentProfileModal from "./AgentProfileModal";
 import QuoteLocationInput from "./QuoteLocationInput";
-import QuoteSummaryBar from "./QuoteSummaryBar";
+import QuoteBanner from "./QuoteBanner";
 import type { QuoteAgentSummary, QuoteAgentsResponse } from "./types";
 
 type SortMode = "best" | "price" | "fastest" | "rating";
@@ -175,7 +175,7 @@ function MultiItemFilter({ values, onChange, tone = "light", required = false }:
   return (
     <div ref={ref} className="relative">
       <label className={`mb-2 block text-[13px] leading-[20px] ${tone === "dark" ? "text-neutral-01" : "text-neutral-10"}`}>
-        What are you sending?{required ? <span className="text-error">*</span> : null}
+        What are you sending?{required ? <span className="text-error-bright">*</span> : null}
       </label>
       <button type="button" onClick={() => setOpen((current) => !current)} className="flex min-h-[48px] w-full flex-wrap items-center gap-1 rounded-[10px] border-[1.5px] border-neutral-03 bg-white px-2.5 py-2 text-left focus:border-primary-06 focus:outline-none">
         {values.length ? values.map((value) => <span key={value} className="inline-flex items-center gap-1 rounded-[5px] bg-primary-01 px-2 py-1 text-[11px] text-neutral-09">{quoteItemLabel(value)}<span aria-hidden="true">×</span></span>) : <span className="text-[13px] text-neutral-05">e.g Letters, Furniture etc</span>}
@@ -190,7 +190,7 @@ function MultiItemFilter({ values, onChange, tone = "light", required = false }:
 function SelectField({ label, value, options, onChange, tone = "light", required = false }: { label: string; value: string; options: readonly { value: string; label: string }[]; onChange: (value: string) => void; tone?: Tone; required?: boolean }) {
   return (
     <div>
-      <label className={`mb-2 block text-[13px] leading-[20px] ${tone === "dark" ? "text-neutral-01" : "text-neutral-10"}`}>{label}{required ? <span className="text-error">*</span> : null}</label>
+      <label className={`mb-2 block text-[13px] leading-[20px] ${tone === "dark" ? "text-neutral-01" : "text-neutral-10"}`}>{label}{required ? <span className="text-error-bright">*</span> : null}</label>
       <div className="relative">
         <select value={value} onChange={(event) => onChange(event.target.value)} className="zion-input h-[48px] appearance-none bg-white pr-10 text-[13px]"><option value="">Select an option</option>{options.map((option) => <option key={`${label}-${option.value || "any"}`} value={option.value}>{option.label}</option>)}</select>
         <span className="pointer-events-none absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-primary-01 text-primary-10"><svg className="h-4 w-4" viewBox="0 0 16 16" fill="none"><path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></span>
@@ -237,41 +237,6 @@ function FilterPanel({ draft, onChange, embedded = false }: { draft: QuoteDraft;
   );
 }
 
-function ExpandedQuoteEditor({ draft, onChange, canSubmit, onSubmit }: { draft: QuoteDraft; onChange: (draft: QuoteDraft) => void; canSubmit: boolean; onSubmit: () => void }) {
-  const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) => onChange({ ...draft, [key]: value });
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (canSubmit) onSubmit();
-  }
-
-  return (
-    <form onSubmit={submit} className="bg-primary-10 text-white">
-      <div className="mx-auto w-full max-w-[1272px] px-4 py-8 sm:px-6 lg:py-9 xl:px-0">
-        <div className="grid gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
-          <QuoteLocationInput required tone="dark" label="From" helper="Enter postcode" placeholder="e.g Cr0 12t" countryCode="GB" flagSrc={UK_FLAG} value={draft.from} onChange={(value) => update("from", value)} />
-          <QuoteLocationInput required tone="dark" label="To" helper="Enter delivery location" placeholder="Enter full address" countryCode="NG" flagSrc={NG_FLAG} value={draft.to} onChange={(value) => update("to", value)} />
-          <MultiItemFilter required tone="dark" values={draft.itemTypes} onChange={(value) => update("itemTypes", value)} />
-          <div>
-            <label className="mb-2 block text-[13px] leading-[20px] text-neutral-01">Kg<span className="text-error">*</span></label>
-            <input type="number" min="0" step="0.1" value={draft.weightKg} onChange={(event) => update("weightKg", event.target.value)} className="zion-input h-[48px] bg-white text-[13px]" placeholder="0" />
-            <p className="mt-1.5 text-[11px] text-neutral-03">Enter package weight</p>
-          </div>
-
-          <div><label className="mb-2 block text-[13px] leading-[20px] text-neutral-01">Length</label><input type="number" min="0" value={draft.lengthCm} onChange={(event) => update("lengthCm", event.target.value)} className="zion-input h-[48px] bg-white text-[13px]" placeholder="Item length" /></div>
-          <div><label className="mb-2 block text-[13px] leading-[20px] text-neutral-01">Width</label><input type="number" min="0" value={draft.widthCm} onChange={(event) => update("widthCm", event.target.value)} className="zion-input h-[48px] bg-white text-[13px]" placeholder="Item width" /></div>
-          <SelectField tone="dark" label="Delivery Method" value={draft.deliveryMode} options={QUOTE_DELIVERY_OPTIONS} onChange={(value) => update("deliveryMode", value)} />
-          <SelectField tone="dark" label="Collection method" value={draft.collectionMode} options={QUOTE_COLLECTION_OPTIONS} onChange={(value) => update("collectionMode", value)} />
-        </div>
-
-        <div className="mt-12 flex justify-center pb-2">
-          <button type="submit" disabled={!canSubmit} className="zion-btn zion-btn-blue min-h-[52px] w-[190px] text-[15px] disabled:cursor-not-allowed disabled:opacity-50">Get a quote</button>
-        </div>
-      </div>
-    </form>
-  );
-}
-
 function FilterIcon() {
   return (
     <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -290,7 +255,6 @@ export default function CompareAgentsPage() {
   const [sortMode, setSortMode] = useState<SortMode>("best");
   const [profileAgentId, setProfileAgentId] = useState<string | null>(null);
   const [eurToGbpRate, setEurToGbpRate] = useState(0.86);
-  const [quoteEditorExpanded, setQuoteEditorExpanded] = useState(false);
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
   const [resolvedQueryKey, setResolvedQueryKey] = useState("");
   const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
@@ -409,7 +373,6 @@ export default function CompareAgentsPage() {
   }
 
   function submitExpandedQuote() {
-    setQuoteEditorExpanded(false);
     window.requestAnimationFrame(() => {
       document.getElementById("quote-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -421,13 +384,7 @@ export default function CompareAgentsPage() {
 
   return (
     <>
-      <QuoteSummaryBar draft={draft} expanded={quoteEditorExpanded} onToggle={() => setQuoteEditorExpanded((current) => !current)} />
-
-      <div id="quote-editor-panel" className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${quoteEditorExpanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`}>
-        <div className="overflow-hidden">
-          <ExpandedQuoteEditor draft={draft} onChange={setDraft} canSubmit={canSearch} onSubmit={submitExpandedQuote} />
-        </div>
-      </div>
+      <QuoteBanner draft={draft} onDraftChange={setDraft} onSubmit={submitExpandedQuote} />
 
       <main id="quote-results" className="min-h-[70vh] scroll-mt-24 bg-neutral-01 pb-20 font-sans lg:pb-16">
         <div className="mx-auto w-full max-w-[1272px] px-4 pt-4 sm:px-6 xl:px-0">
