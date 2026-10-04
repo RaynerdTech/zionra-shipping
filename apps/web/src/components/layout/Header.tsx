@@ -58,6 +58,7 @@ function Header() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -78,6 +79,7 @@ function Header() {
       if (event.key === "Escape") {
         setIsOpen(false);
         setIsProfileOpen(false);
+        setIsMobileProfileOpen(false);
       }
     }
 
@@ -99,6 +101,7 @@ function Header() {
   useEffect(() => {
     setIsOpen(false);
     setIsProfileOpen(false);
+    setIsMobileProfileOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -162,6 +165,7 @@ function Header() {
       await signOut();
       setIsOpen(false);
       setIsProfileOpen(false);
+      setIsMobileProfileOpen(false);
       router.replace(routes.web.home);
       router.refresh();
     } catch (error) {
@@ -301,45 +305,87 @@ function Header() {
             id={mobileMenuId}
             className={`absolute left-4 right-4 top-[84px] z-[60] h-[calc(100dvh-84px)] origin-top overflow-y-auto rounded-t-[34px] bg-white px-5 pb-8 pt-7 shadow-[0_18px_40px_rgba(0,0,0,0.22)] transition duration-200 sm:left-6 sm:right-6 xl:hidden ${isOpen ? "visible translate-y-0 opacity-100" : "pointer-events-none invisible translate-y-3 opacity-0"}`}
           >
-            <Link href={routes.web.customerDashboard} onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-[14px] px-2 py-3 no-underline">
+            <button
+              type="button"
+              aria-expanded={isMobileProfileOpen}
+              aria-controls={`${mobileMenuId}-account`}
+              onClick={() => setIsMobileProfileOpen((value) => !value)}
+              className="flex w-full items-center gap-3 rounded-[14px] px-2 py-3 text-left transition-colors hover:bg-neutral-01 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-06/35"
+            >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-06 font-display text-[13px] font-semibold text-white">{initials}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-display text-[14px] font-semibold text-primary-10">{fullName}</span>
                 <span className="mt-0.5 block truncate text-[12px] text-neutral-06">{customer.email}</span>
               </span>
-              <ChevronDownIcon className="h-5 w-5 text-primary-10" />
-            </Link>
+              <ChevronDownIcon className={`h-5 w-5 shrink-0 text-primary-10 transition-transform ${isMobileProfileOpen ? "rotate-180" : ""}`} />
+            </button>
 
-            <nav aria-label="Mobile primary navigation" className="mt-4 flex flex-col">
-              {navItems.map((item) => {
-                const active = isNavActive(pathname, item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex min-h-[58px] items-center gap-3 rounded-[12px] px-3 text-[16px] font-medium no-underline transition-colors ${active ? "bg-primary-01 text-primary-06" : "text-primary-10 hover:bg-neutral-01"}`}
-                  >
-                    <span className="grid h-8 w-8 place-items-center"><Icon /></span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            <div className="mt-4 border-t border-neutral-04 pt-5">
-              <button
-                type="button"
-                onClick={handleSignOut}
-                disabled={isSigningOut}
-                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[8px] border border-error-bright bg-white px-4 text-[14px] font-medium text-error-bright transition-colors hover:bg-[#FFF1F0] disabled:cursor-wait disabled:opacity-60"
+            {isMobileProfileOpen ? (
+              <div
+                id={`${mobileMenuId}-account`}
+                className="mt-2 border-t border-neutral-02"
               >
-                {isSigningOut ? "Signing out…" : "Sign out"}
-              </button>
-              <Link href={routes.web.partnerApplication} onClick={() => setIsOpen(false)} className="mt-5 flex min-h-11 items-center justify-center text-center text-[13px] font-medium text-primary-06 no-underline">Become a shipping partner</Link>
-            </div>
+                <div className="-mx-5">
+                  {accountItems.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`group flex items-center gap-3 border-b border-neutral-02 px-6 py-4 no-underline ${index === 0 ? "bg-primary-01 text-primary-06" : "text-primary-10"}`}
+                      >
+                        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border ${index === 0 ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10"}`}>
+                          <Icon />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-display text-[15px] font-semibold leading-5">{item.label}</span>
+                          <span className="mt-0.5 block text-[12px] leading-[18px] text-neutral-06">{item.description}</span>
+                        </span>
+                        <span className="text-neutral-04 transition-transform group-hover:translate-x-0.5">›</span>
+                      </Link>
+                    );
+                  })}
+
+                  <div className="px-6 py-4">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                      className="flex min-h-11 w-full items-center gap-3 rounded-[10px] text-left text-[14px] font-semibold text-error-bright transition-colors hover:bg-[#FFF1F0] disabled:cursor-wait disabled:opacity-60"
+                    >
+                      <span className="grid h-9 w-9 place-items-center rounded-[9px] bg-[#FFF1F0]"><SignOutIcon /></span>
+                      {isSigningOut ? "Signing out…" : "Sign out"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <nav aria-label="Mobile primary navigation" className="mt-4 flex flex-col">
+                  {navItems.map((item) => {
+                    const active = isNavActive(pathname, item.href);
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex min-h-[58px] items-center gap-3 rounded-[12px] px-3 text-[16px] font-medium no-underline transition-colors ${active ? "bg-primary-01 text-primary-06" : "text-primary-10 hover:bg-neutral-01"}`}
+                      >
+                        <span className="grid h-8 w-8 place-items-center"><Icon /></span>
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-4 border-t border-neutral-04 pt-5">
+                  <Link href={routes.web.partnerApplication} onClick={() => setIsOpen(false)} className="flex min-h-11 items-center justify-center text-center text-[13px] font-medium text-primary-06 no-underline">Become a shipping partner</Link>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div
