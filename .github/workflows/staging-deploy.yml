@@ -43,7 +43,11 @@ jobs:
 
           test -f apps/web/.next/BUILD_ID
 
-          tar             --exclude="./cache"             -C apps/web/.next             -czf /tmp/zionra-web-next.tgz             .
+          tar \
+            --exclude="./cache" \
+            -C apps/web/.next \
+            -czf /tmp/zionra-web-next.tgz \
+            .
 
       - name: Configure SSH
         env:
@@ -90,12 +94,34 @@ jobs:
           # Allow the DirectAdmin webhook time to fetch and deploy this commit.
           sleep 60
 
+          retry_prisma_deploy() {
+            local max_attempts=5
+            local retry_delay=15
+
+            for attempt in $(seq 1 "$max_attempts"); do
+              echo "Running Prisma migrations - attempt $attempt/$max_attempts"
+
+              if npm run prisma:deploy; then
+                echo "Prisma migrations completed successfully."
+                return 0
+              fi
+
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                echo "Prisma migration attempt failed. Retrying in ${retry_delay}s..." >&2
+                sleep "$retry_delay"
+              fi
+            done
+
+            echo "Prisma migrations failed after $max_attempts attempts." >&2
+            return 1
+          }
+
           (
             source "$API_ACTIVATE"
             cd "$API_ROOT"
             npm install --include=dev --no-audit --no-fund
             npm run prisma:generate
-            npm run prisma:deploy
+            retry_prisma_deploy
             npm run build
           )
 
@@ -142,7 +168,11 @@ jobs:
             local absolute_root="$2"
 
             if command -v cloudlinux-selector >/dev/null 2>&1; then
-              if cloudlinux-selector restart                 --json                 --interpreter nodejs                 --user zionraco                 --app-root "$app_root"; then
+              if cloudlinux-selector restart \
+                --json \
+                --interpreter nodejs \
+                --user zionraco \
+                --app-root "$app_root"; then
                 return 0
               fi
             fi
