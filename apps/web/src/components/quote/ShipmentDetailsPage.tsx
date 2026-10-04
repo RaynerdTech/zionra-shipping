@@ -448,7 +448,9 @@ export default function ShipmentDetailsPage() {
 
               {formError ? <p className="mt-4 text-center text-[13px] text-error">{formError}</p> : null}
               {paymentNotice ? <p className="mt-4 rounded-[8px] bg-primary-01 px-4 py-3 text-center text-[12px] text-primary-08">{paymentNotice}</p> : null}
-              <button type="submit" className="zion-btn zion-btn-blue mx-auto mt-5 min-h-[52px] min-w-[320px] max-w-full px-6 text-[14px]">Continue to payment{total !== null ? ` — ${money(total)}` : ""}</button>
+              <div className="mt-5 flex justify-center">
+                <button type="submit" className="zion-btn zion-btn-blue min-h-[52px] min-w-[320px] max-w-full px-6 text-[14px]">Continue to payment{total !== null ? ` — ${money(total)}` : ""}</button>
+              </div>
             </section>
           </form>
         </div>

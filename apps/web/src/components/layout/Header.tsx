@@ -61,6 +61,7 @@ function Header() {
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [currentHash, setCurrentHash] = useState("");
 
   const mobileMenuId = useId();
   const profileMenuId = useId();
@@ -102,6 +103,16 @@ function Header() {
     setIsOpen(false);
     setIsProfileOpen(false);
     setIsMobileProfileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    function syncHash() {
+      setCurrentHash(window.location.hash);
+    }
+
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
   }, [pathname]);
 
   useEffect(() => {
@@ -242,15 +253,17 @@ function Header() {
                   </div>
 
                   <div className="px-4 py-1">
-                    {accountItems.map((item, index) => {
+                    {accountItems.map((item) => {
                       const Icon = item.icon;
+                      const active = isAccountItemActive(pathname, currentHash, item.href);
                       return (
                         <Link
                           key={item.label}
                           href={item.href}
-                          className={`group flex items-center gap-3 border-b border-neutral-02 px-2 py-3.5 no-underline last:border-b-0 ${index === 0 ? "-mx-4 bg-primary-01 px-6 text-primary-06" : "text-primary-10"}`}
+                          aria-current={active ? "page" : undefined}
+                          className={`group flex items-center gap-3 border-b border-neutral-02 px-2 py-3.5 no-underline transition-colors last:border-b-0 ${active ? "-mx-4 bg-primary-01 px-6 text-primary-06" : "text-primary-10 hover:-mx-4 hover:bg-primary-01 hover:px-6 hover:text-primary-06"}`}
                         >
-                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border ${index === 0 ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10"}`}>
+                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border transition-colors ${active ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10 group-hover:border-primary-03 group-hover:bg-white group-hover:text-primary-08"}`}>
                             <Icon />
                           </span>
                           <span className="min-w-0 flex-1">
@@ -326,16 +339,18 @@ function Header() {
                 className="mt-2 border-t border-neutral-02"
               >
                 <div className="-mx-5">
-                  {accountItems.map((item, index) => {
+                  {accountItems.map((item) => {
                     const Icon = item.icon;
+                    const active = isAccountItemActive(pathname, currentHash, item.href);
                     return (
                       <Link
                         key={item.label}
                         href={item.href}
+                        aria-current={active ? "page" : undefined}
                         onClick={() => setIsOpen(false)}
-                        className={`group flex items-center gap-3 border-b border-neutral-02 px-6 py-4 no-underline ${index === 0 ? "bg-primary-01 text-primary-06" : "text-primary-10"}`}
+                        className={`group flex items-center gap-3 border-b border-neutral-02 px-6 py-4 no-underline transition-colors ${active ? "bg-primary-01 text-primary-06" : "text-primary-10 hover:bg-primary-01 hover:text-primary-06"}`}
                       >
-                        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border ${index === 0 ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10"}`}>
+                        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border transition-colors ${active ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10 group-hover:border-primary-03 group-hover:bg-white group-hover:text-primary-08"}`}>
                           <Icon />
                         </span>
                         <span className="min-w-0 flex-1">
@@ -410,6 +425,16 @@ function Header() {
       </div>
     </header>
   );
+}
+
+function isAccountItemActive(pathname: string, currentHash: string, href: string) {
+  const [itemPath, hashPart] = href.split("#");
+  if (pathname !== itemPath) return false;
+
+  const itemHash = hashPart ? `#${hashPart}` : "";
+  if (itemHash) return currentHash === itemHash;
+
+  return currentHash === "";
 }
 
 function isNavActive(pathname: string, href: string) {
