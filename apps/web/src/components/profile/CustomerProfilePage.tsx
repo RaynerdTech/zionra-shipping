@@ -176,9 +176,6 @@ export default function CustomerProfilePage() {
   }
 
   const defaultAddress = addresses.find((address) => address.isDefault) ?? addresses[0];
-  const profileLocation = defaultAddress
-    ? [defaultAddress.city, defaultAddress.country].filter(Boolean).join(", ")
-    : customer.countryOfResidence;
 
   if (status === "loading" || loading || !form || !customer) {
     return (
@@ -188,6 +185,10 @@ export default function CustomerProfilePage() {
       </main>
     );
   }
+
+  const profileLocation = defaultAddress
+    ? [defaultAddress.city, defaultAddress.country].filter(Boolean).join(", ")
+    : customer.countryOfResidence;
 
   return (
     <main className="min-h-screen bg-neutral-01 text-primary-10">
