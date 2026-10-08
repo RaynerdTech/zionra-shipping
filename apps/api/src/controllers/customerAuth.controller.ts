@@ -38,6 +38,14 @@ import {
   verifyCustomerPasswordResetCode,
 } from "../services/customerAuth.service.js";
 import {
+  createCustomerAddress,
+  deleteCustomerAddress,
+  getCustomerProfile,
+  updateCustomerAddress,
+  updateCustomerProfile,
+} from "../services/customer-auth/customerProfile.service.js";
+import {
+  validateCustomerAddress,
   validateEmailCodeInput,
   validateEmailInput,
   validateLoginCustomer,
@@ -45,6 +53,7 @@ import {
   validatePasswordResetCode,
   validateRegisterCustomer,
   validateResetPassword,
+  validateUpdateCustomerProfile,
 } from "../validators/customerAuth.validators.js";
 
 function sendValidationError(res: Response, errors: Record<string, string>) {
@@ -352,6 +361,147 @@ export async function getCurrentCustomerController(
       next,
       error,
       "Something went wrong while loading your account.",
+    );
+  }
+}
+
+
+function getAuthenticatedCustomerId(req: Request, res: Response) {
+  const customerId = req.customerAuth?.customerId;
+
+  if (!customerId) {
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      message: "Authentication required.",
+    });
+    return null;
+  }
+
+  return customerId;
+}
+
+export async function getCustomerProfileController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const customerId = getAuthenticatedCustomerId(req, res);
+    if (!customerId) return;
+
+    res.status(HTTP_STATUS.OK).json(await getCustomerProfile(customerId));
+  } catch (error) {
+    forwardControllerError(
+      next,
+      error,
+      "Something went wrong while loading your profile.",
+    );
+  }
+}
+
+export async function updateCustomerProfileController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const customerId = getAuthenticatedCustomerId(req, res);
+    if (!customerId) return;
+
+    const validation = validateUpdateCustomerProfile(req.body);
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(await updateCustomerProfile(customerId, validation.data));
+  } catch (error) {
+    forwardControllerError(
+      next,
+      error,
+      "Something went wrong while updating your profile.",
+    );
+  }
+}
+
+export async function createCustomerAddressController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const customerId = getAuthenticatedCustomerId(req, res);
+    if (!customerId) return;
+
+    const validation = validateCustomerAddress(req.body);
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    res
+      .status(HTTP_STATUS.CREATED)
+      .json(await createCustomerAddress(customerId, validation.data));
+  } catch (error) {
+    forwardControllerError(
+      next,
+      error,
+      "Something went wrong while saving your address.",
+    );
+  }
+}
+
+export async function updateCustomerAddressController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const customerId = getAuthenticatedCustomerId(req, res);
+    if (!customerId) return;
+
+    const validation = validateCustomerAddress(req.body);
+    if (!validation.success) {
+      sendValidationError(res, validation.errors);
+      return;
+    }
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(
+        await updateCustomerAddress(
+          customerId,
+          req.params.addressId,
+          validation.data,
+        ),
+      );
+  } catch (error) {
+    forwardControllerError(
+      next,
+      error,
+      "Something went wrong while updating your address.",
+    );
+  }
+}
+
+export async function deleteCustomerAddressController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const customerId = getAuthenticatedCustomerId(req, res);
+    if (!customerId) return;
+
+    res
+      .status(HTTP_STATUS.OK)
+      .json(await deleteCustomerAddress(customerId, req.params.addressId));
+  } catch (error) {
+    forwardControllerError(
+      next,
+      error,
+      "Something went wrong while removing your address.",
     );
   }
 }

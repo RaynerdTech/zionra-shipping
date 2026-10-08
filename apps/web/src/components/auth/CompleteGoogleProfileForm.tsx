@@ -23,6 +23,7 @@ import { useCustomerAuth } from "./CustomerAuthProvider";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
+import DateOfBirthField from "./shared/DateOfBirthField";
 
 const REFERRAL_OPTIONS = [
   "Search Engine",
@@ -42,6 +43,7 @@ type PendingGoogleProfile = {
 type FormValues = {
   firstName: string;
   lastName: string;
+  dateOfBirth: string;
   phoneCountryCode: string;
   phoneNumber: string;
   countryOfResidence: string;
@@ -63,6 +65,7 @@ type ApiResponse = {
 const INITIAL_VALUES: FormValues = {
   firstName: "",
   lastName: "",
+  dateOfBirth: "",
   phoneCountryCode: "+44",
   phoneNumber: "",
   countryOfResidence: "United Kingdom",
@@ -100,7 +103,7 @@ function FieldLabel({ children, required = false }: FieldLabelProps) {
   return (
     <span className="mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10">
       {children}
-      {required ? <span className="text-error"> *</span> : null}
+      {required ? <span className="text-error-bright"> *</span> : null}
     </span>
   );
 }
@@ -344,6 +347,10 @@ export default function CompleteGoogleProfileForm() {
       nextErrors.lastName = requiredMessage;
     }
 
+    if (!values.dateOfBirth) {
+      nextErrors.dateOfBirth = requiredMessage;
+    }
+
     if (!values.phoneCountryCode) {
       nextErrors.phoneCountryCode = requiredMessage;
     }
@@ -389,6 +396,7 @@ export default function CompleteGoogleProfileForm() {
           body: JSON.stringify({
             firstName: values.firstName.trim(),
             lastName: values.lastName.trim(),
+            dateOfBirth: values.dateOfBirth,
             phoneCountryCode: values.phoneCountryCode,
             phoneNumber: values.phoneNumber.replace(/\D/g, ""),
             countryOfResidence: values.countryOfResidence,
@@ -562,6 +570,12 @@ export default function CompleteGoogleProfileForm() {
                       </p>
                     ) : null}
                   </label>
+
+                  <DateOfBirthField
+                    value={values.dateOfBirth}
+                    error={errors.dateOfBirth}
+                    onChange={(value) => updateValue("dateOfBirth", value)}
+                  />
                 </div>
 
                 <div className="mt-5">

@@ -7,10 +7,15 @@
 import { Router } from "express";
 import {
   cancelLoginChallengeController,
+  createCustomerAddressController,
+  deleteCustomerAddressController,
   forgotPasswordController,
+  getCustomerProfileController,
   getCurrentCustomerController,
   getLoginChallengeController,
   loginCustomerController,
+  updateCustomerAddressController,
+  updateCustomerProfileController,
   logoutCustomerController,
   registerCustomerController,
   resendCustomerVerificationCodeController,
@@ -45,6 +50,11 @@ router.post("/login/resend-code", resendLoginCodeController);
 router.post("/login/cancel", cancelLoginChallengeController);
 router.post("/logout", logoutCustomerController);
 router.get("/me", requireCustomerAuth, getCurrentCustomerController);
+router.get("/profile", requireCustomerAuth, getCustomerProfileController);
+router.patch("/profile", requireCustomerAuth, updateCustomerProfileController);
+router.post("/profile/addresses", requireCustomerAuth, createCustomerAddressController);
+router.patch("/profile/addresses/:addressId", requireCustomerAuth, updateCustomerAddressController);
+router.delete("/profile/addresses/:addressId", requireCustomerAuth, deleteCustomerAddressController);
 router.post("/forgot-password", forgotPasswordController);
 router.post(
   "/verify-password-reset-code",

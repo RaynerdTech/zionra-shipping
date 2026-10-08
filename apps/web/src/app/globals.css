@@ -158,8 +158,6 @@ body {
   background: var(--color-white);
 }
 
-
-
 /* ======================================================
    ZIONRA TYPOGRAPHY UTILITIES
    Approved Figma type system.
@@ -604,4 +602,10 @@ body {
      zion-btn zion-btn-sm zion-btn-outline-blue            zion-btn zion-btn-sm zion-btn-outline-blue
      w-full           use w-full directly in the component
   ====================================================== */
+}
+
+/* Keeps date inputs visually consistent with Zionra fields while using the native picker. */
+.zion-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  pointer-events: none;
 }

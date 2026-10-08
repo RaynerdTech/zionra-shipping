@@ -33,6 +33,7 @@ import AuthBackButton from "./shared/AuthBackButton";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
 import AuthPasswordField from "./shared/AuthPasswordField";
 import GoogleAuthButton from "./shared/GoogleAuthButton";
+import DateOfBirthField from "./shared/DateOfBirthField";
 
 const REFERRAL_OPTIONS = [
   "Search Engine",
@@ -46,6 +47,7 @@ const REFERRAL_OPTIONS = [
 type FormValues = {
   firstName: string;
   lastName: string;
+  dateOfBirth: string;
   email: string;
   phoneCountryCode: string;
   phoneNumber: string;
@@ -62,6 +64,7 @@ type FormErrors = Partial<Record<keyof FormValues | "form", string>>;
 const INITIAL_VALUES: FormValues = {
   firstName: "",
   lastName: "",
+  dateOfBirth: "",
   email: "",
   phoneCountryCode: "+44",
   phoneNumber: "",
@@ -266,7 +269,7 @@ function FieldLabel({ children, required = false }: FieldLabelProps) {
   return (
     <span className="mb-2 block font-sans text-sm font-normal leading-[22px] text-neutral-10">
       {children}
-      {required ? <span className="text-error"> *</span> : null}
+      {required ? <span className="text-error-bright"> *</span> : null}
     </span>
   );
 }
@@ -511,6 +514,7 @@ export default function CreateCustomerAccountForm({ returnTo = "" }: CreateCusto
 
     if (!values.firstName.trim()) nextErrors.firstName = requiredMessage;
     if (!values.lastName.trim()) nextErrors.lastName = requiredMessage;
+    if (!values.dateOfBirth) nextErrors.dateOfBirth = requiredMessage;
 
     if (!values.email.trim()) {
       nextErrors.email = requiredMessage;
@@ -691,6 +695,12 @@ export default function CreateCustomerAccountForm({ returnTo = "" }: CreateCusto
                 placeholder="e.g. Okonkwo"
                 error={errors.lastName}
                 onChange={updateValue}
+              />
+
+              <DateOfBirthField
+                value={values.dateOfBirth}
+                error={errors.dateOfBirth}
+                onChange={(value) => updateValue("dateOfBirth", value)}
               />
 
               <TextField

@@ -25,6 +25,7 @@ type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
 export type RegisterCustomerInput = {
   firstName: string;
   lastName: string;
+  dateOfBirth: Date;
   email: string;
   phoneCountryCode: string;
   phoneNumber: string;
@@ -38,12 +39,34 @@ export type RegisterCustomerInput = {
 export type CompleteGoogleProfileInput = {
   firstName: string;
   lastName: string;
+  dateOfBirth: Date;
   phoneCountryCode: string;
   phoneNumber: string;
   countryOfResidence: string;
   referralSource: string | null;
   acceptedTerms: boolean;
   marketingOptIn: boolean;
+};
+
+
+export type UpdateCustomerProfileInput = {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date | null;
+  nationality: string | null;
+  phoneCountryCode: string;
+  phoneNumber: string;
+  countryOfResidence: string;
+};
+
+export type CustomerAddressInput = {
+  label: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  postcode: string | null;
+  country: string;
+  isDefault: boolean;
 };
 
 export type LinkGoogleAccountInput = {
@@ -97,6 +120,53 @@ function getBoolean(body: RequestBody, key: string) {
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+
+function parseDateOfBirth(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function validateDateOfBirthValue(
+  value: string,
+  errors: FieldErrors,
+  field = "dateOfBirth",
+) {
+  if (!value) {
+    errors[field] = REQUIRED_MESSAGE;
+    return null;
+  }
+
+  const parsed = parseDateOfBirth(value);
+  if (!parsed) {
+    errors[field] = "Enter a valid date of birth.";
+    return null;
+  }
+
+  const today = new Date();
+  const todayUtc = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+  );
+
+  if (parsed >= todayUtc) {
+    errors[field] = "Date of birth must be in the past.";
+    return null;
+  }
+
+  return parsed;
 }
 
 export function normalizePhoneNumber(phoneNumber: string) {
@@ -157,6 +227,7 @@ export function validateRegisterCustomer(
 
   const firstName = getString(body, "firstName");
   const lastName = getString(body, "lastName");
+  const dateOfBirthRaw = getString(body, "dateOfBirth");
   const email = getString(body, "email").toLowerCase();
   const password = getString(body, "password");
   const confirmPassword = getString(body, "confirmPassword");
@@ -166,6 +237,7 @@ export function validateRegisterCustomer(
 
   if (!firstName) errors.firstName = REQUIRED_MESSAGE;
   if (!lastName) errors.lastName = REQUIRED_MESSAGE;
+  const dateOfBirth = validateDateOfBirthValue(dateOfBirthRaw, errors);
 
   if (!email) {
     errors.email = REQUIRED_MESSAGE;
@@ -197,6 +269,7 @@ export function validateRegisterCustomer(
     data: {
       firstName,
       lastName,
+      dateOfBirth: dateOfBirth!,
       email,
       password,
       ...profileFields.data,
@@ -211,6 +284,7 @@ export function validateCompleteGoogleProfile(
   const validation = validateProfileCompletionFields(body);
   const firstName = getString(body, "firstName");
   const lastName = getString(body, "lastName");
+  const dateOfBirthRaw = getString(body, "dateOfBirth");
 
   if (!firstName) {
     validation.errors.firstName = REQUIRED_MESSAGE;
@@ -219,6 +293,11 @@ export function validateCompleteGoogleProfile(
   if (!lastName) {
     validation.errors.lastName = REQUIRED_MESSAGE;
   }
+
+  const dateOfBirth = validateDateOfBirthValue(
+    dateOfBirthRaw,
+    validation.errors,
+  );
 
   if (Object.keys(validation.errors).length > 0) {
     return {
@@ -232,7 +311,91 @@ export function validateCompleteGoogleProfile(
     data: {
       firstName,
       lastName,
+      dateOfBirth: dateOfBirth!,
       ...validation.data,
+    },
+  };
+}
+
+
+export function validateUpdateCustomerProfile(
+  requestBody: unknown,
+): ValidationResult<UpdateCustomerProfileInput> {
+  const body = toBody(requestBody);
+  const errors: FieldErrors = {};
+
+  const firstName = getString(body, "firstName");
+  const lastName = getString(body, "lastName");
+  const dateOfBirthRaw = getString(body, "dateOfBirth");
+  const nationality = getString(body, "nationality");
+  const phoneCountryCode = getString(body, "phoneCountryCode");
+  const phoneNumber = getString(body, "phoneNumber");
+  const countryOfResidence = getString(body, "countryOfResidence");
+
+  if (!firstName) errors.firstName = REQUIRED_MESSAGE;
+  if (!lastName) errors.lastName = REQUIRED_MESSAGE;
+  const dateOfBirth = validateDateOfBirthValue(dateOfBirthRaw, errors);
+
+  if (!phoneCountryCode) errors.phoneCountryCode = REQUIRED_MESSAGE;
+  if (!phoneNumber) {
+    errors.phoneNumber = REQUIRED_MESSAGE;
+  } else if (!isValidPhoneNumber(phoneNumber)) {
+    errors.phoneNumber = "Enter a valid phone number.";
+  }
+
+  if (!countryOfResidence) errors.countryOfResidence = REQUIRED_MESSAGE;
+
+  if (Object.keys(errors).length > 0) {
+    return { success: false, errors };
+  }
+
+  return {
+    success: true,
+    data: {
+      firstName,
+      lastName,
+      dateOfBirth,
+      nationality: nationality || null,
+      phoneCountryCode,
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+      countryOfResidence,
+    },
+  };
+}
+
+export function validateCustomerAddress(
+  requestBody: unknown,
+): ValidationResult<CustomerAddressInput> {
+  const body = toBody(requestBody);
+  const errors: FieldErrors = {};
+
+  const label = getString(body, "label");
+  const addressLine1 = getString(body, "addressLine1");
+  const addressLine2 = getString(body, "addressLine2");
+  const city = getString(body, "city");
+  const postcode = getString(body, "postcode");
+  const country = getString(body, "country");
+  const isDefault = getBoolean(body, "isDefault");
+
+  if (!label) errors.label = REQUIRED_MESSAGE;
+  if (!addressLine1) errors.addressLine1 = REQUIRED_MESSAGE;
+  if (!city) errors.city = REQUIRED_MESSAGE;
+  if (!country) errors.country = REQUIRED_MESSAGE;
+
+  if (Object.keys(errors).length > 0) {
+    return { success: false, errors };
+  }
+
+  return {
+    success: true,
+    data: {
+      label,
+      addressLine1,
+      addressLine2: addressLine2 || null,
+      city,
+      postcode: postcode || null,
+      country,
+      isDefault,
     },
   };
 }

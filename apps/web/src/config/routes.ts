@@ -30,6 +30,7 @@ export const routes = {
     customerCompleteProfile: "/complete-profile",
     customerLinkGoogleAccount: "/link-google-account",
     customerDashboard: "/dashboard",
+    customerProfile: "/profile",
 
     partnerLogin: "/partner/login",
     partnerLoginVerification: "/partner/login/verify",
@@ -114,6 +115,8 @@ export const routes = {
       cancelLogin: "/api/customer/auth/login/cancel",
       logout: "/api/customer/auth/logout",
       me: "/api/customer/auth/me",
+      profile: "/api/customer/auth/profile",
+      profileAddresses: "/api/customer/auth/profile/addresses",
 
       forgotPassword: "/api/customer/auth/forgot-password",
       verifyPasswordResetCode:

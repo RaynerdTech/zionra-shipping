@@ -9,6 +9,8 @@ type PublicCustomerInput = {
   id: string;
   firstName: string;
   lastName: string;
+  dateOfBirth: Date | null;
+  nationality: string | null;
   email: string;
   phoneCountryCode: string;
   phoneNumber: string;
@@ -24,6 +26,8 @@ export function toPublicCustomer(customer: PublicCustomerInput) {
     id: customer.id,
     firstName: customer.firstName,
     lastName: customer.lastName,
+    dateOfBirth: customer.dateOfBirth?.toISOString() ?? null,
+    nationality: customer.nationality,
     email: customer.email,
     phoneCountryCode: customer.phoneCountryCode,
     phoneNumber: customer.phoneNumber,

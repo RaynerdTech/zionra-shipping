@@ -17,6 +17,8 @@ export type CustomerAccount = {
   id: string;
   firstName: string;
   lastName: string;
+  dateOfBirth: string | null;
+  nationality: string | null;
   email: string;
   phoneCountryCode: string;
   phoneNumber: string;

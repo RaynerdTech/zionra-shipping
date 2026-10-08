@@ -42,7 +42,7 @@ async function createEmailVerificationCode(customerId: string) {
     data: {
       customerId,
       codeHash: hashToken(code),
-      expiresAt: minutesFromNow(10),
+      expiresAt: minutesFromNow(1),
     },
   });
 
@@ -77,6 +77,7 @@ export async function registerCustomer(input: RegisterCustomerInput) {
     data: {
       firstName: input.firstName,
       lastName: input.lastName,
+      dateOfBirth: input.dateOfBirth,
       email: input.email,
       phoneCountryCode: input.phoneCountryCode,
       phoneNumber: input.phoneNumber,

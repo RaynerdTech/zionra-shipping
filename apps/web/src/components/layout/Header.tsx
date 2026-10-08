@@ -22,7 +22,7 @@ const accountItems = [
   {
     label: "Profile",
     description: "View and edit your profile",
-    href: `${routes.web.customerDashboard}#profile`,
+    href: routes.web.customerProfile,
     icon: ProfileIcon,
   },
   {

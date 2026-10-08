@@ -580,6 +580,7 @@ export async function completeGoogleSignup(
       data: {
         firstName: input.firstName,
         lastName: input.lastName,
+        dateOfBirth: input.dateOfBirth,
         email: pendingSignup.email,
         phoneCountryCode: input.phoneCountryCode,
         phoneNumber: input.phoneNumber,
