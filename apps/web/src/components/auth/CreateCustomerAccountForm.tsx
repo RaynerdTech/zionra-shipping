@@ -20,6 +20,12 @@ import {
 import type { CountryCode } from "libphonenumber-js";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import {
+  normalizeCustomerReturnTo,
+  readCustomerAuthReturnTo,
+  storeCustomerAuthReturnTo,
+  withCustomerReturnTo,
+} from "@/lib/authReturn";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
@@ -449,8 +455,13 @@ function PromotionalPanel() {
   );
 }
 
-export default function CreateCustomerAccountForm() {
+type CreateCustomerAccountFormProps = {
+  returnTo?: string;
+};
+
+export default function CreateCustomerAccountForm({ returnTo = "" }: CreateCustomerAccountFormProps) {
   const router = useRouter();
+  const safeReturnTo = normalizeCustomerReturnTo(returnTo);
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -490,6 +501,10 @@ export default function CreateCustomerAccountForm() {
     });
   }
 
+
+  useEffect(() => {
+    if (safeReturnTo) storeCustomerAuthReturnTo(safeReturnTo);
+  }, [safeReturnTo]);
   function validateForm() {
     const nextErrors: FormErrors = {};
     const requiredMessage = "This field can't be left empty.";
@@ -579,8 +594,12 @@ export default function CreateCustomerAccountForm() {
 
       const normalizedEmail = values.email.trim().toLowerCase();
 
+      const pendingReturn = safeReturnTo ?? readCustomerAuthReturnTo();
       router.push(
-        `${routes.web.customerVerifyEmail}?email=${encodeURIComponent(normalizedEmail)}`,
+        withCustomerReturnTo(
+          `${routes.web.customerVerifyEmail}?email=${encodeURIComponent(normalizedEmail)}`,
+          pendingReturn,
+        ),
       );
     } catch (error) {
       console.error("Customer registration failed:", error);
@@ -604,6 +623,9 @@ export default function CreateCustomerAccountForm() {
     });
     setIsStartingGoogle(true);
 
+    const pendingReturn = safeReturnTo ?? readCustomerAuthReturnTo();
+    if (pendingReturn) storeCustomerAuthReturnTo(pendingReturn);
+
     try {
      window.location.assign(buildApiUrl(routes.api.customerAuth.google));
     } catch (error) {
@@ -625,7 +647,7 @@ export default function CreateCustomerAccountForm() {
 
         <div className="relative z-[1] mx-auto w-full max-w-[424px] md:max-w-[628px]">
           <AuthBackButton
-            fallbackHref={routes.web.getStarted}
+            fallbackHref={withCustomerReturnTo(routes.web.getStarted, safeReturnTo)}
             className="inline-flex min-h-9 items-center gap-2 rounded-md bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"
           >
             <AuthBackArrowIcon />
@@ -856,7 +878,7 @@ export default function CreateCustomerAccountForm() {
                 Already have an account?
               </span>
               <Link
-                href={routes.web.customerLogin}
+                href={withCustomerReturnTo(routes.web.customerLogin, safeReturnTo)}
                 className="inline-flex items-center gap-2 text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
               >
                 Login

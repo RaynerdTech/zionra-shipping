@@ -18,6 +18,12 @@ import {
 } from "react";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import {
+  normalizeCustomerReturnTo,
+  readCustomerAuthReturnTo,
+  storeCustomerAuthReturnTo,
+  withCustomerReturnTo,
+} from "@/lib/authReturn";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthOtpInput, {
   AUTH_OTP_LENGTH,
@@ -177,13 +183,16 @@ function getApiMessage(result: ApiResponse, fallback: string) {
 type EmailVerificationFormProps = {
   email: string;
   source?: string;
+  returnTo?: string;
 };
 
 export default function EmailVerificationForm({
   email,
   source,
+  returnTo = "",
 }: EmailVerificationFormProps) {
   const router = useRouter();
+  const safeReturnTo = normalizeCustomerReturnTo(returnTo);
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resendNoticeTimeoutRef =
@@ -260,6 +269,10 @@ export default function EmailVerificationForm({
     }, RESEND_NOTICE_DURATION_MS);
   }
 
+  useEffect(() => {
+    if (safeReturnTo) storeCustomerAuthReturnTo(safeReturnTo);
+  }, [safeReturnTo]);
+
   function continueAfterVerification(message: string) {
     setVerificationOutcome("success");
     setFeedback({
@@ -271,9 +284,10 @@ export default function EmailVerificationForm({
       router.replace(
         isGoogleLinkFlow
           ? routes.web.customerLinkGoogleAccount
-          : `${routes.web.customerLogin}?verified=1&email=${encodeURIComponent(
-              normalizedEmail,
-            )}`,
+          : withCustomerReturnTo(
+              `${routes.web.customerLogin}?verified=1&email=${encodeURIComponent(normalizedEmail)}`,
+              safeReturnTo ?? readCustomerAuthReturnTo(),
+            ),
       );
     }, SUCCESS_REDIRECT_DELAY_MS);
   }
@@ -451,7 +465,7 @@ export default function EmailVerificationForm({
     <main className="min-h-screen overflow-hidden bg-primary-10 px-4 pb-20 pt-20 sm:flex sm:items-center sm:justify-center sm:px-6 sm:py-16">
       <section className="relative mx-auto flex w-full max-w-[560px] flex-col items-center rounded-[24px] bg-primary-09 px-6 py-10 text-center sm:px-10">
         <Link
-          href={routes.web.customerCreateAccount}
+          href={withCustomerReturnTo(routes.web.customerCreateAccount, safeReturnTo)}
           replace
           aria-label="Close email verification"
           className="absolute right-[18px] top-[18px] inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-03/15 text-primary-03 transition-colors hover:bg-primary-03/30 active:bg-primary-03/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03"

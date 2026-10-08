@@ -42,7 +42,7 @@ async function createEmailVerificationCode(customerId: string) {
     data: {
       customerId,
       codeHash: hashToken(code),
-      expiresAt: minutesFromNow(1),
+      expiresAt: minutesFromNow(10),
     },
   });
 

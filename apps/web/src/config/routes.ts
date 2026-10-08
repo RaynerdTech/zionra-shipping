@@ -8,6 +8,17 @@ export const routes = {
   web: {
     home: "/",
     getStarted: "/get-started",
+    homeHowItWorks: "/#how-it-works",
+    homeQuote: "/get-quote",
+    homeTrack: "/#track-shipment",
+    homeReviews: "/#reviews",
+    homePartners: "/#shipping-partners",
+
+    howItWorks: "/how-it-works",
+    aboutUs: "/about-us",
+    quote: "/get-quote",
+    compareAgents: "/get-quote/compare-agents",
+    quoteShipment: "/get-quote/shipment",
 
     customerLogin: "/login",
     customerLoginVerification: "/login/verify",
@@ -49,6 +60,10 @@ export const routes = {
   },
 
   api: {
+    quote: {
+      agents: "/api/quotes/agents",
+    },
+
     partnerAuth: {
       register: "/api/partner/auth/register",
       login: "/api/partner/auth/login",

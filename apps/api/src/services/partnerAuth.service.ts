@@ -82,7 +82,7 @@ async function createVerificationCode(partnerId: string) {
     data: {
       partnerId,
       codeHash: hashToken(code),
-      expiresAt: minutesFromNow(1),
+      expiresAt: minutesFromNow(10),
     },
   });
 

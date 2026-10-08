@@ -14,6 +14,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { notFoundHandler } from "./middleware/notFound.js";
 import customerAuthRoutes from "./routes/customerAuth.routes.js";
 import partnerAuthRoutes from "./routes/partnerAuth.routes.js";
+import quoteRoutes from "./routes/quote.routes.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get(API_ROUTES.health, (_req, res) => {
 
 app.use(API_ROUTES.customerAuthBase, customerAuthRoutes);
 app.use(API_ROUTES.partnerAuthBase, partnerAuthRoutes);
+app.use(API_ROUTES.quoteBase, quoteRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

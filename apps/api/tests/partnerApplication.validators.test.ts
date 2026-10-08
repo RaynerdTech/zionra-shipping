@@ -1,4 +1,4 @@
-/** Protects shipping-partner application validation and conditional pricing. */
+/** Protects shipping-partner application validation and operational details. */
 
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -7,6 +7,21 @@ import {
   validatePartnerBusinessInformation,
   validatePartnerOperationalDetails,
 } from "../src/validators/partnerApplication.validators.js";
+
+const validOperationalDetails = {
+  collectionCities: ["London"],
+  itemsHandled: ["Furniture"],
+  operationalBusinessAddress: "1 Zionra Way, London",
+  shippingMethod: "Both",
+  shipmentFrequency: "Weekly",
+  pricePerKg: "6",
+  pricePerBarrel: "140",
+  insuranceAvailable: true,
+  maxLength: "6",
+  maxHeight: "140",
+  maxWidth: "1",
+  upfrontImmigrationCharge: false,
+};
 
 test("business information normalizes contacts and website", () => {
   const result = validatePartnerBusinessInformation({
@@ -33,55 +48,80 @@ test("business information normalizes contacts and website", () => {
   assert.equal(result.data.contacts[0].email, "jane@example.com");
 });
 
-test("both shipping methods require both per-KG prices", () => {
+test("operational details require the current pricing and shipment requirement fields", () => {
   const result = validatePartnerOperationalDetails({
-    collectionCities: ["London"],
-    itemsHandled: ["Furniture"],
-    shippingMethod: "Both",
-    shipmentFrequency: "Weekly",
-    airCargoPricePerKg: "6",
-    seaCargoPricePerKg: "",
-    pricePerBarrel: "140",
-    insuranceAvailable: true,
-    upfrontImmigrationCharge: false,
+    ...validOperationalDetails,
+    pricePerKg: "",
+    maxHeight: "",
   });
 
   assert.equal(result.success, false);
   if (result.success) return;
-  assert.equal(result.errors.seaCargoPricePerKg, "Enter a valid sea-cargo price.");
+  assert.equal(result.errors.pricePerKg, "Enter a valid price per KG.");
+  assert.equal(result.errors.maxHeight, "Enter a valid maximum height.");
 });
 
-test("air cargo ignores a hidden sea-cargo price", () => {
+test("operational details normalize current pricing and dimensions", () => {
   const result = validatePartnerOperationalDetails({
-    collectionCities: ["London"],
-    itemsHandled: ["Documents & Paperwork"],
-    shippingMethod: "Air cargo",
-    shipmentFrequency: "On Demand / As Needed",
-    airCargoPricePerKg: "6.50",
-    seaCargoPricePerKg: "999",
+    ...validOperationalDetails,
+    pricePerKg: "6.5",
     pricePerBarrel: "140",
-    insuranceAvailable: true,
-    upfrontImmigrationCharge: false,
+    maxLength: "6",
+    maxHeight: "140.25",
+    maxWidth: "1.5",
   });
 
   assert.equal(result.success, true);
   if (!result.success) return;
-  assert.equal(result.data.airCargoPricePerKg, "6.50");
-  assert.equal(result.data.seaCargoPricePerKg, null);
+  assert.equal(result.data.pricePerKg, "6.50");
+  assert.equal(result.data.pricePerBarrel, "140.00");
+  assert.equal(result.data.maxLength, "6.00");
+  assert.equal(result.data.maxHeight, "140.25");
+  assert.equal(result.data.maxWidth, "1.50");
 });
 
+test("items handled requires a description when Other is selected", () => {
+  const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
+    itemsHandled: ["Furniture", "Other"],
+    otherItemsHandled: "",
+  });
+
+  assert.equal(result.success, false);
+  if (result.success) return;
+  assert.equal(
+    result.errors.otherItemsHandled,
+    "Tell us what other items you handle.",
+  );
+});
+
+test("items handled stores a custom Other description", () => {
+  const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
+    itemsHandled: ["Furniture", "Other"],
+    otherItemsHandled: "Fine art",
+  });
+
+  assert.equal(result.success, true);
+  if (!result.success) return;
+  assert.deepEqual(result.data.itemsHandled, ["Furniture", "Other: Fine art"]);
+});
+
+test("stored custom item values remain valid during final submission", () => {
+  const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
+    itemsHandled: ["Furniture", "Other: Fine art"],
+  });
+
+  assert.equal(result.success, true);
+  if (!result.success) return;
+  assert.deepEqual(result.data.itemsHandled, ["Furniture", "Other: Fine art"]);
+});
 
 test("operational details accept only canonical UK cities", () => {
   const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
     collectionCities: ["london", "Manchester"],
-    itemsHandled: ["Furniture"],
-    shippingMethod: "Air cargo",
-    shipmentFrequency: "Weekly",
-    airCargoPricePerKg: "6",
-    seaCargoPricePerKg: "",
-    pricePerBarrel: "140",
-    insuranceAvailable: true,
-    upfrontImmigrationCharge: false,
   });
 
   assert.equal(result.success, true);
@@ -91,15 +131,8 @@ test("operational details accept only canonical UK cities", () => {
 
 test("operational details reject cities outside the UK suggestion list", () => {
   const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
     collectionCities: ["Londn"],
-    itemsHandled: ["Furniture"],
-    shippingMethod: "Air cargo",
-    shipmentFrequency: "Weekly",
-    airCargoPricePerKg: "6",
-    seaCargoPricePerKg: "",
-    pricePerBarrel: "140",
-    insuranceAvailable: true,
-    upfrontImmigrationCharge: false,
   });
 
   assert.equal(result.success, false);

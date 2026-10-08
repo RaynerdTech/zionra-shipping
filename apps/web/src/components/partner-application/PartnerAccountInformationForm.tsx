@@ -131,6 +131,10 @@ function AccountInformationEditor({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isRemovingLogo, setIsRemovingLogo] = useState(false);
 
+  useEffect(() => {
+    router.prefetch(routes.web.partnerApplicationReview);
+  }, [router]);
+
   const companyBio = values.companyBio.trim();
   const wordCount = companyBio ? companyBio.split(/\s+/).length : 0;
 

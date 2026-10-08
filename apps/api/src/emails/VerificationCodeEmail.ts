@@ -40,7 +40,7 @@ export function createVerificationCodeEmail({
     </table>
 
     <p style="margin: 0 0 14px; color: #174184; font-weight: 700;">
-      This code expires in 1 minute.
+      This code expires in 10 minutes.
     </p>
     <p style="margin: 0;">
       If you did not create a Zionra account, you can safely ignore this email.
@@ -62,7 +62,7 @@ export function createVerificationCodeEmail({
       "",
       code,
       "",
-      "This code expires in 1 minute.",
+      "This code expires in 10 minutes.",
       "",
       "If you did not create a Zionra account, you can safely ignore this email.",
       "",

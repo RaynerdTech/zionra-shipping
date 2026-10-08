@@ -79,12 +79,15 @@ export type PartnerBusinessInformationInput = {
 export type PartnerOperationalDetailsInput = {
   collectionCities: string[];
   itemsHandled: string[];
+  operationalBusinessAddress: string;
   shippingMethod: (typeof PARTNER_SHIPPING_METHODS)[number];
   shipmentFrequency: (typeof PARTNER_SHIPMENT_FREQUENCIES)[number];
-  airCargoPricePerKg: string | null;
-  seaCargoPricePerKg: string | null;
+  pricePerKg: string;
   pricePerBarrel: string;
   insuranceAvailable: boolean;
+  maxLength: string;
+  maxHeight: string;
+  maxWidth: string;
   upfrontImmigrationCharge: boolean;
 };
 
@@ -239,13 +242,17 @@ export function validatePartnerOperationalDetails(
   const body = toBody(requestBody);
   const errors: FieldErrors = {};
   const collectionCities = getStringArray(body, "collectionCities");
-  const itemsHandled = getStringArray(body, "itemsHandled");
+  const rawItemsHandled = getStringArray(body, "itemsHandled");
+  const otherItemsHandled = getString(body, "otherItemsHandled");
+  const operationalBusinessAddress = getString(body, "operationalBusinessAddress");
   const shippingMethod = getString(body, "shippingMethod");
   const shipmentFrequency = getString(body, "shipmentFrequency");
-  const rawAirPrice = getString(body, "airCargoPricePerKg");
-  const rawSeaPrice = getString(body, "seaCargoPricePerKg");
+  const rawPricePerKg = getString(body, "pricePerKg");
   const rawBarrelPrice = getString(body, "pricePerBarrel");
   const insuranceAvailable = body.insuranceAvailable;
+  const rawMaxLength = getString(body, "maxLength");
+  const rawMaxHeight = getString(body, "maxHeight");
+  const rawMaxWidth = getString(body, "maxWidth");
   const upfrontImmigrationCharge = body.upfrontImmigrationCharge;
 
   const normalizedCollectionCities = normalizeUkCities(collectionCities);
@@ -254,36 +261,84 @@ export function validatePartnerOperationalDetails(
   } else if (!normalizedCollectionCities) {
     errors.collectionCities = "Select valid UK cities from the suggestions.";
   }
-  if (itemsHandled.length === 0) errors.itemsHandled = "Select at least one item category.";
-  else if (itemsHandled.some((item) => !isAllowed(item, PARTNER_ITEMS_HANDLED))) errors.itemsHandled = "Select valid item categories.";
-  if (!isAllowed(shippingMethod, PARTNER_SHIPPING_METHODS)) errors.shippingMethod = "Select a valid shipping method.";
-  if (!isAllowed(shipmentFrequency, PARTNER_SHIPMENT_FREQUENCIES)) errors.shipmentFrequency = "Select a valid shipment frequency.";
 
-  const needsAir = shippingMethod === "Air cargo" || shippingMethod === "Both";
-  const needsSea = shippingMethod === "Sea cargo" || shippingMethod === "Both";
-  const airCargoPricePerKg = needsAir ? normalizeMoney(rawAirPrice) : null;
-  const seaCargoPricePerKg = needsSea ? normalizeMoney(rawSeaPrice) : null;
+  const hasOtherSelection = rawItemsHandled.includes("Other");
+  const storedCustomItems = rawItemsHandled.filter((item) => item.startsWith("Other: "));
+  const invalidItems = rawItemsHandled.filter(
+    (item) => !isAllowed(item, PARTNER_ITEMS_HANDLED) && !item.startsWith("Other: "),
+  );
+
+  if (rawItemsHandled.length === 0) {
+    errors.itemsHandled = "Select at least one item category.";
+  } else if (invalidItems.length > 0) {
+    errors.itemsHandled = "Select valid item categories.";
+  }
+
+  if (hasOtherSelection && !otherItemsHandled) {
+    errors.otherItemsHandled = "Tell us what other items you handle.";
+  } else if (otherItemsHandled.length > 120) {
+    errors.otherItemsHandled = "Keep the other item description under 120 characters.";
+  }
+
+  const malformedStoredCustomItem = storedCustomItems.some(
+    (item) => item.slice("Other: ".length).trim().length === 0,
+  );
+  if (malformedStoredCustomItem) {
+    errors.itemsHandled = "Select valid item categories.";
+  }
+
+  if (!operationalBusinessAddress) {
+    errors.operationalBusinessAddress = REQUIRED_MESSAGE;
+  }
+  if (!isAllowed(shippingMethod, PARTNER_SHIPPING_METHODS)) {
+    errors.shippingMethod = "Select a valid shipping method.";
+  }
+  if (!isAllowed(shipmentFrequency, PARTNER_SHIPMENT_FREQUENCIES)) {
+    errors.shipmentFrequency = "Select a valid shipment frequency.";
+  }
+
+  const pricePerKg = normalizeMoney(rawPricePerKg);
   const pricePerBarrel = normalizeMoney(rawBarrelPrice);
+  const maxLength = normalizeMoney(rawMaxLength);
+  const maxHeight = normalizeMoney(rawMaxHeight);
+  const maxWidth = normalizeMoney(rawMaxWidth);
 
-  if (needsAir && !airCargoPricePerKg) errors.airCargoPricePerKg = "Enter a valid air-cargo price.";
-  if (needsSea && !seaCargoPricePerKg) errors.seaCargoPricePerKg = "Enter a valid sea-cargo price.";
+  if (!pricePerKg) errors.pricePerKg = "Enter a valid price per KG.";
   if (!pricePerBarrel) errors.pricePerBarrel = "Enter a valid price per barrel.";
-  if (typeof insuranceAvailable !== "boolean") errors.insuranceAvailable = "Select an option.";
-  if (typeof upfrontImmigrationCharge !== "boolean") errors.upfrontImmigrationCharge = "Select an option.";
+  if (typeof insuranceAvailable !== "boolean") {
+    errors.insuranceAvailable = "Select an option.";
+  }
+  if (!maxLength) errors.maxLength = "Enter a valid maximum length.";
+  if (!maxHeight) errors.maxHeight = "Enter a valid maximum height.";
+  if (!maxWidth) errors.maxWidth = "Enter a valid maximum width.";
+  if (typeof upfrontImmigrationCharge !== "boolean") {
+    errors.upfrontImmigrationCharge = "Select an option.";
+  }
 
   if (Object.keys(errors).length > 0) return { success: false, errors };
+
+  const normalizedItemsHandled = [
+    ...rawItemsHandled.filter(
+      (item) => item !== "Other" && isAllowed(item, PARTNER_ITEMS_HANDLED),
+    ),
+    ...storedCustomItems,
+    ...(hasOtherSelection ? [`Other: ${otherItemsHandled}`] : []),
+  ];
 
   return {
     success: true,
     data: {
       collectionCities: normalizedCollectionCities!,
-      itemsHandled,
+      itemsHandled: [...new Set(normalizedItemsHandled)],
+      operationalBusinessAddress,
       shippingMethod: shippingMethod as PartnerOperationalDetailsInput["shippingMethod"],
       shipmentFrequency: shipmentFrequency as PartnerOperationalDetailsInput["shipmentFrequency"],
-      airCargoPricePerKg,
-      seaCargoPricePerKg,
+      pricePerKg: pricePerKg!,
       pricePerBarrel: pricePerBarrel!,
       insuranceAvailable: insuranceAvailable as boolean,
+      maxLength: maxLength!,
+      maxHeight: maxHeight!,
+      maxWidth: maxWidth!,
       upfrontImmigrationCharge: upfrontImmigrationCharge as boolean,
     },
   };

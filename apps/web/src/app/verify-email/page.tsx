@@ -16,6 +16,7 @@ type VerifyEmailPageProps = {
   searchParams: Promise<{
     email?: string | string[];
     source?: string | string[];
+    returnTo?: string | string[];
   }>;
 };
 
@@ -29,11 +30,15 @@ export default async function VerifyEmailPage({
   const sourceValue = Array.isArray(params.source)
     ? params.source[0]
     : params.source;
+  const returnToValue = Array.isArray(params.returnTo)
+    ? params.returnTo[0]
+    : params.returnTo;
 
   return (
     <EmailVerificationForm
       email={emailValue ?? ""}
       source={sourceValue}
+      returnTo={returnToValue ?? ""}
     />
   );
 }

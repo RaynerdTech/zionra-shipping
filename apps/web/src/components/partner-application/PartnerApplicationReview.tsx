@@ -63,10 +63,9 @@ export default function PartnerApplicationReview() {
   const primaryContact = application.contacts[0];
   const additionalContacts = application.contacts.slice(1);
   const priceRows = [
-    application.airCargoPricePerKg ? ["Price Per KG (Air cargo)", `£ ${application.airCargoPricePerKg}`] : null,
-    application.seaCargoPricePerKg ? ["Price Per KG (Sea cargo)", `£ ${application.seaCargoPricePerKg}`] : null,
-    ["Price Per Barrel", application.pricePerBarrel ? `£ ${application.pricePerBarrel}` : "—"],
-  ].filter(Boolean) as [string, string][];
+    ["Price Per KG", application.pricePerKg ? `€ ${application.pricePerKg}` : "—"],
+    ["Price Per Barrel", application.pricePerBarrel ? `€ ${application.pricePerBarrel}` : "—"],
+  ] as [string, string][];
 
   return (
     <PartnerApplicationShell currentStep={application.currentStep} headerTitle="Document Review" showSteps={false} pageTitle="Review Information" pageSubtitle="Review the information you entered">
@@ -110,10 +109,14 @@ export default function PartnerApplicationReview() {
         <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
           <ReviewValue label="Collection Cities" value={<div className="flex flex-wrap gap-1.5">{application.collectionCities.map((city) => <span key={city} className="rounded bg-primary-01 px-2 py-1 text-[11px] text-primary-08">{city}</span>)}</div>} required />
           <ReviewValue label="Items Handled" value={<div className="flex flex-wrap gap-1.5">{application.itemsHandled.map((item) => <span key={item} className="rounded bg-primary-01 px-2 py-1 text-[11px] text-primary-08">{item}</span>)}</div>} required />
+          <ReviewValue label="Business Address" value={application.operationalBusinessAddress} required />
           <ReviewValue label="Shipping Method" value={application.shippingMethod} required />
           <ReviewValue label="Shipment Frequency" value={application.shipmentFrequency} required />
           {priceRows.map(([label, value]) => <ReviewValue key={label} label={label} value={value} required />)}
           <ReviewValue label="Insurance Availability" value={application.insuranceAvailable ? "Yes" : "No"} required />
+          <ReviewValue label="Max length" value={application.maxLength} required />
+          <ReviewValue label="Max Height" value={application.maxHeight} required />
+          <ReviewValue label="Max width" value={application.maxWidth} required />
           <ReviewValue label="Upfront Immigration Charge" value={application.upfrontImmigrationCharge ? "Yes" : "No"} required />
         </div>
         <EditLink href={`${routes.web.partnerOperationalDetails}?returnTo=review`} />

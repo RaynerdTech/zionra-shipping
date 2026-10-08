@@ -17,6 +17,14 @@ import {
 } from "react";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { useCustomerAuth } from "./CustomerAuthProvider";
+import {
+  consumeCustomerAuthReturnTo,
+  normalizeCustomerReturnTo,
+  readCustomerAuthReturnTo,
+  storeCustomerAuthReturnTo,
+  withCustomerReturnTo,
+} from "@/lib/authReturn";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthOtpInput, {
   AUTH_OTP_LENGTH,
@@ -167,10 +175,12 @@ function getCooldownSeconds(resendAvailableAt?: string) {
 
 type LoginVerificationCodeFormProps = {
   accountType?: "customer" | "partner";
+  returnTo?: string;
 };
 
 export default function LoginVerificationCodeForm({
   accountType = "customer",
+  returnTo = "",
 }: LoginVerificationCodeFormProps) {
   const isPartner = accountType === "partner";
   const authRoutes = isPartner ? routes.api.partnerAuth : routes.api.customerAuth;
@@ -179,6 +189,8 @@ export default function LoginVerificationCodeForm({
     ? routes.web.partnerBusinessInformation
     : routes.web.customerDashboard;
   const router = useRouter();
+  const { refreshCustomer } = useCustomerAuth();
+  const safeReturnTo = isPartner ? null : normalizeCustomerReturnTo(returnTo);
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -201,6 +213,10 @@ export default function LoginVerificationCodeForm({
     outcome === "success";
 
   useEffect(() => {
+    if (safeReturnTo) storeCustomerAuthReturnTo(safeReturnTo);
+  }, [safeReturnTo]);
+
+  useEffect(() => {
     const controller = new AbortController();
 
     async function loadChallenge() {
@@ -218,7 +234,7 @@ export default function LoginVerificationCodeForm({
         const result = (await response.json().catch(() => ({}))) as ApiResponse;
 
         if (!response.ok || !result.maskedEmail) {
-          router.replace(loginRoute);
+          router.replace(isPartner ? loginRoute : withCustomerReturnTo(loginRoute, safeReturnTo ?? readCustomerAuthReturnTo()));
           return;
         }
 
@@ -232,7 +248,7 @@ export default function LoginVerificationCodeForm({
         }
 
         console.error("Login challenge could not be loaded:", error);
-        router.replace(loginRoute);
+        router.replace(isPartner ? loginRoute : withCustomerReturnTo(loginRoute, safeReturnTo ?? readCustomerAuthReturnTo()));
       } finally {
         if (!controller.signal.aborted) {
           setIsLoadingChallenge(false);
@@ -301,7 +317,7 @@ export default function LoginVerificationCodeForm({
           result.code === "LOGIN_CHALLENGE_EXPIRED" ||
           result.code === "PARTNER_LOGIN_CHALLENGE_EXPIRED"
         ) {
-          router.replace(loginRoute);
+          router.replace(isPartner ? loginRoute : withCustomerReturnTo(loginRoute, safeReturnTo ?? readCustomerAuthReturnTo()));
           return;
         }
 
@@ -315,10 +331,17 @@ export default function LoginVerificationCodeForm({
       setOutcome("success");
       setFeedback(result.message ?? "Signed in successfully.");
 
+      if (!isPartner) {
+        await refreshCustomer();
+      }
+
       redirectTimeoutRef.current = setTimeout(() => {
-        router.replace(
-          result.redirectTo ?? defaultDestination,
-        );
+        const destination = isPartner
+          ? result.redirectTo ?? defaultDestination
+          : consumeCustomerAuthReturnTo(
+              safeReturnTo ?? result.redirectTo ?? defaultDestination,
+            );
+        router.replace(destination);
         router.refresh();
       }, SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
@@ -362,7 +385,7 @@ export default function LoginVerificationCodeForm({
           result.code === "PARTNER_LOGIN_CHALLENGE_EXPIRED" ||
           result.code === "EMAIL_DELIVERY_FAILED"
         ) {
-          router.replace(loginRoute);
+          router.replace(isPartner ? loginRoute : withCustomerReturnTo(loginRoute, safeReturnTo ?? readCustomerAuthReturnTo()));
           return;
         }
 
@@ -407,7 +430,7 @@ export default function LoginVerificationCodeForm({
     } catch (error) {
       console.error("Login verification cancellation failed:", error);
     } finally {
-      router.replace(loginRoute);
+      router.replace(isPartner ? loginRoute : withCustomerReturnTo(loginRoute, safeReturnTo ?? readCustomerAuthReturnTo()));
     }
   }
 

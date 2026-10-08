@@ -14,6 +14,8 @@
     "prisma:deploy": "npm --prefix apps/api run prisma:deploy",
     "prisma:studio": "npm --prefix apps/api run prisma:studio",
     "test": "npm run test:api",
-    "test:api": "npm --prefix apps/api run test"
+    "test:api": "npm --prefix apps/api run test",
+    "seed:quote-agents": "npm --prefix apps/api run seed:quote-agents -- --confirm",
+    "clean:quote-agents": "npm --prefix apps/api run seed:quote-agents -- --confirm --clean"
   }
 }

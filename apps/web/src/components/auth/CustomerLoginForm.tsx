@@ -10,9 +10,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCustomerAuth } from "./CustomerAuthProvider";
 import { type FormEvent, useEffect, useState } from "react";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import {
+  consumeCustomerAuthReturnTo,
+  normalizeCustomerReturnTo,
+  readCustomerAuthReturnTo,
+  storeCustomerAuthReturnTo,
+  withCustomerReturnTo,
+} from "@/lib/authReturn";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthBackArrowIcon from "./shared/AuthBackArrowIcon";
 import AuthBackButton from "./shared/AuthBackButton";
@@ -24,6 +32,7 @@ import GoogleAuthButton from "./shared/GoogleAuthButton";
 type CustomerLoginFormProps = {
   initialEmail?: string;
   wasVerified?: boolean;
+  returnTo?: string;
 };
 
 type LoginErrors = {
@@ -165,8 +174,11 @@ function PromotionalPanel() {
 export default function CustomerLoginForm({
   initialEmail = "",
   wasVerified = false,
+  returnTo = "",
 }: CustomerLoginFormProps) {
   const router = useRouter();
+  const { status: authStatus } = useCustomerAuth();
+  const safeReturnTo = normalizeCustomerReturnTo(returnTo);
 
   const [email, setEmail] = useState(initialEmail.trim().toLowerCase());
   const [password, setPassword] = useState("");
@@ -177,26 +189,14 @@ export default function CustomerLoginForm({
   const [requiresVerification, setRequiresVerification] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (safeReturnTo) {
+      storeCustomerAuthReturnTo(safeReturnTo);
+    }
 
-    void fetch(buildApiUrl(routes.api.customerAuth.me), {
-      method: "GET",
-      credentials: "include",
-      signal: controller.signal,
-    })
-      .then((response) => {
-        if (response.ok) {
-          router.replace(routes.web.customerDashboard);
-        }
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-      });
-
-    return () => controller.abort();
-  }, [router]);
+    if (authStatus === "authenticated") {
+      router.replace(consumeCustomerAuthReturnTo(safeReturnTo ?? routes.web.customerDashboard));
+    }
+  }, [authStatus, router, safeReturnTo]);
 
   useEffect(() => {
     function resetNavigationLoadingState() {
@@ -281,8 +281,12 @@ export default function CustomerLoginForm({
       }
 
       setPassword("");
+      const pendingReturn = safeReturnTo ?? readCustomerAuthReturnTo();
       router.replace(
-        result.redirectTo ?? routes.web.customerLoginVerification,
+        withCustomerReturnTo(
+          result.redirectTo ?? routes.web.customerLoginVerification,
+          pendingReturn,
+        ),
       );
     } catch (error) {
       console.error("Customer login failed:", error);
@@ -304,6 +308,9 @@ export default function CustomerLoginForm({
     setRequiresVerification(false);
     setIsStartingGoogle(true);
 
+    const pendingReturn = safeReturnTo ?? readCustomerAuthReturnTo();
+    if (pendingReturn) storeCustomerAuthReturnTo(pendingReturn);
+
     try {
       window.location.assign(buildApiUrl(routes.api.customerAuth.google));
     } catch (error) {
@@ -317,9 +324,10 @@ export default function CustomerLoginForm({
     }
   }
 
-  const verificationHref = `${routes.web.customerVerifyEmail}?email=${encodeURIComponent(
-    email.trim().toLowerCase(),
-  )}`;
+  const verificationHref = withCustomerReturnTo(
+    `${routes.web.customerVerifyEmail}?email=${encodeURIComponent(email.trim().toLowerCase())}`,
+    safeReturnTo,
+  );
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-white md:bg-neutral-01 xl:grid xl:h-screen xl:min-h-0 xl:grid-cols-[36%_64%] xl:overflow-hidden">
@@ -330,7 +338,7 @@ export default function CustomerLoginForm({
 
         <div className="relative z-[20] mx-auto w-full max-w-[424px] md:max-w-[628px] md:rounded-[20px] md:bg-white md:px-10 md:pb-10 md:pt-8 xl:w-[628px] xl:max-w-[628px] xl:min-h-[742px] xl:px-5 xl:pb-[18px] xl:pt-[18px]">
           <AuthBackButton
-            fallbackHref={routes.web.getStarted}
+            fallbackHref={withCustomerReturnTo(routes.web.getStarted, safeReturnTo)}
             className="inline-flex min-h-9 w-fit items-center gap-2 rounded-md border border-primary-06 bg-transparent px-2 py-1 font-sans text-base font-normal leading-6 text-primary-06 transition-colors duration-[180ms] hover:bg-primary-01 active:bg-primary-02 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-03 md:border-0"
           >
             <AuthBackArrowIcon />
@@ -472,7 +480,7 @@ export default function CustomerLoginForm({
                 </span>
 
                 <Link
-                  href={routes.web.customerCreateAccount}
+                  href={withCustomerReturnTo(routes.web.customerCreateAccount, safeReturnTo)}
                   className="inline-flex items-center gap-2 whitespace-nowrap text-primary-06 no-underline hover:text-primary-07 active:text-primary-08"
                 >
                   Create Account

@@ -1,42 +1,18 @@
 /**
  * Responsibility:
  * Renders the protected customer dashboard placeholder.
- * It verifies the current customer session, displays basic account details,
- * and signs the customer out through the API.
+ * It verifies the current customer session and displays basic account details.
  */
 
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useCustomerAuth } from "@/components/auth/CustomerAuthProvider";
 import { routes } from "@/config/routes";
-import { buildApiUrl } from "@/lib/api";
+import { consumeCustomerAuthReturnTo, readCustomerAuthReturnTo } from "@/lib/authReturn";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-
-type Customer = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneCountryCode: string;
-  phoneNumber: string;
-  countryOfResidence: string;
-  referralSource: string | null;
-  marketingOptIn: boolean;
-  emailVerified: boolean;
-  createdAt: string;
-};
-
-type CurrentCustomerResponse = {
-  customer?: Customer;
-  message?: string;
-};
-
-type LogoutResponse = {
-  message?: string;
-};
 
 function PackageIcon() {
   return (
@@ -96,25 +72,6 @@ function ShieldCheckIcon() {
   );
 }
 
-function LogoutIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
-      fill="none"
-    >
-      <path
-        d="M8.25 3.5H5.5A1.5 1.5 0 0 0 4 5v10a1.5 1.5 0 0 0 1.5 1.5h2.75M12.5 6l4 4-4 4M16.5 10H8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function formatCustomerSince(createdAt: string) {
   const date = new Date(createdAt);
@@ -129,145 +86,29 @@ function formatCustomerSince(createdAt: string) {
   }).format(date);
 }
 
-class UnauthenticatedCustomerError extends Error {
-  constructor() {
-    super("Customer is not authenticated.");
-    this.name = "UnauthenticatedCustomerError";
-  }
-}
-
-async function requestCurrentCustomer(signal?: AbortSignal) {
-  const response = await fetch(buildApiUrl(routes.api.customerAuth.me), {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store",
-    signal,
-  });
-
-  const result = (await response
-    .json()
-    .catch(() => ({}))) as CurrentCustomerResponse;
-
-  if (response.status === 401) {
-    throw new UnauthenticatedCustomerError();
-  }
-
-  if (!response.ok || !result.customer) {
-    throw new Error(result.message ?? "Unable to load your account.");
-  }
-
-  return result.customer;
-}
-
 export default function CustomerDashboard() {
   const router = useRouter();
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [loadError, setLoadError] = useState("");
-  const [logoutError, setLogoutError] = useState("");
+  const { customer, status, error: authError, refreshCustomer } = useCustomerAuth();
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    void requestCurrentCustomer(controller.signal)
-      .then((currentCustomer) => {
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        setCustomer(currentCustomer);
-        setIsLoading(false);
-      })
-      .catch((error: unknown) => {
-        if (
-          controller.signal.aborted ||
-          (error instanceof DOMException && error.name === "AbortError")
-        ) {
-          return;
-        }
-
-        if (error instanceof UnauthenticatedCustomerError) {
-          router.replace(routes.web.customerLogin);
-          return;
-        }
-
-        console.error("Customer dashboard could not load:", error);
-        setLoadError(
-          error instanceof Error
-            ? error.message
-            : "Unable to load your account. Please try again.",
-        );
-        setIsLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [router]);
-
-  async function handleRetry() {
-    setIsLoading(true);
-    setLoadError("");
-
-    try {
-      const currentCustomer = await requestCurrentCustomer();
-      setCustomer(currentCustomer);
-    } catch (error) {
-      if (error instanceof UnauthenticatedCustomerError) {
-        router.replace(routes.web.customerLogin);
-        return;
-      }
-
-      console.error("Customer dashboard retry failed:", error);
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load your account. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    if (isLoggingOut) {
+    if (status === "unauthenticated") {
+      router.replace(routes.web.customerLogin);
       return;
     }
 
-    setIsLoggingOut(true);
-    setLogoutError("");
+    if (status !== "authenticated" || !customer) return;
 
-    try {
-      const response = await fetch(
-        buildApiUrl(routes.api.customerAuth.logout),
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-
-      const result = (await response
-        .json()
-        .catch(() => ({}))) as LogoutResponse;
-
-      if (!response.ok) {
-        throw new Error(result.message ?? "Unable to sign out.");
-      }
-
-      router.replace(routes.web.customerLogin);
-      router.refresh();
-    } catch (error) {
-      console.error("Customer logout failed:", error);
-      setLogoutError(
-        error instanceof Error
-          ? error.message
-          : "Unable to sign out. Please try again.",
-      );
-    } finally {
-      setIsLoggingOut(false);
+    const pendingReturn = readCustomerAuthReturnTo();
+    if (pendingReturn && pendingReturn !== routes.web.customerDashboard) {
+      router.replace(consumeCustomerAuthReturnTo(routes.web.customerDashboard));
     }
+  }, [customer, router, status]);
+
+  async function handleRetry() {
+    await refreshCustomer();
   }
 
-  if (isLoading) {
+  if (status === "loading" || status === "unauthenticated") {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-01 px-6">
         <div className="flex items-center gap-3 text-primary-06" role="status">
@@ -280,7 +121,7 @@ export default function CustomerDashboard() {
     );
   }
 
-  if (loadError || !customer) {
+  if (status === "error" || !customer) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-01 px-6 py-12">
         <section className="w-full max-w-md rounded-2xl border border-neutral-02 bg-white p-6 text-center shadow-[0_14px_42px_rgba(15,44,88,0.08)]">
@@ -291,7 +132,7 @@ export default function CustomerDashboard() {
             We could not load your dashboard
           </h1>
           <p className="mt-2 font-sans text-sm leading-[22px] text-text-body-light">
-            {loadError || "Please try loading your account again."}
+            {authError || "Please try loading your account again."}
           </p>
           <button
             type="button"
@@ -316,46 +157,6 @@ export default function CustomerDashboard() {
 
   return (
     <main className="min-h-screen bg-neutral-01">
-      <header className="border-b border-neutral-02 bg-white">
-        <div className="mx-auto flex min-h-[72px] w-full max-w-[1200px] items-center justify-between gap-4 px-5 md:px-8">
-          <Link
-            href={routes.web.home}
-            aria-label="Zionra home"
-            className="flex items-center gap-2 no-underline"
-          >
-            <Image
-              src="/images/logo-zionra.png"
-              alt=""
-              width={32}
-              height={32}
-              priority
-              className="h-8 w-8 object-contain"
-            />
-            <span className="font-display text-[22px] font-bold tracking-[-0.5px] text-primary-10">
-              zionra
-            </span>
-          </Link>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="zion-btn zion-btn-outline-blue min-w-0 px-4"
-          >
-            {isLoggingOut ? (
-              <>
-                <LoadingSpinner />
-                <span>Signing out</span>
-              </>
-            ) : (
-              <>
-                <LogoutIcon />
-                <span>Log out</span>
-              </>
-            )}
-          </button>
-        </div>
-      </header>
 
       <div className="mx-auto w-full max-w-[1200px] px-5 py-8 md:px-8 md:py-12">
         <section className="overflow-hidden rounded-3xl bg-primary-10 px-6 py-8 text-white shadow-[0_20px_55px_rgba(7,22,44,0.16)] md:px-10 md:py-10">
@@ -379,14 +180,6 @@ export default function CustomerDashboard() {
           </div>
         </section>
 
-        {logoutError ? (
-          <div
-            role="alert"
-            className="mt-5 rounded-xl border border-error/20 bg-white px-4 py-3 font-sans text-sm leading-[22px] text-error"
-          >
-            {logoutError}
-          </div>
-        ) : null}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="rounded-2xl border border-neutral-02 bg-white p-6 shadow-[0_10px_30px_rgba(15,44,88,0.06)] md:p-8">

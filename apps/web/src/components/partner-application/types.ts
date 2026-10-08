@@ -29,12 +29,15 @@ export type PartnerApplication = {
   contacts: PartnerApplicationContact[];
   collectionCities: string[];
   itemsHandled: string[];
+  operationalBusinessAddress: string | null;
   shippingMethod: string | null;
   shipmentFrequency: string | null;
-  airCargoPricePerKg: string | null;
-  seaCargoPricePerKg: string | null;
+  pricePerKg: string | null;
   pricePerBarrel: string | null;
   insuranceAvailable: boolean | null;
+  maxLength: string | null;
+  maxHeight: string | null;
+  maxWidth: string | null;
   upfrontImmigrationCharge: boolean | null;
   companyLogoUrl: string | null;
   companyLogoPublicId: string | null;

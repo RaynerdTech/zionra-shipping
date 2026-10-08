@@ -35,6 +35,8 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
   CLOUDINARY_API_KEY: z.string().min(1).optional(),
   CLOUDINARY_API_SECRET: z.string().min(1).optional(),
+
+  EUR_TO_GBP_RATE: z.coerce.number().positive().default(0.86),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

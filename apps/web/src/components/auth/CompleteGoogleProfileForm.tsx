@@ -18,6 +18,8 @@ import {
 import type { CountryCode } from "libphonenumber-js";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { consumeCustomerAuthReturnTo } from "@/lib/authReturn";
+import { useCustomerAuth } from "./CustomerAuthProvider";
 import CountrySelect from "../ui/CountrySelect";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import AuthDecorativeCircles from "./shared/AuthDecorativeCircles";
@@ -230,6 +232,7 @@ function getApiMessage(result: ApiResponse, fallback: string) {
 
 export default function CompleteGoogleProfileForm() {
   const router = useRouter();
+  const { refreshCustomer } = useCustomerAuth();
 
   const [profile, setProfile] = useState<PendingGoogleProfile | null>(null);
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
@@ -411,7 +414,10 @@ export default function CompleteGoogleProfileForm() {
         return;
       }
 
-      router.replace(result.redirectTo ?? routes.web.customerDashboard);
+      await refreshCustomer();
+      router.replace(
+        consumeCustomerAuthReturnTo(result.redirectTo ?? routes.web.customerDashboard),
+      );
       router.refresh();
     } catch (error) {
       console.error("Google profile completion failed:", error);
