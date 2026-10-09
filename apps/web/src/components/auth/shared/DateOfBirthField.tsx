@@ -27,6 +27,8 @@ const MONTHS = [
 
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] as const;
 
+type PickerView = "month" | "year" | null;
+
 function localToday() {
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -84,7 +86,9 @@ export default function DateOfBirthField({
   label = "Date of Birth",
 }: DateOfBirthFieldProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const selectedYearRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const [pickerView, setPickerView] = useState<PickerView>(null);
   const [draft, setDraft] = useState<Date | null>(() => parseIsoDate(value));
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const initial = initialCalendarDate(value);
@@ -95,11 +99,17 @@ export default function DateOfBirthField({
     if (!open) return;
 
     function onPointerDown(event: MouseEvent | TouchEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+        setPickerView(null);
+      }
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        if (pickerView) setPickerView(null);
+        else setOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", onPointerDown);
@@ -110,12 +120,19 @@ export default function DateOfBirthField({
       document.removeEventListener("touchstart", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [open, pickerView]);
 
   useEffect(() => {
     const parsed = parseIsoDate(value);
     if (parsed) setDraft(parsed);
   }, [value]);
+
+  useEffect(() => {
+    if (pickerView !== "year") return;
+    requestAnimationFrame(() => {
+      selectedYearRef.current?.scrollIntoView({ block: "center" });
+    });
+  }, [pickerView]);
 
   const today = useMemo(() => localToday(), []);
   const years = useMemo(() => {
@@ -144,17 +161,40 @@ export default function DateOfBirthField({
     const initial = initialCalendarDate(value);
     setDraft(parseIsoDate(value));
     setVisibleMonth(new Date(initial.getFullYear(), initial.getMonth(), 1));
+    setPickerView(null);
     setOpen(true);
   }
 
   function shiftMonth(offset: number) {
+    setPickerView(null);
     setVisibleMonth((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
   }
 
+  function selectMonth(month: number) {
+    setVisibleMonth((current) => new Date(current.getFullYear(), month, 1));
+    setPickerView(null);
+  }
+
+  function selectYear(year: number) {
+    setVisibleMonth((current) => new Date(year, current.getMonth(), 1));
+    setPickerView(null);
+  }
+
+  const draftMatchesVisibleMonth = Boolean(
+    draft &&
+      draft.getFullYear() === visibleMonth.getFullYear() &&
+      draft.getMonth() === visibleMonth.getMonth(),
+  );
+
   function confirmDate() {
-    if (draft) onChange(toIsoDate(draft));
+    if (draft && draftMatchesVisibleMonth) onChange(toIsoDate(draft));
+    setPickerView(null);
     setOpen(false);
   }
+
+  const atCurrentMonth =
+    visibleMonth.getFullYear() === today.getFullYear() &&
+    visibleMonth.getMonth() === today.getMonth();
 
   return (
     <div ref={rootRef} className="relative min-w-0">
@@ -170,7 +210,14 @@ export default function DateOfBirthField({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-invalid={Boolean(error)}
-        onClick={() => (open ? setOpen(false) : openCalendar())}
+        onClick={() => {
+          if (open) {
+            setOpen(false);
+            setPickerView(null);
+          } else {
+            openCalendar();
+          }
+        }}
         className={`flex h-12 w-full items-center justify-between rounded-[10px] border-2 bg-white px-3 text-left font-sans text-sm outline-none transition-colors ${
           open ? "border-primary-04" : error ? "border-error-bright" : "border-neutral-03 hover:border-primary-04"
         }`}
@@ -183,9 +230,9 @@ export default function DateOfBirthField({
         <div
           role="dialog"
           aria-label="Choose date of birth"
-          className="absolute left-0 top-[78px] z-50 w-full min-w-[292px] overflow-hidden rounded-[10px] border border-neutral-03 bg-white shadow-[0_10px_30px_rgba(7,22,44,0.12)]"
+          className="absolute left-0 top-[78px] z-50 w-full min-w-[292px] overflow-hidden rounded-[10px] border border-neutral-03 bg-white shadow-[0_12px_34px_rgba(7,22,44,0.14)]"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-neutral-02 px-3 py-2.5">
+          <div className="relative flex items-center justify-between gap-3 border-b border-neutral-02 px-3 py-2.5">
             <button
               type="button"
               aria-label="Previous month"
@@ -195,34 +242,90 @@ export default function DateOfBirthField({
               <ChevronLeftIcon />
             </button>
 
-            <div className="flex items-center justify-center gap-1 font-display text-sm font-semibold text-primary-10">
-              <select
-                aria-label="Month"
-                value={visibleMonth.getMonth()}
-                onChange={(event) => setVisibleMonth(new Date(visibleMonth.getFullYear(), Number(event.target.value), 1))}
-                className="cursor-pointer appearance-none bg-transparent text-center outline-none"
+            <div className="flex min-w-0 items-center justify-center gap-1.5 font-display text-sm font-semibold text-primary-10">
+              <button
+                type="button"
+                aria-expanded={pickerView === "month"}
+                onClick={() => setPickerView((current) => current === "month" ? null : "month")}
+                className={`inline-flex h-8 items-center gap-1 rounded-md px-2 transition-colors hover:bg-primary-01 hover:text-primary-06 ${pickerView === "month" ? "bg-primary-01 text-primary-06" : ""}`}
               >
-                {MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}
-              </select>
-              <select
-                aria-label="Year"
-                value={visibleMonth.getFullYear()}
-                onChange={(event) => setVisibleMonth(new Date(Number(event.target.value), visibleMonth.getMonth(), 1))}
-                className="cursor-pointer appearance-none bg-transparent text-center outline-none"
+                {MONTHS[visibleMonth.getMonth()]}
+                <ChevronDownIcon open={pickerView === "month"} />
+              </button>
+              <button
+                type="button"
+                aria-expanded={pickerView === "year"}
+                onClick={() => setPickerView((current) => current === "year" ? null : "year")}
+                className={`inline-flex h-8 items-center gap-1 rounded-md px-2 transition-colors hover:bg-primary-01 hover:text-primary-06 ${pickerView === "year" ? "bg-primary-01 text-primary-06" : ""}`}
               >
-                {years.map((year) => <option key={year} value={year}>{year}</option>)}
-              </select>
+                {visibleMonth.getFullYear()}
+                <ChevronDownIcon open={pickerView === "year"} />
+              </button>
             </div>
 
             <button
               type="button"
               aria-label="Next month"
               onClick={() => shiftMonth(1)}
-              disabled={visibleMonth.getFullYear() === today.getFullYear() && visibleMonth.getMonth() === today.getMonth()}
+              disabled={atCurrentMonth}
               className="grid h-8 w-8 place-items-center rounded-md bg-neutral-01 text-neutral-07 transition-colors hover:bg-primary-01 hover:text-primary-06 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRightIcon />
             </button>
+
+            {pickerView === "month" ? (
+              <div className="absolute left-1/2 top-[50px] z-20 w-[276px] -translate-x-1/2 rounded-xl border border-neutral-02 bg-white p-2 shadow-[0_12px_30px_rgba(7,22,44,0.14)]">
+                <div className="grid grid-cols-3 gap-1">
+                  {MONTHS.map((month, index) => {
+                    const selected = index === visibleMonth.getMonth();
+                    const disabled = visibleMonth.getFullYear() === today.getFullYear() && index > today.getMonth();
+                    return (
+                      <button
+                        key={month}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => selectMonth(index)}
+                        className={`h-10 rounded-lg px-2 font-sans text-sm transition-colors ${
+                          selected
+                            ? "bg-primary-06 font-medium text-white"
+                            : disabled
+                              ? "cursor-not-allowed text-neutral-03"
+                              : "text-primary-10 hover:bg-primary-01 hover:text-primary-06"
+                        }`}
+                      >
+                        {month.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
+            {pickerView === "year" ? (
+              <div className="absolute left-1/2 top-[50px] z-20 w-[292px] -translate-x-1/2 rounded-xl border border-neutral-02 bg-white p-2 shadow-[0_12px_30px_rgba(7,22,44,0.14)]">
+                <div className="mb-2 px-2 font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-05">Select year</div>
+                <div className="grid max-h-[224px] grid-cols-3 gap-1 overflow-y-auto overscroll-contain pr-1">
+                  {years.map((year) => {
+                    const selected = year === visibleMonth.getFullYear();
+                    return (
+                      <button
+                        key={year}
+                        ref={selected ? selectedYearRef : undefined}
+                        type="button"
+                        onClick={() => selectYear(year)}
+                        className={`h-9 rounded-lg font-sans text-sm transition-colors ${
+                          selected
+                            ? "bg-primary-06 font-medium text-white"
+                            : "text-primary-10 hover:bg-primary-01 hover:text-primary-06"
+                        }`}
+                      >
+                        {year}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-7 border-b border-neutral-02 bg-neutral-01 px-2 py-2 text-center font-sans text-[11px] text-neutral-05">
@@ -259,7 +362,7 @@ export default function DateOfBirthField({
           <div className="flex justify-end border-t border-neutral-02 px-3 py-2.5">
             <button
               type="button"
-              disabled={!draft}
+              disabled={!draftMatchesVisibleMonth}
               onClick={confirmDate}
               className="h-9 rounded-md bg-primary-06 px-4 font-sans text-sm font-medium text-white transition-colors hover:bg-primary-07 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -284,9 +387,13 @@ function CalendarIcon() {
 }
 
 function ChevronLeftIcon() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+  return <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m8.5 3.5-3.5 3.5 3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 function ChevronRightIcon() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+  return <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m5.5 3.5 3.5 3.5-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
+function ChevronDownIcon({ open }: { open: boolean }) {
+  return <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${open ? "rotate-180" : ""}`}><path d="m3 4.5 3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }

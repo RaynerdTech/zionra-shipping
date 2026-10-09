@@ -135,7 +135,7 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
             <div className="mt-2 grid grid-cols-2 border border-neutral-03 sm:grid-cols-4">
               <Metric value={agent.rating !== null ? agent.rating.toFixed(1) : "—"} label="Rating" />
               <Metric value={agent.reviewCount.toLocaleString()} label="Reviews" />
-              <Metric value={agent.shipmentCount > 0 ? `${agent.shipmentCount.toLocaleString()}+` : "0"} label="Shipments" />
+              <Metric value={agent.shipmentCount !== null ? agent.shipmentCount.toLocaleString() : "—"} label="Shipments" />
               <Metric value={agent.onTimeRate !== null ? `${agent.onTimeRate}%` : "—"} label="On-time rate" />
             </div>
 
@@ -147,7 +147,7 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
               <Tag>Shipment frequency: {agent.shipmentFrequency ?? "Not provided"}</Tag>
             </div>
 
-            <p className="mt-7 font-sans text-[15px] font-semibold leading-9 text-neutral-08 sm:text-[16px]">{agent.bio || `${agent.companyName} is a verified Zionra shipping partner serving approved collection locations between the UK and Nigeria.`}</p>
+            {agent.bio ? <p className="mt-7 font-sans text-[15px] font-semibold leading-9 text-neutral-08 sm:text-[16px]">{agent.bio}</p> : null}
 
             <button type="button" onClick={() => onSelect(agent.id)} className="zion-btn zion-btn-blue mt-6 min-h-[56px] w-full text-[16px]">Select agent</button>
 

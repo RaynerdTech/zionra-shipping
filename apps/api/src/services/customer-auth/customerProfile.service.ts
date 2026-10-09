@@ -35,7 +35,8 @@ export async function getCustomerProfile(customerId: string) {
   return {
     customer: toPublicCustomer(customer),
     addresses: customer.addresses,
-    totalShipments: 0,
+    // No Shipment model exists yet. Keep this unavailable instead of fabricating a count.
+    totalShipments: null,
   };
 }
 

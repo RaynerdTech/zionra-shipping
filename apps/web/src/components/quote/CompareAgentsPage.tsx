@@ -130,7 +130,7 @@ function AgentCard({ agent, best, onProfile, onSelect, selecting = false }: { ag
         <strong className="font-display text-[22px] font-semibold leading-[30px] text-primary-10">{formatMoney(agent.estimatedPriceGbp)}</strong>
         <span className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-06">
           <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" /><path d="M8 5v3l2 1" stroke="currentColor" strokeLinecap="round" /></svg>
-          {agent.deliveryEstimate ?? agent.shippingMethod ?? "Delivery time varies"}
+          {agent.deliveryEstimate ?? "Delivery estimate unavailable"}
         </span>
         <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-4 min-h-[48px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select"}</button>
       </div>

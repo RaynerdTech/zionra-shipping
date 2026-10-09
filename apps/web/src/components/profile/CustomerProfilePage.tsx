@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
+import type { CountryCode } from "libphonenumber-js";
 import Header from "@/components/layout/Header";
 import { useCustomerAuth, type CustomerAccount } from "@/components/auth/CustomerAuthProvider";
 import DateOfBirthField from "@/components/auth/shared/DateOfBirthField";
@@ -9,6 +10,8 @@ import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import { withCustomerReturnTo } from "@/lib/authReturn";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import CountrySelect from "@/components/ui/CountrySelect";
+import { COUNTRY_OPTIONS } from "@/lib/countries";
 
 type Address = {
   id: string;
@@ -24,7 +27,7 @@ type Address = {
 type ProfileResponse = {
   customer?: CustomerAccount;
   addresses?: Address[];
-  totalShipments?: number;
+  totalShipments?: number | null;
   message?: string;
 };
 
@@ -40,15 +43,28 @@ type ProfileForm = {
 
 type AddressForm = Omit<Address, "id">;
 
-const EMPTY_ADDRESS: AddressForm = {
-  label: "",
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  postcode: "",
-  country: "United Kingdom",
-  isDefault: false,
-};
+function emptyAddress(country: string): AddressForm {
+  return {
+    label: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    postcode: "",
+    country,
+    isDefault: false,
+  };
+}
+
+function resolvePhoneCountry(callingCode: string, countryOfResidence: string): CountryCode {
+  const normalizedCallingCode = callingCode.replace(/\s+/g, "");
+  const residence = countryOfResidence.trim().toLowerCase();
+  const residenceMatch = COUNTRY_OPTIONS.find((country) =>
+    country.callingCode === normalizedCallingCode && country.name.toLowerCase() === residence,
+  );
+  if (residenceMatch) return residenceMatch.code;
+
+  return COUNTRY_OPTIONS.find((country) => country.callingCode === normalizedCallingCode)?.code ?? "GB";
+}
 
 function isoDate(value: string | null | undefined) {
   return value ? value.slice(0, 10) : "";
@@ -63,7 +79,7 @@ export default function CustomerProfilePage() {
   const router = useRouter();
   const { customer, status, refreshCustomer } = useCustomerAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [totalShipments, setTotalShipments] = useState(0);
+  const [totalShipments, setTotalShipments] = useState<number | null>(null);
   const [form, setForm] = useState<ProfileForm | null>(null);
   const [initialForm, setInitialForm] = useState<ProfileForm | null>(null);
   const [loading, setLoading] = useState(true);
@@ -108,7 +124,7 @@ export default function CustomerProfilePage() {
         setForm(values);
         setInitialForm(values);
         setAddresses(result.addresses ?? []);
-        setTotalShipments(result.totalShipments ?? 0);
+        setTotalShipments(typeof result.totalShipments === "number" ? result.totalShipments : null);
       } catch (caught) {
         if (caught instanceof DOMException && caught.name === "AbortError") return;
         setError(caught instanceof Error ? caught.message : "Unable to load your profile.");
@@ -188,6 +204,7 @@ export default function CustomerProfilePage() {
   const profileLocation = defaultAddress
     ? [defaultAddress.city, defaultAddress.country].filter(Boolean).join(", ")
     : customer.countryOfResidence;
+  const phoneCountry = resolvePhoneCountry(form.phoneCountryCode, form.countryOfResidence);
 
   return (
     <main className="min-h-screen bg-neutral-01 text-primary-10">
@@ -212,7 +229,7 @@ export default function CustomerProfilePage() {
         <div className="mx-auto grid w-full max-w-[1276px] px-5 py-8 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-0 lg:py-10">
         <aside className="mb-8 flex flex-col gap-4 lg:mb-0 lg:pr-12">
           <div>
-            <p className="font-display text-[32px] font-semibold leading-[44px] text-primary-10">{totalShipments}</p>
+            <p className="font-display text-[32px] font-semibold leading-[44px] text-primary-10">{totalShipments === null ? "—" : totalShipments.toLocaleString()}</p>
             <p className="mt-0.5 text-sm text-neutral-05">Total shipments</p>
           </div>
           <div className="h-px bg-neutral-02" />
@@ -257,27 +274,27 @@ export default function CustomerProfilePage() {
               <ProfileInput label="Email address" value={customer.email} readOnly />
               <div>
                 <label className="mb-2 block text-sm">Phone number<span className="text-error-bright"> *</span></label>
-                {editingPhone ? (
-                  <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2">
-                    <input
-                      aria-label="Phone country code"
-                      value={form.phoneCountryCode}
-                      onChange={(event) => updateForm("phoneCountryCode", event.target.value)}
-                      className="h-12 rounded-[10px] border-2 border-primary-04 bg-white px-3 text-sm outline-none"
-                    />
-                    <input
-                      aria-label="Phone number"
-                      value={form.phoneNumber}
-                      onChange={(event) => updateForm("phoneNumber", event.target.value)}
-                      className="h-12 min-w-0 rounded-[10px] border-2 border-primary-04 bg-white px-3 text-sm outline-none"
+                <div className={`flex h-12 min-w-0 items-stretch overflow-visible rounded-[10px] border-2 bg-white transition-colors ${editingPhone ? "border-primary-04" : "border-neutral-03"}`}>
+                  <div className="h-full w-[118px] shrink-0 border-r border-neutral-02">
+                    <CountrySelect
+                      id="profilePhoneCountry"
+                      value={phoneCountry}
+                      compact
+                      embedded
+                      disabled={!editingPhone}
+                      ariaLabel="Phone country code"
+                      onChange={(country) => updateForm("phoneCountryCode", country.callingCode)}
                     />
                   </div>
-                ) : (
-                  <div className="flex h-12 items-center gap-2 rounded-[10px] border-2 border-primary-04 bg-white px-3">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-neutral-01 text-[14px] leading-none">{phoneFlag(form.phoneCountryCode)}</span>
-                    <span className="min-w-0 flex-1 truncate text-sm">{form.phoneCountryCode} {form.phoneNumber}</span>
-                  </div>
-                )}
+                  <input
+                    aria-label="Phone number"
+                    type="tel"
+                    value={form.phoneNumber}
+                    readOnly={!editingPhone}
+                    onChange={(event) => updateForm("phoneNumber", event.target.value)}
+                    className={`h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-primary-10 outline-none ${editingPhone ? "" : "cursor-default"}`}
+                  />
+                </div>
                 <div className="mt-2 flex justify-end">
                   <button type="button" onClick={() => setEditingPhone((value) => !value)} className="zion-btn zion-btn-sm border border-neutral-03 bg-white text-primary-10 hover:bg-neutral-01">{editingPhone ? "Done" : "Edit Phone number"}</button>
                 </div>
@@ -315,7 +332,7 @@ export default function CustomerProfilePage() {
                 <div className="rounded-xl bg-neutral-01 px-5 py-8 text-center">
                   <p className="font-display text-sm font-semibold text-primary-10">No saved addresses yet</p>
                   <p className="mt-1 text-sm text-neutral-06">Save an address here for faster shipment details later.</p>
-                  <button type="button" onClick={() => setAddressEditor({ values: EMPTY_ADDRESS })} className="zion-btn zion-btn-sm zion-btn-outline-blue mt-4">Add address</button>
+                  <button type="button" onClick={() => setAddressEditor({ values: emptyAddress(customer.countryOfResidence) })} className="zion-btn zion-btn-sm zion-btn-outline-blue mt-4">Add address</button>
                 </div>
               )}
             </div>
@@ -406,16 +423,6 @@ function AddressModal({ editor, onClose, onSaved, onDeleted }: { editor: { id?: 
       </form>
     </div>
   );
-}
-
-function phoneFlag(countryCode: string) {
-  const normalized = countryCode.replace(/\s+/g, "");
-  if (normalized === "+44") return "🇬🇧";
-  if (normalized === "+234") return "🇳🇬";
-  if (normalized === "+1") return "🇺🇸";
-  if (normalized === "+33") return "🇫🇷";
-  if (normalized === "+49") return "🇩🇪";
-  return "🌐";
 }
 
 function UserIcon() { return <Icon><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3 3.6-5 8-5s8 2 8 5"/></Icon>; }

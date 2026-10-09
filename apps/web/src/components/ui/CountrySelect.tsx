@@ -27,6 +27,8 @@ type CountrySelectProps = {
   compact?: boolean;
   error?: boolean;
   ariaLabel: string;
+  embedded?: boolean;
+  disabled?: boolean;
 };
 
 function ChevronIcon() {
@@ -75,6 +77,8 @@ export default function CountrySelect({
   compact = false,
   error = false,
   ariaLabel,
+  embedded = false,
+  disabled = false,
 }: CountrySelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,7 +119,7 @@ export default function CountrySelect({
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={embedded ? "relative h-full" : "relative"}>
       <button
         id={id}
         type="button"
@@ -123,10 +127,11 @@ export default function CountrySelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls={listboxId}
-        onClick={() => setIsOpen((current) => !current)}
-        className={`zion-input group flex h-[52px] w-full min-w-0 items-center text-left md:h-12 ${
+        disabled={disabled}
+        onClick={() => { if (!disabled) setIsOpen((current) => !current); }}
+        className={`${embedded ? "group flex h-full w-full min-w-0 items-center bg-transparent text-left outline-none" : "zion-input group flex h-[52px] w-full min-w-0 items-center text-left md:h-12"} ${
           compact ? "gap-1.5 px-2.5" : "gap-2 pr-3"
-        } ${error ? "zion-input-error" : ""}`}
+        } ${error && !embedded ? "zion-input-error" : ""} ${disabled ? "cursor-default" : ""}`}
       >
         <CountryFlag country={selectedCountry} />
         <span
@@ -140,18 +145,20 @@ export default function CountrySelect({
             ? selectedCountry.callingCode
             : selectedCountry.name}
         </span>
-        <span
-          className={`pointer-events-none inline-flex shrink-0 items-center justify-center rounded-full text-primary-08 transition-colors duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
-            compact
-              ? "ml-auto h-5 w-5 shrink-0"
-              : "h-8 w-8 rounded-full bg-primary-01"
-          }`}
-        >
-          <ChevronIcon />
-        </span>
+        {!disabled ? (
+          <span
+            className={`pointer-events-none inline-flex shrink-0 items-center justify-center rounded-full text-primary-08 transition-colors duration-200 md:group-hover:bg-primary-02 md:group-hover:text-primary-09 group-active:bg-primary-02 group-active:text-primary-09 ${
+              compact
+                ? "ml-auto h-5 w-5 shrink-0"
+                : "h-8 w-8 rounded-full bg-primary-01"
+            }`}
+          >
+            <ChevronIcon />
+          </span>
+        ) : null}
       </button>
 
-      {isOpen ? (
+      {isOpen && !disabled ? (
         <div
           id={listboxId}
           role="listbox"

@@ -5,7 +5,7 @@ export type QuoteAgentSummary = {
   verified: boolean;
   rating: number | null;
   reviewCount: number;
-  shipmentCount: number;
+  shipmentCount: number | null;
   onTimeRate: number | null;
   responseTime: string | null;
   collectionMethod: string | null;

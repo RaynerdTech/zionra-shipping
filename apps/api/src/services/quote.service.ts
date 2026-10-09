@@ -175,6 +175,7 @@ export async function searchQuoteAgents(input: QuoteAgentSearchInput) {
     },
     select: {
       id: true,
+      status: true,
       application: {
         select: {
           registeredBusinessName: true,
@@ -246,10 +247,10 @@ export async function searchQuoteAgents(input: QuoteAgentSearchInput) {
         id: partner.id,
         companyName: application.registeredBusinessName ?? "Shipping partner",
         logoUrl: application.companyLogoUrl,
-        verified: true,
+        verified: partner.status === "APPROVED",
         rating: reviewSummary.rating,
         reviewCount: reviewSummary.reviewCount,
-        shipmentCount: 0,
+        shipmentCount: null,
         onTimeRate: null,
         responseTime: application.responseTime,
         collectionMethod: application.collectionMethod,
@@ -295,6 +296,7 @@ export async function getQuoteAgent(agentId: string) {
     },
     select: {
       id: true,
+      status: true,
       application: {
         select: {
           registeredBusinessName: true,
@@ -338,11 +340,11 @@ export async function getQuoteAgent(agentId: string) {
     id: partner.id,
     companyName: application.registeredBusinessName ?? "Shipping partner",
     logoUrl: application.companyLogoUrl,
-    verified: true,
+    verified: partner.status === "APPROVED",
     bio: application.companyBio,
     rating: reviewSummary.rating,
     reviewCount: reviewSummary.reviewCount,
-    shipmentCount: 0,
+    shipmentCount: null,
     onTimeRate: null,
     responseTime: application.responseTime,
     collectionMethod: application.collectionMethod,

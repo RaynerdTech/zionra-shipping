@@ -317,8 +317,12 @@ export default function ShipmentDetailsPage() {
   const shipping = agent?.pricePerKgEur !== null && agent?.pricePerKgEur !== undefined && Number.isFinite(numericWeight) && numericWeight > 0
     ? Math.round(agent.pricePerKgEur * numericWeight * agent.eurToGbpRate * 100) / 100
     : agent?.estimatedPriceGbp ?? null;
-  const serviceCharge = shipping === null ? null : Math.round(shipping * 0.05 * 100) / 100;
-  const total = shipping === null || serviceCharge === null ? null : Math.round((shipping + serviceCharge) * 100) / 100;
+  // Service-charge policy is not backed by platform data yet. Keep it unavailable
+  // rather than inventing a percentage in the customer checkout UI.
+  const serviceCharge: number | null = null;
+  const total: number | null = serviceCharge === null || shipping === null
+    ? null
+    : Math.round((shipping + serviceCharge) * 100) / 100;
 
   const requiredComplete = useMemo(() => Boolean(
     form.senderFullName.trim() && form.senderPhoneNumber.trim() && form.senderEmail.trim() && form.pickupAddress.trim() && form.pickupCity.trim() && form.receiverFullName.trim() && form.receiverPhoneNumber.trim() && form.deliveryAddress.trim() && form.deliveryCity.trim() && form.deliveryState.trim() && form.itemsDescription.trim() && form.weightKg.trim() && form.declaredValueGbp.trim()
@@ -400,7 +404,7 @@ export default function ShipmentDetailsPage() {
           <p className="mb-4 text-[11px] text-neutral-07">Home <span className="mx-2">/</span> Get a quote <span className="mx-2">/</span> Compare agents <span className="mx-2">/</span> <span className="text-primary-10">Shipment details</span></p>
           <AgentSummaryCard agent={agent} returning={returningToAgents} onUnselect={returnToAgents} />
 
-          <div className="mt-4 rounded-[10px] border border-neutral-02 bg-white px-5 py-4 text-[12px] leading-[20px] text-neutral-08">{agent.companyName} is a verified Zionra shipping partner. Complete the shipment details below to continue with this quote.</div>
+          <div className="mt-4 rounded-[10px] border border-neutral-02 bg-white px-5 py-4 text-[12px] leading-[20px] text-neutral-08">{agent.verified ? `${agent.companyName} is an approved Zionra shipping partner.` : agent.companyName} Complete the shipment details below to continue with this quote.</div>
 
           <form onSubmit={submit} className="mt-4 rounded-[10px] border border-neutral-02 bg-white p-5 sm:p-7">
             <h1 className="font-display text-[18px] font-semibold text-primary-10">Shipment information</h1>
@@ -442,7 +446,7 @@ export default function ShipmentDetailsPage() {
 
               <div className="mx-auto mt-6 max-w-[650px] rounded-[10px] border border-neutral-03 px-5 py-4 text-[12px] text-neutral-08">
                 <div className="flex justify-between gap-4 py-1"><span>Shipping ({form.weightKg || "—"}kg)</span><strong className="text-primary-10">{money(shipping)}</strong></div>
-                <div className="flex justify-between gap-4 py-1"><span>Service charge (5%)</span><strong className="text-primary-10">{money(serviceCharge)}</strong></div>
+                <div className="flex justify-between gap-4 py-1"><span>Service charge</span><strong className="text-primary-10">{money(serviceCharge)}</strong></div>
                 <div className="mt-2 flex justify-between gap-4 border-t border-neutral-02 pt-3 font-semibold"><span>Estimated total</span><strong className="text-primary-10">{money(total)}</strong></div>
               </div>
 
