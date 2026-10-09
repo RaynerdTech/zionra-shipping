@@ -36,6 +36,13 @@ export const ShippingPartnerStatus = {
 export type ShippingPartnerStatus = (typeof ShippingPartnerStatus)[keyof typeof ShippingPartnerStatus]
 
 
+export const ShippingPartnerReviewSource = {
+  GOOGLE: 'GOOGLE'
+} as const
+
+export type ShippingPartnerReviewSource = (typeof ShippingPartnerReviewSource)[keyof typeof ShippingPartnerReviewSource]
+
+
 export const ShippingPartnerApplicationStep = {
   BUSINESS_INFORMATION: 'BUSINESS_INFORMATION',
   OPERATIONAL_DETAILS: 'OPERATIONAL_DETAILS',

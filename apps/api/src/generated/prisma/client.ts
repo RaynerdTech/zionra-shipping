@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model CustomerAddress
+ * 
+ */
+export type CustomerAddress = Prisma.CustomerAddressModel
+/**
  * Model CustomerEmailVerificationCode
  * 
  */
@@ -86,6 +91,11 @@ export type CustomerOAuthSignup = Prisma.CustomerOAuthSignupModel
  * 
  */
 export type ShippingPartner = Prisma.ShippingPartnerModel
+/**
+ * Model ShippingPartnerReview
+ * 
+ */
+export type ShippingPartnerReview = Prisma.ShippingPartnerReviewModel
 /**
  * Model ShippingPartnerEmailVerificationCode
  * 

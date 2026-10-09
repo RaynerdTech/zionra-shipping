@@ -28,6 +28,8 @@ export type CustomerMinAggregateOutputType = {
   id: string | null
   firstName: string | null
   lastName: string | null
+  dateOfBirth: Date | null
+  nationality: string | null
   email: string | null
   phoneCountryCode: string | null
   phoneNumber: string | null
@@ -46,6 +48,8 @@ export type CustomerMaxAggregateOutputType = {
   id: string | null
   firstName: string | null
   lastName: string | null
+  dateOfBirth: Date | null
+  nationality: string | null
   email: string | null
   phoneCountryCode: string | null
   phoneNumber: string | null
@@ -64,6 +68,8 @@ export type CustomerCountAggregateOutputType = {
   id: number
   firstName: number
   lastName: number
+  dateOfBirth: number
+  nationality: number
   email: number
   phoneCountryCode: number
   phoneNumber: number
@@ -84,6 +90,8 @@ export type CustomerMinAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  dateOfBirth?: true
+  nationality?: true
   email?: true
   phoneCountryCode?: true
   phoneNumber?: true
@@ -102,6 +110,8 @@ export type CustomerMaxAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  dateOfBirth?: true
+  nationality?: true
   email?: true
   phoneCountryCode?: true
   phoneNumber?: true
@@ -120,6 +130,8 @@ export type CustomerCountAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  dateOfBirth?: true
+  nationality?: true
   email?: true
   phoneCountryCode?: true
   phoneNumber?: true
@@ -211,6 +223,8 @@ export type CustomerGroupByOutputType = {
   id: string
   firstName: string
   lastName: string
+  dateOfBirth: Date | null
+  nationality: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -250,6 +264,8 @@ export type CustomerWhereInput = {
   id?: Prisma.StringFilter<"Customer"> | string
   firstName?: Prisma.StringFilter<"Customer"> | string
   lastName?: Prisma.StringFilter<"Customer"> | string
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
+  nationality?: Prisma.StringNullableFilter<"Customer"> | string | null
   email?: Prisma.StringFilter<"Customer"> | string
   phoneCountryCode?: Prisma.StringFilter<"Customer"> | string
   phoneNumber?: Prisma.StringFilter<"Customer"> | string
@@ -268,12 +284,15 @@ export type CustomerWhereInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeListRelationFilter
   sessions?: Prisma.CustomerSessionListRelationFilter
   oauthAccounts?: Prisma.CustomerOAuthAccountListRelationFilter
+  addresses?: Prisma.CustomerAddressListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  nationality?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   phoneCountryCode?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
@@ -292,6 +311,7 @@ export type CustomerOrderByWithRelationInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeOrderByRelationAggregateInput
   sessions?: Prisma.CustomerSessionOrderByRelationAggregateInput
   oauthAccounts?: Prisma.CustomerOAuthAccountOrderByRelationAggregateInput
+  addresses?: Prisma.CustomerAddressOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -302,6 +322,8 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   firstName?: Prisma.StringFilter<"Customer"> | string
   lastName?: Prisma.StringFilter<"Customer"> | string
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
+  nationality?: Prisma.StringNullableFilter<"Customer"> | string | null
   phoneCountryCode?: Prisma.StringFilter<"Customer"> | string
   phoneNumber?: Prisma.StringFilter<"Customer"> | string
   passwordHash?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -319,12 +341,15 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   loginChallenges?: Prisma.CustomerLoginChallengeListRelationFilter
   sessions?: Prisma.CustomerSessionListRelationFilter
   oauthAccounts?: Prisma.CustomerOAuthAccountListRelationFilter
+  addresses?: Prisma.CustomerAddressListRelationFilter
 }, "id" | "email">
 
 export type CustomerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  nationality?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   phoneCountryCode?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
@@ -349,6 +374,8 @@ export type CustomerScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
+  nationality?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   email?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   phoneCountryCode?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   phoneNumber?: Prisma.StringWithAggregatesFilter<"Customer"> | string
@@ -367,6 +394,8 @@ export type CustomerCreateInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -385,12 +414,15 @@ export type CustomerCreateInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -409,12 +441,15 @@ export type CustomerUncheckedCreateInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -433,12 +468,15 @@ export type CustomerUpdateInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -457,12 +495,15 @@ export type CustomerUncheckedUpdateInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -481,6 +522,8 @@ export type CustomerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -499,6 +542,8 @@ export type CustomerUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -517,6 +562,8 @@ export type CustomerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  nationality?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phoneCountryCode?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
@@ -535,6 +582,8 @@ export type CustomerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  nationality?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phoneCountryCode?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
@@ -553,6 +602,8 @@ export type CustomerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  nationality?: Prisma.SortOrder
   email?: Prisma.SortOrder
   phoneCountryCode?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
@@ -576,6 +627,10 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
@@ -588,12 +643,22 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type EnumCustomerStatusFieldUpdateOperationsInput = {
   set?: $Enums.CustomerStatus
+}
+
+export type CustomerCreateNestedOneWithoutAddressesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAddressesInput, Prisma.CustomerUncheckedCreateWithoutAddressesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAddressesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutAddressesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAddressesInput, Prisma.CustomerUncheckedCreateWithoutAddressesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAddressesInput
+  upsert?: Prisma.CustomerUpsertWithoutAddressesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutAddressesInput, Prisma.CustomerUpdateWithoutAddressesInput>, Prisma.CustomerUncheckedUpdateWithoutAddressesInput>
 }
 
 export type CustomerCreateNestedOneWithoutEmailVerificationCodesInput = {
@@ -680,10 +745,132 @@ export type CustomerUpdateOneRequiredWithoutOauthAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutOauthAccountsInput, Prisma.CustomerUpdateWithoutOauthAccountsInput>, Prisma.CustomerUncheckedUpdateWithoutOauthAccountsInput>
 }
 
+export type CustomerCreateWithoutAddressesInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
+  email: string
+  phoneCountryCode: string
+  phoneNumber: string
+  passwordHash?: string | null
+  countryOfResidence: string
+  referralSource?: string | null
+  acceptedTermsAt: Date | string
+  marketingOptIn?: boolean
+  emailVerifiedAt?: Date | string | null
+  status?: $Enums.CustomerStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeCreateNestedManyWithoutCustomerInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
+  loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
+  sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutAddressesInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
+  email: string
+  phoneCountryCode: string
+  phoneNumber: string
+  passwordHash?: string | null
+  countryOfResidence: string
+  referralSource?: string | null
+  acceptedTermsAt: Date | string
+  marketingOptIn?: boolean
+  emailVerifiedAt?: Date | string | null
+  status?: $Enums.CustomerStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedCreateNestedManyWithoutCustomerInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
+  loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
+  sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutAddressesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutAddressesInput, Prisma.CustomerUncheckedCreateWithoutAddressesInput>
+}
+
+export type CustomerUpsertWithoutAddressesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutAddressesInput, Prisma.CustomerUncheckedUpdateWithoutAddressesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutAddressesInput, Prisma.CustomerUncheckedCreateWithoutAddressesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutAddressesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutAddressesInput, Prisma.CustomerUncheckedUpdateWithoutAddressesInput>
+}
+
+export type CustomerUpdateWithoutAddressesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfResidence?: Prisma.StringFieldUpdateOperationsInput | string
+  referralSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedTermsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  marketingOptIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
+  loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
+  sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutAddressesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryOfResidence?: Prisma.StringFieldUpdateOperationsInput | string
+  referralSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acceptedTermsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  marketingOptIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailVerificationCodes?: Prisma.CustomerEmailVerificationCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetCodes?: Prisma.CustomerPasswordResetCodeUncheckedUpdateManyWithoutCustomerNestedInput
+  passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
+  loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
+  sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
+  oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
 export type CustomerCreateWithoutEmailVerificationCodesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -701,12 +888,15 @@ export type CustomerCreateWithoutEmailVerificationCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutEmailVerificationCodesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -724,6 +914,7 @@ export type CustomerUncheckedCreateWithoutEmailVerificationCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutEmailVerificationCodesInput = {
@@ -746,6 +937,8 @@ export type CustomerUpdateWithoutEmailVerificationCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -763,12 +956,15 @@ export type CustomerUpdateWithoutEmailVerificationCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutEmailVerificationCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -786,12 +982,15 @@ export type CustomerUncheckedUpdateWithoutEmailVerificationCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutPasswordResetCodesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -809,12 +1008,15 @@ export type CustomerCreateWithoutPasswordResetCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutPasswordResetCodesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -832,6 +1034,7 @@ export type CustomerUncheckedCreateWithoutPasswordResetCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutPasswordResetCodesInput = {
@@ -854,6 +1057,8 @@ export type CustomerUpdateWithoutPasswordResetCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -871,12 +1076,15 @@ export type CustomerUpdateWithoutPasswordResetCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutPasswordResetCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -894,12 +1102,15 @@ export type CustomerUncheckedUpdateWithoutPasswordResetCodesInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutPasswordResetAuthorizationsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -917,12 +1128,15 @@ export type CustomerCreateWithoutPasswordResetAuthorizationsInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -940,6 +1154,7 @@ export type CustomerUncheckedCreateWithoutPasswordResetAuthorizationsInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutPasswordResetAuthorizationsInput = {
@@ -962,6 +1177,8 @@ export type CustomerUpdateWithoutPasswordResetAuthorizationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -979,12 +1196,15 @@ export type CustomerUpdateWithoutPasswordResetAuthorizationsInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1002,12 +1222,15 @@ export type CustomerUncheckedUpdateWithoutPasswordResetAuthorizationsInput = {
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutLoginChallengesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1025,12 +1248,15 @@ export type CustomerCreateWithoutLoginChallengesInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutLoginChallengesInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1048,6 +1274,7 @@ export type CustomerUncheckedCreateWithoutLoginChallengesInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutLoginChallengesInput = {
@@ -1070,6 +1297,8 @@ export type CustomerUpdateWithoutLoginChallengesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1087,12 +1316,15 @@ export type CustomerUpdateWithoutLoginChallengesInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutLoginChallengesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1110,12 +1342,15 @@ export type CustomerUncheckedUpdateWithoutLoginChallengesInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutSessionsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1133,12 +1368,15 @@ export type CustomerCreateWithoutSessionsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutSessionsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1156,6 +1394,7 @@ export type CustomerUncheckedCreateWithoutSessionsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutSessionsInput = {
@@ -1178,6 +1417,8 @@ export type CustomerUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1195,12 +1436,15 @@ export type CustomerUpdateWithoutSessionsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1218,12 +1462,15 @@ export type CustomerUncheckedUpdateWithoutSessionsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   oauthAccounts?: Prisma.CustomerOAuthAccountUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutOauthAccountsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1241,12 +1488,15 @@ export type CustomerCreateWithoutOauthAccountsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationCreateNestedManyWithoutCustomerInput
   loginChallenges?: Prisma.CustomerLoginChallengeCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutOauthAccountsInput = {
   id?: string
   firstName: string
   lastName: string
+  dateOfBirth?: Date | string | null
+  nationality?: string | null
   email: string
   phoneCountryCode: string
   phoneNumber: string
@@ -1264,6 +1514,7 @@ export type CustomerUncheckedCreateWithoutOauthAccountsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedCreateNestedManyWithoutCustomerInput
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedCreateNestedManyWithoutCustomerInput
   sessions?: Prisma.CustomerSessionUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutOauthAccountsInput = {
@@ -1286,6 +1537,8 @@ export type CustomerUpdateWithoutOauthAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1303,12 +1556,15 @@ export type CustomerUpdateWithoutOauthAccountsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUpdateManyWithoutCustomerNestedInput
   loginChallenges?: Prisma.CustomerLoginChallengeUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutOauthAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nationality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phoneCountryCode?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1326,6 +1582,7 @@ export type CustomerUncheckedUpdateWithoutOauthAccountsInput = {
   passwordResetAuthorizations?: Prisma.CustomerPasswordResetAuthorizationUncheckedUpdateManyWithoutCustomerNestedInput
   loginChallenges?: Prisma.CustomerLoginChallengeUncheckedUpdateManyWithoutCustomerNestedInput
   sessions?: Prisma.CustomerSessionUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 
@@ -1340,6 +1597,7 @@ export type CustomerCountOutputType = {
   loginChallenges: number
   sessions: number
   oauthAccounts: number
+  addresses: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1349,6 +1607,7 @@ export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   loginChallenges?: boolean | CustomerCountOutputTypeCountLoginChallengesArgs
   sessions?: boolean | CustomerCountOutputTypeCountSessionsArgs
   oauthAccounts?: boolean | CustomerCountOutputTypeCountOauthAccountsArgs
+  addresses?: boolean | CustomerCountOutputTypeCountAddressesArgs
 }
 
 /**
@@ -1403,11 +1662,20 @@ export type CustomerCountOutputTypeCountOauthAccountsArgs<ExtArgs extends runtim
   where?: Prisma.CustomerOAuthAccountWhereInput
 }
 
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountAddressesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerAddressWhereInput
+}
+
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  dateOfBirth?: boolean
+  nationality?: boolean
   email?: boolean
   phoneCountryCode?: boolean
   phoneNumber?: boolean
@@ -1426,6 +1694,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   loginChallenges?: boolean | Prisma.Customer$loginChallengesArgs<ExtArgs>
   sessions?: boolean | Prisma.Customer$sessionsArgs<ExtArgs>
   oauthAccounts?: boolean | Prisma.Customer$oauthAccountsArgs<ExtArgs>
+  addresses?: boolean | Prisma.Customer$addressesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1433,6 +1702,8 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  dateOfBirth?: boolean
+  nationality?: boolean
   email?: boolean
   phoneCountryCode?: boolean
   phoneNumber?: boolean
@@ -1451,6 +1722,8 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  dateOfBirth?: boolean
+  nationality?: boolean
   email?: boolean
   phoneCountryCode?: boolean
   phoneNumber?: boolean
@@ -1469,6 +1742,8 @@ export type CustomerSelectScalar = {
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  dateOfBirth?: boolean
+  nationality?: boolean
   email?: boolean
   phoneCountryCode?: boolean
   phoneNumber?: boolean
@@ -1483,7 +1758,7 @@ export type CustomerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "email" | "phoneCountryCode" | "phoneNumber" | "passwordHash" | "countryOfResidence" | "referralSource" | "acceptedTermsAt" | "marketingOptIn" | "emailVerifiedAt" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "dateOfBirth" | "nationality" | "email" | "phoneCountryCode" | "phoneNumber" | "passwordHash" | "countryOfResidence" | "referralSource" | "acceptedTermsAt" | "marketingOptIn" | "emailVerifiedAt" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   emailVerificationCodes?: boolean | Prisma.Customer$emailVerificationCodesArgs<ExtArgs>
   passwordResetCodes?: boolean | Prisma.Customer$passwordResetCodesArgs<ExtArgs>
@@ -1491,6 +1766,7 @@ export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   loginChallenges?: boolean | Prisma.Customer$loginChallengesArgs<ExtArgs>
   sessions?: boolean | Prisma.Customer$sessionsArgs<ExtArgs>
   oauthAccounts?: boolean | Prisma.Customer$oauthAccountsArgs<ExtArgs>
+  addresses?: boolean | Prisma.Customer$addressesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1505,11 +1781,14 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     loginChallenges: Prisma.$CustomerLoginChallengePayload<ExtArgs>[]
     sessions: Prisma.$CustomerSessionPayload<ExtArgs>[]
     oauthAccounts: Prisma.$CustomerOAuthAccountPayload<ExtArgs>[]
+    addresses: Prisma.$CustomerAddressPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     firstName: string
     lastName: string
+    dateOfBirth: Date | null
+    nationality: string | null
     email: string
     phoneCountryCode: string
     phoneNumber: string
@@ -1922,6 +2201,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   loginChallenges<T extends Prisma.Customer$loginChallengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$loginChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerLoginChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.Customer$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   oauthAccounts<T extends Prisma.Customer$oauthAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$oauthAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerOAuthAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  addresses<T extends Prisma.Customer$addressesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$addressesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1954,6 +2234,8 @@ export interface CustomerFieldRefs {
   readonly id: Prisma.FieldRef<"Customer", 'String'>
   readonly firstName: Prisma.FieldRef<"Customer", 'String'>
   readonly lastName: Prisma.FieldRef<"Customer", 'String'>
+  readonly dateOfBirth: Prisma.FieldRef<"Customer", 'DateTime'>
+  readonly nationality: Prisma.FieldRef<"Customer", 'String'>
   readonly email: Prisma.FieldRef<"Customer", 'String'>
   readonly phoneCountryCode: Prisma.FieldRef<"Customer", 'String'>
   readonly phoneNumber: Prisma.FieldRef<"Customer", 'String'>
@@ -2500,6 +2782,30 @@ export type Customer$oauthAccountsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.CustomerOAuthAccountScalarFieldEnum | Prisma.CustomerOAuthAccountScalarFieldEnum[]
+}
+
+/**
+ * Customer.addresses
+ */
+export type Customer$addressesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerAddress
+   */
+  select?: Prisma.CustomerAddressSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerAddress
+   */
+  omit?: Prisma.CustomerAddressOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerAddressInclude<ExtArgs> | null
+  where?: Prisma.CustomerAddressWhereInput
+  orderBy?: Prisma.CustomerAddressOrderByWithRelationInput | Prisma.CustomerAddressOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerAddressWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerAddressScalarFieldEnum | Prisma.CustomerAddressScalarFieldEnum[]
 }
 
 /**

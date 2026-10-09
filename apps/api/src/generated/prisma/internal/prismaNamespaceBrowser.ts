@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Customer: 'Customer',
+  CustomerAddress: 'CustomerAddress',
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
   CustomerPasswordResetAuthorization: 'CustomerPasswordResetAuthorization',
@@ -60,6 +61,7 @@ export const ModelName = {
   CustomerOAuthAccount: 'CustomerOAuthAccount',
   CustomerOAuthSignup: 'CustomerOAuthSignup',
   ShippingPartner: 'ShippingPartner',
+  ShippingPartnerReview: 'ShippingPartnerReview',
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
   ShippingPartnerPasswordResetCode: 'ShippingPartnerPasswordResetCode',
   ShippingPartnerPasswordResetAuthorization: 'ShippingPartnerPasswordResetAuthorization',
@@ -91,6 +93,8 @@ export const CustomerScalarFieldEnum = {
   id: 'id',
   firstName: 'firstName',
   lastName: 'lastName',
+  dateOfBirth: 'dateOfBirth',
+  nationality: 'nationality',
   email: 'email',
   phoneCountryCode: 'phoneCountryCode',
   phoneNumber: 'phoneNumber',
@@ -106,6 +110,23 @@ export const CustomerScalarFieldEnum = {
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const CustomerAddressScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  postcode: 'postcode',
+  country: 'country',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerAddressScalarFieldEnum = (typeof CustomerAddressScalarFieldEnum)[keyof typeof CustomerAddressScalarFieldEnum]
 
 
 export const CustomerEmailVerificationCodeScalarFieldEnum = {
@@ -228,6 +249,23 @@ export const ShippingPartnerScalarFieldEnum = {
 export type ShippingPartnerScalarFieldEnum = (typeof ShippingPartnerScalarFieldEnum)[keyof typeof ShippingPartnerScalarFieldEnum]
 
 
+export const ShippingPartnerReviewScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  externalReviewId: 'externalReviewId',
+  authorName: 'authorName',
+  authorPhotoUrl: 'authorPhotoUrl',
+  rating: 'rating',
+  comment: 'comment',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerReviewScalarFieldEnum = (typeof ShippingPartnerReviewScalarFieldEnum)[keyof typeof ShippingPartnerReviewScalarFieldEnum]
+
+
 export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
   id: 'id',
   codeHash: 'codeHash',
@@ -344,8 +382,12 @@ export const ShippingPartnerApplicationScalarFieldEnum = {
   shipmentFrequency: 'shipmentFrequency',
   airCargoPricePerKg: 'airCargoPricePerKg',
   seaCargoPricePerKg: 'seaCargoPricePerKg',
+  pricePerKg: 'pricePerKg',
   pricePerBarrel: 'pricePerBarrel',
   insuranceAvailable: 'insuranceAvailable',
+  maxLength: 'maxLength',
+  maxHeight: 'maxHeight',
+  maxWidth: 'maxWidth',
   upfrontImmigrationCharge: 'upfrontImmigrationCharge',
   companyLogoUrl: 'companyLogoUrl',
   companyLogoPublicId: 'companyLogoPublicId',

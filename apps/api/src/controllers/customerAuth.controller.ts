@@ -379,6 +379,10 @@ function getAuthenticatedCustomerId(req: Request, res: Response) {
   return customerId;
 }
 
+function getRouteParam(value: string | string[] | undefined) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export async function getCustomerProfileController(
   req: Request,
   res: Response,
@@ -467,12 +471,17 @@ export async function updateCustomerAddressController(
       return;
     }
 
+    const addressId = getRouteParam(req.params.addressId);
+    if (!addressId) {
+      throw new HttpError(HTTP_STATUS.BAD_REQUEST, "A valid address ID is required.");
+    }
+
     res
       .status(HTTP_STATUS.OK)
       .json(
         await updateCustomerAddress(
           customerId,
-          req.params.addressId,
+          addressId,
           validation.data,
         ),
       );
@@ -494,9 +503,14 @@ export async function deleteCustomerAddressController(
     const customerId = getAuthenticatedCustomerId(req, res);
     if (!customerId) return;
 
+    const addressId = getRouteParam(req.params.addressId);
+    if (!addressId) {
+      throw new HttpError(HTTP_STATUS.BAD_REQUEST, "A valid address ID is required.");
+    }
+
     res
       .status(HTTP_STATUS.OK)
-      .json(await deleteCustomerAddress(customerId, req.params.addressId));
+      .json(await deleteCustomerAddress(customerId, addressId));
   } catch (error) {
     forwardControllerError(
       next,

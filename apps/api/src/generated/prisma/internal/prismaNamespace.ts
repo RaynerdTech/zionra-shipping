@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Customer: 'Customer',
+  CustomerAddress: 'CustomerAddress',
   CustomerEmailVerificationCode: 'CustomerEmailVerificationCode',
   CustomerPasswordResetCode: 'CustomerPasswordResetCode',
   CustomerPasswordResetAuthorization: 'CustomerPasswordResetAuthorization',
@@ -393,6 +394,7 @@ export const ModelName = {
   CustomerOAuthAccount: 'CustomerOAuthAccount',
   CustomerOAuthSignup: 'CustomerOAuthSignup',
   ShippingPartner: 'ShippingPartner',
+  ShippingPartnerReview: 'ShippingPartnerReview',
   ShippingPartnerEmailVerificationCode: 'ShippingPartnerEmailVerificationCode',
   ShippingPartnerPasswordResetCode: 'ShippingPartnerPasswordResetCode',
   ShippingPartnerPasswordResetAuthorization: 'ShippingPartnerPasswordResetAuthorization',
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "customer" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerEmailVerificationCode" | "shippingPartnerPasswordResetCode" | "shippingPartnerPasswordResetAuthorization" | "shippingPartnerLoginChallenge" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup" | "shippingPartnerApplication" | "shippingPartnerApplicationContact"
+    modelProps: "customer" | "customerAddress" | "customerEmailVerificationCode" | "customerPasswordResetCode" | "customerPasswordResetAuthorization" | "customerLoginChallenge" | "customerSession" | "customerOAuthAccount" | "customerOAuthSignup" | "shippingPartner" | "shippingPartnerReview" | "shippingPartnerEmailVerificationCode" | "shippingPartnerPasswordResetCode" | "shippingPartnerPasswordResetAuthorization" | "shippingPartnerLoginChallenge" | "shippingPartnerOnboardingSession" | "shippingPartnerOAuthAccount" | "shippingPartnerOAuthSignup" | "shippingPartnerApplication" | "shippingPartnerApplicationContact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -492,6 +494,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerAddress: {
+      payload: Prisma.$CustomerAddressPayload<ExtArgs>
+      fields: Prisma.CustomerAddressFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerAddressFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerAddressFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerAddressFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerAddressFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerAddressFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerAddressCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerAddressCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerAddressCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerAddressDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        update: {
+          args: Prisma.CustomerAddressUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerAddressDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerAddressUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerAddressUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerAddressUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerAddressPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerAddressAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerAddress>
+        }
+        groupBy: {
+          args: Prisma.CustomerAddressGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAddressGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerAddressCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerAddressCountAggregateOutputType> | number
         }
       }
     }
@@ -1084,6 +1160,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ShippingPartnerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShippingPartnerReview: {
+      payload: Prisma.$ShippingPartnerReviewPayload<ExtArgs>
+      fields: Prisma.ShippingPartnerReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShippingPartnerReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShippingPartnerReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.ShippingPartnerReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShippingPartnerReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        findMany: {
+          args: Prisma.ShippingPartnerReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>[]
+        }
+        create: {
+          args: Prisma.ShippingPartnerReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        createMany: {
+          args: Prisma.ShippingPartnerReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShippingPartnerReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.ShippingPartnerReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        update: {
+          args: Prisma.ShippingPartnerReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShippingPartnerReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShippingPartnerReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShippingPartnerReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShippingPartnerReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShippingPartnerReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.ShippingPartnerReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShippingPartnerReview>
+        }
+        groupBy: {
+          args: Prisma.ShippingPartnerReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShippingPartnerReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShippingPartnerReviewCountAggregateOutputType> | number
         }
       }
     }
@@ -1796,6 +1946,8 @@ export const CustomerScalarFieldEnum = {
   id: 'id',
   firstName: 'firstName',
   lastName: 'lastName',
+  dateOfBirth: 'dateOfBirth',
+  nationality: 'nationality',
   email: 'email',
   phoneCountryCode: 'phoneCountryCode',
   phoneNumber: 'phoneNumber',
@@ -1811,6 +1963,23 @@ export const CustomerScalarFieldEnum = {
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const CustomerAddressScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  postcode: 'postcode',
+  country: 'country',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  customerId: 'customerId'
+} as const
+
+export type CustomerAddressScalarFieldEnum = (typeof CustomerAddressScalarFieldEnum)[keyof typeof CustomerAddressScalarFieldEnum]
 
 
 export const CustomerEmailVerificationCodeScalarFieldEnum = {
@@ -1933,6 +2102,23 @@ export const ShippingPartnerScalarFieldEnum = {
 export type ShippingPartnerScalarFieldEnum = (typeof ShippingPartnerScalarFieldEnum)[keyof typeof ShippingPartnerScalarFieldEnum]
 
 
+export const ShippingPartnerReviewScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  externalReviewId: 'externalReviewId',
+  authorName: 'authorName',
+  authorPhotoUrl: 'authorPhotoUrl',
+  rating: 'rating',
+  comment: 'comment',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  partnerId: 'partnerId'
+} as const
+
+export type ShippingPartnerReviewScalarFieldEnum = (typeof ShippingPartnerReviewScalarFieldEnum)[keyof typeof ShippingPartnerReviewScalarFieldEnum]
+
+
 export const ShippingPartnerEmailVerificationCodeScalarFieldEnum = {
   id: 'id',
   codeHash: 'codeHash',
@@ -2049,8 +2235,12 @@ export const ShippingPartnerApplicationScalarFieldEnum = {
   shipmentFrequency: 'shipmentFrequency',
   airCargoPricePerKg: 'airCargoPricePerKg',
   seaCargoPricePerKg: 'seaCargoPricePerKg',
+  pricePerKg: 'pricePerKg',
   pricePerBarrel: 'pricePerBarrel',
   insuranceAvailable: 'insuranceAvailable',
+  maxLength: 'maxLength',
+  maxHeight: 'maxHeight',
+  maxWidth: 'maxWidth',
   upfrontImmigrationCharge: 'upfrontImmigrationCharge',
   companyLogoUrl: 'companyLogoUrl',
   companyLogoPublicId: 'companyLogoPublicId',
@@ -2212,6 +2402,20 @@ export type ListEnumShippingPartnerStatusFieldRefInput<$PrismaModel> = FieldRefI
 
 
 /**
+ * Reference to a field of type 'ShippingPartnerReviewSource'
+ */
+export type EnumShippingPartnerReviewSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerReviewSource'>
+    
+
+
+/**
+ * Reference to a field of type 'ShippingPartnerReviewSource[]'
+ */
+export type ListEnumShippingPartnerReviewSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerReviewSource[]'>
+    
+
+
+/**
  * Reference to a field of type 'ShippingPartnerApplicationStep'
  */
 export type EnumShippingPartnerApplicationStepFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShippingPartnerApplicationStep'>
@@ -2363,6 +2567,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   customer?: Prisma.CustomerOmit
+  customerAddress?: Prisma.CustomerAddressOmit
   customerEmailVerificationCode?: Prisma.CustomerEmailVerificationCodeOmit
   customerPasswordResetCode?: Prisma.CustomerPasswordResetCodeOmit
   customerPasswordResetAuthorization?: Prisma.CustomerPasswordResetAuthorizationOmit
@@ -2371,6 +2576,7 @@ export type GlobalOmitConfig = {
   customerOAuthAccount?: Prisma.CustomerOAuthAccountOmit
   customerOAuthSignup?: Prisma.CustomerOAuthSignupOmit
   shippingPartner?: Prisma.ShippingPartnerOmit
+  shippingPartnerReview?: Prisma.ShippingPartnerReviewOmit
   shippingPartnerEmailVerificationCode?: Prisma.ShippingPartnerEmailVerificationCodeOmit
   shippingPartnerPasswordResetCode?: Prisma.ShippingPartnerPasswordResetCodeOmit
   shippingPartnerPasswordResetAuthorization?: Prisma.ShippingPartnerPasswordResetAuthorizationOmit

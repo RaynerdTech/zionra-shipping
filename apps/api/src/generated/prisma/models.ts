@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Customer.js'
+export type * from './models/CustomerAddress.js'
 export type * from './models/CustomerEmailVerificationCode.js'
 export type * from './models/CustomerPasswordResetCode.js'
 export type * from './models/CustomerPasswordResetAuthorization.js'
@@ -17,6 +18,7 @@ export type * from './models/CustomerSession.js'
 export type * from './models/CustomerOAuthAccount.js'
 export type * from './models/CustomerOAuthSignup.js'
 export type * from './models/ShippingPartner.js'
+export type * from './models/ShippingPartnerReview.js'
 export type * from './models/ShippingPartnerEmailVerificationCode.js'
 export type * from './models/ShippingPartnerPasswordResetCode.js'
 export type * from './models/ShippingPartnerPasswordResetAuthorization.js'
