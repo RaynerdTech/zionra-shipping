@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Header from "@/components/layout/Header";
@@ -194,31 +193,34 @@ export default function CustomerProfilePage() {
     <main className="min-h-screen bg-neutral-01 text-primary-10">
       <Header />
 
-      <section className="flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-8 lg:flex-row lg:items-center lg:px-[82px] lg:pb-6 lg:pt-9">
-        <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full border-4 border-white bg-primary-06 font-display text-2xl font-semibold text-white">
-          {initials(customer)}
+      <section className="bg-neutral-01">
+        <div className="mx-auto flex w-full max-w-[1276px] flex-col gap-5 px-5 pb-6 pt-8 sm:px-8 lg:flex-row lg:items-center lg:px-0 lg:pb-6 lg:pt-9">
+          <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full border-4 border-white bg-primary-06 font-display text-2xl font-semibold text-white">
+            {initials(customer)}
+          </div>
+          <div className="min-w-0 lg:ml-0">
+            <h1 className="truncate font-display text-2xl font-semibold tracking-[-0.4px] text-primary-10">{customer.firstName} {customer.lastName}</h1>
+            <p className="mt-1 truncate text-sm text-neutral-07">{customer.email} <span className="px-1">·</span> {profileLocation}</p>
+          </div>
+          <button type="button" onClick={shareProfile} className="zion-btn zion-btn-md zion-btn-outline-blue lg:ml-auto">Share profile</button>
         </div>
-        <div className="min-w-0 lg:ml-0">
-          <h1 className="truncate font-display text-2xl font-semibold tracking-[-0.4px] text-primary-10">{customer.firstName} {customer.lastName}</h1>
-          <p className="mt-1 truncate text-sm text-neutral-07">{customer.email} <span className="px-1">·</span> {profileLocation}</p>
-        </div>
-        <button type="button" onClick={shareProfile} className="zion-btn zion-btn-md zion-btn-outline-blue lg:ml-auto">Share profile</button>
       </section>
 
       <div className="h-px bg-neutral-02" />
 
-      <section className="grid bg-white px-5 py-8 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-[82px] lg:py-10">
+      <section className="bg-white">
+        <div className="mx-auto grid w-full max-w-[1276px] px-5 py-8 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-0 lg:py-10">
         <aside className="mb-8 flex flex-col gap-4 lg:mb-0 lg:pr-12">
           <div>
             <p className="font-display text-[32px] font-semibold leading-[44px] text-primary-10">{totalShipments}</p>
             <p className="mt-0.5 text-sm text-neutral-05">Total shipments</p>
           </div>
           <div className="h-px bg-neutral-02" />
-          <nav className="flex gap-2 overflow-x-auto lg:flex-col">
+          <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
             <button
               type="button"
               onClick={() => scrollToSection("personal")}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-base transition-colors ${
+              className={`flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-left text-base transition-colors ${
                 activeSection === "personal"
                   ? "border-[1.8px] border-primary-06 bg-primary-01 text-primary-10"
                   : "text-neutral-07 hover:bg-neutral-01"
@@ -229,7 +231,7 @@ export default function CustomerProfilePage() {
             <button
               type="button"
               onClick={() => scrollToSection("addresses")}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-base transition-colors ${
+              className={`flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-left text-base transition-colors ${
                 activeSection === "addresses"
                   ? "border-[1.8px] border-primary-06 bg-primary-01 text-primary-10"
                   : "text-neutral-07 hover:bg-neutral-01"
@@ -238,7 +240,6 @@ export default function CustomerProfilePage() {
               <PinIcon />Saved addresses
             </button>
           </nav>
-          <Link href={`${routes.web.customerDashboard}#account-settings`} className="inline-flex items-center gap-1 text-sm text-primary-06 no-underline hover:underline"><GearIcon />Account settings</Link>
         </aside>
 
         <div className="flex min-w-0 flex-col gap-10">
@@ -250,7 +251,7 @@ export default function CustomerProfilePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <DateOfBirthField value={form.dateOfBirth} onChange={(value) => updateForm("dateOfBirth", value)} label="Date of birth" />
-              <ProfileInput label="Nationality" value={form.nationality} placeholder="Add nationality" onChange={(value) => updateForm("nationality", value)} />
+              <ProfileInput label="Country of residence" value={form.countryOfResidence} onChange={(value) => updateForm("countryOfResidence", value)} />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <ProfileInput label="Email address" value={customer.email} readOnly />
@@ -272,8 +273,8 @@ export default function CustomerProfilePage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-12 items-center gap-2 rounded-[10px] border-2 border-neutral-03 px-3">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-neutral-01"><CheckIcon /></span>
+                  <div className="flex h-12 items-center gap-2 rounded-[10px] border-2 border-primary-04 bg-white px-3">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-neutral-01 text-[14px] leading-none">{phoneFlag(form.phoneCountryCode)}</span>
                     <span className="min-w-0 flex-1 truncate text-sm">{form.phoneCountryCode} {form.phoneNumber}</span>
                   </div>
                 )}
@@ -295,10 +296,7 @@ export default function CustomerProfilePage() {
           <div className="h-px bg-neutral-02" />
 
           <section id="saved-addresses" className="scroll-mt-28 space-y-5">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="font-display text-base font-bold leading-9">Saved addresses</h2>
-              <button type="button" onClick={() => setAddressEditor({ values: EMPTY_ADDRESS })} className="zion-btn zion-btn-sm zion-btn-outline-blue">Add address</button>
-            </div>
+            <h2 className="font-display text-base font-bold leading-9">Saved addresses</h2>
 
             <div className="flex flex-col gap-2.5">
               {addresses.length ? addresses.map((address) => (
@@ -317,10 +315,12 @@ export default function CustomerProfilePage() {
                 <div className="rounded-xl bg-neutral-01 px-5 py-8 text-center">
                   <p className="font-display text-sm font-semibold text-primary-10">No saved addresses yet</p>
                   <p className="mt-1 text-sm text-neutral-06">Save an address here for faster shipment details later.</p>
+                  <button type="button" onClick={() => setAddressEditor({ values: EMPTY_ADDRESS })} className="zion-btn zion-btn-sm zion-btn-outline-blue mt-4">Add address</button>
                 </div>
               )}
             </div>
           </section>
+        </div>
         </div>
       </section>
 
@@ -349,7 +349,7 @@ function ProfileInput({ label, value, onChange, readOnly = false, placeholder = 
   return (
     <label className="block">
       <span className="mb-2 block text-sm text-primary-10">{label}{required ? <span className="text-error-bright"> *</span> : null}</span>
-      <input value={value} readOnly={readOnly} placeholder={placeholder} onChange={(event) => onChange?.(event.target.value)} className={`h-12 w-full rounded-[10px] border-2 border-neutral-03 px-3 text-sm text-primary-10 outline-none transition-colors ${readOnly ? "bg-neutral-01" : "bg-white focus:border-primary-04"}`} />
+      <input value={value} readOnly={readOnly} placeholder={placeholder} onChange={(event) => onChange?.(event.target.value)} className={`h-12 w-full rounded-[10px] border-2 border-neutral-03 bg-white px-3 text-sm text-primary-10 outline-none transition-colors ${readOnly ? "cursor-default" : "focus:border-primary-04"}`} />
     </label>
   );
 }
@@ -408,9 +408,17 @@ function AddressModal({ editor, onClose, onSaved, onDeleted }: { editor: { id?: 
   );
 }
 
+function phoneFlag(countryCode: string) {
+  const normalized = countryCode.replace(/\s+/g, "");
+  if (normalized === "+44") return "🇬🇧";
+  if (normalized === "+234") return "🇳🇬";
+  if (normalized === "+1") return "🇺🇸";
+  if (normalized === "+33") return "🇫🇷";
+  if (normalized === "+49") return "🇩🇪";
+  return "🌐";
+}
+
 function UserIcon() { return <Icon><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3 3.6-5 8-5s8 2 8 5"/></Icon>; }
 function PinIcon() { return <Icon><path d="M12 22s7-7.8 7-13a7 7 0 1 0-14 0c0 5.2 7 13 7 13Z"/><circle cx="12" cy="9" r="2.5"/></Icon>; }
-function GearIcon() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.8-1L14.4 3h-4.8l-.4 3.1a8 8 0 0 0-1.8 1l-2.4-1-2 3.4L5 11a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.8 1l.4 3.1h4.8l.4-3.1a8 8 0 0 0 1.8-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1Z" stroke="currentColor" strokeWidth="1.5"/></svg>; }
-function CheckIcon() { return <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
 function HomeIcon() { return <Icon><path d="M3 11 12 3l9 8v9H3v-9Z"/><path d="M9 20v-6h6v6"/></Icon>; }
 function Icon({ children }: { children: React.ReactNode }) { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg>; }
