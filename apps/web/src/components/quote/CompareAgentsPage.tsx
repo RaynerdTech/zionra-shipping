@@ -140,18 +140,18 @@ function AgentCard({ agent, best, onProfile, onSelect, selecting = false }: { ag
 
 function MobileAgentCard({ agent, best, onProfile, onSelect, selecting = false }: { agent: QuoteAgentSummary; best: boolean; onProfile: () => void; onSelect: () => void; selecting?: boolean }) {
   return (
-    <article className="rounded-[12px] bg-white px-3 py-3 shadow-[0_1px_0_rgba(7,22,44,0.02)] lg:hidden">
+    <article className="rounded-[12px] bg-white px-3 py-3.5 shadow-[0_1px_0_rgba(7,22,44,0.02)] lg:hidden">
       <div className="flex items-center justify-between gap-2">
-        {agent.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-tertiary-10 px-2 py-1 text-[9px] leading-none text-white"><span>✓</span> Verified</span> : <span />}
-        {best ? <span className="rounded-full border border-primary-04 bg-primary-01 px-2 py-0.5 text-[8px] font-medium leading-none tracking-[0.5px] text-primary-06">Best match</span> : null}
+        {agent.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-tertiary-10 px-2 py-1 text-[10px] leading-[14px] text-white"><span>✓</span> Verified</span> : <span />}
+        {best ? <span className="rounded-full border border-primary-04 bg-primary-01 px-2 py-0.5 text-[9px] font-medium leading-[12px] tracking-[0.5px] text-primary-06">Best match</span> : null}
       </div>
 
-      <div className="mt-2.5 flex items-center gap-2">
+      <div className="mt-2.5 flex items-center gap-2.5">
         <AgentLogo agent={agent} compact />
-        <h3 className="min-w-0 truncate font-display text-[13px] font-semibold leading-[18px] text-primary-10">{agent.companyName}</h3>
+        <h3 className="min-w-0 truncate font-display text-[15px] font-semibold leading-[20px] text-primary-10">{agent.companyName}</h3>
       </div>
 
-      <div className="mt-2 flex min-w-0 items-center justify-between gap-2 text-[9px] leading-[14px]">
+      <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2 text-[10px] leading-[15px]">
         <button type="button" onClick={onProfile} className="shrink-0 font-medium text-primary-06 hover:underline">View full profile</button>
         <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-neutral-06">
           <span className="text-secondary-06">★ {agent.rating !== null ? agent.rating.toFixed(1) : "—"}</span>
@@ -161,20 +161,22 @@ function MobileAgentCard({ agent, best, onProfile, onSelect, selecting = false }
       </div>
 
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Response Time: {agent.responseTime ?? "Not provided"}</span>
-        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Collection Method: {agent.collectionMethod ?? "Not provided"}</span>
-        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Delivery Method: {agent.deliveryMethod ?? "Not provided"}</span>
-        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Insurance: {agent.insuranceAvailable === null ? "Not provided" : agent.insuranceAvailable ? "Yes" : "No"}</span>
-        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Shipment frequency: {agent.shipmentFrequency ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2.5 py-1 text-[9px] leading-[13px] text-neutral-09">Response Time: {agent.responseTime ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2.5 py-1 text-[9px] leading-[13px] text-neutral-09">Collection Method: {agent.collectionMethod ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2.5 py-1 text-[9px] leading-[13px] text-neutral-09">Delivery Method: {agent.deliveryMethod ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2.5 py-1 text-[9px] leading-[13px] text-neutral-09">Insurance: {agent.insuranceAvailable === null ? "Not provided" : agent.insuranceAvailable ? "Yes" : "No"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2.5 py-1 text-[9px] leading-[13px] text-neutral-09">Shipment frequency: {agent.shipmentFrequency ?? "Not provided"}</span>
       </div>
 
       <div className="mt-2 border-t border-neutral-03 pt-2.5">
-        <strong className="block font-display text-[18px] font-semibold leading-[24px] text-primary-10">{formatMoney(agent.estimatedPriceGbp)}</strong>
-        <span className="mt-0.5 flex items-center gap-1 text-[9px] leading-[14px] text-neutral-06">
+        <strong className="block font-display text-[20px] font-semibold leading-[26px] text-primary-10">{formatMoney(agent.estimatedPriceGbp)}</strong>
+        <span className="mt-1 flex items-center gap-1.5 text-[10px] leading-[15px] text-neutral-06">
           <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" /><path d="M8 5v3l2 1" stroke="currentColor" strokeLinecap="round" /></svg>
           {agent.deliveryEstimate ?? "Delivery estimate unavailable"}
         </span>
-        <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-2.5 min-h-[34px] w-full rounded-[4px] text-[10px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select agent"}</button>
+        <div className="px-2">
+          <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-3 min-h-[42px] w-full rounded-[4px] text-[12px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select agent"}</button>
+        </div>
       </div>
     </article>
   );
@@ -453,24 +455,24 @@ export default function CompareAgentsPage() {
       <QuoteBanner draft={draft} onDraftChange={setDraft} onSubmit={submitExpandedQuote} />
 
       <main id="quote-results" className="min-h-[70vh] scroll-mt-24 bg-neutral-01 pb-20 font-sans lg:pb-16">
-        <div className="mx-auto w-full max-w-[1272px] px-4 pt-4 sm:px-6 xl:px-0">
+        <div className="mx-auto w-full max-w-[1272px] px-5 pt-4 sm:px-6 xl:px-0">
           <div className="lg:hidden">
-            <p className="text-[9px] leading-[14px] text-neutral-06"><span>Home</span><span className="mx-1.5">/</span><span>Get a quote</span><span className="mx-1.5">/</span><span className="text-primary-10">Compare agents</span></p>
+            <p className="text-[10px] leading-[15px] text-neutral-06"><span>Home</span><span className="mx-1.5">/</span><span>Get a quote</span><span className="mx-1.5">/</span><span className="text-primary-10">Compare agents</span></p>
 
             <div className="mt-2 flex items-center justify-between gap-3">
-              <h1 className="font-display text-[15px] font-semibold leading-[22px] text-primary-10">{loading ? "Finding agents…" : `${sortedAgents.length} agent${sortedAgents.length === 1 ? "" : "s"} found`}</h1>
-              <button type="button" className="shrink-0 rounded-full bg-secondary-06 px-2.5 py-1 text-[8px] font-medium leading-[12px] text-secondary-10 transition-colors hover:bg-secondary-05">Read on prohibitions</button>
+              <h1 className="font-display text-[17px] font-semibold leading-[24px] text-primary-10">{loading ? "Finding agents…" : `${sortedAgents.length} agent${sortedAgents.length === 1 ? "" : "s"} found`}</h1>
+              <button type="button" className="shrink-0 rounded-full bg-secondary-06 px-3 py-1 text-[9px] font-medium leading-[13px] text-secondary-10 transition-colors hover:bg-secondary-05">Read on prohibitions</button>
             </div>
 
-            <p className="mt-2 text-[9px] leading-[14px] text-neutral-08">{routeLabel}</p>
+            <p className="mt-2 text-[10px] leading-[15px] text-neutral-08">{routeLabel}</p>
 
-            <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6">
+            <div className="-mx-5 mt-3.5 flex gap-2.5 overflow-x-auto px-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6">
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
                 aria-haspopup="dialog"
                 aria-expanded={mobileFiltersOpen}
-                className="inline-flex min-h-[34px] shrink-0 items-center gap-1.5 rounded-[12px] border border-neutral-03 bg-white px-3 text-[9px] text-neutral-08 transition hover:border-primary-04"
+                className="inline-flex min-h-[38px] shrink-0 items-center gap-1.5 rounded-[12px] border border-neutral-03 bg-white px-3.5 text-[10px] text-neutral-08 transition hover:border-primary-04"
               >
                 <FilterIcon />
                 <span>Filters</span>
@@ -480,7 +482,7 @@ export default function CompareAgentsPage() {
                   key={value}
                   type="button"
                   onClick={() => setSortMode(value)}
-                  className={`min-h-[34px] shrink-0 rounded-[12px] border bg-white px-3 text-[9px] transition ${sortMode === value ? "border-primary-06 text-primary-06" : "border-neutral-03 text-neutral-07 hover:border-primary-04"}`}
+                  className={`min-h-[38px] shrink-0 rounded-[12px] border bg-white px-3.5 text-[10px] transition ${sortMode === value ? "border-primary-06 text-primary-06" : "border-neutral-03 text-neutral-07 hover:border-primary-04"}`}
                 >
                   {label}
                 </button>
@@ -527,9 +529,9 @@ export default function CompareAgentsPage() {
 
               {!loading && canSearch && !error && sortedAgents.length > 0 ? (
                 <div className="mt-6 text-center lg:hidden">
-                  <p className="text-[8px] leading-[12px] text-neutral-06">Showing {Math.min(mobileVisibleCount, sortedAgents.length)} of {sortedAgents.length} agents</p>
+                  <p className="text-[10px] leading-[15px] text-neutral-06">Showing {Math.min(mobileVisibleCount, sortedAgents.length)} of {sortedAgents.length} agents</p>
                   {mobileVisibleCount < sortedAgents.length ? (
-                    <button type="button" onClick={() => setMobileVisibleCount((count) => Math.min(count + 4, sortedAgents.length))} className="mt-2 min-h-[34px] min-w-[88px] rounded-[4px] border border-primary-06 bg-white px-4 text-[9px] font-medium text-primary-06 transition hover:bg-primary-01">Load more</button>
+                    <button type="button" onClick={() => setMobileVisibleCount((count) => Math.min(count + 4, sortedAgents.length))} className="mt-2.5 min-h-[38px] min-w-[96px] rounded-[4px] border border-primary-06 bg-white px-4 text-[10px] font-medium text-primary-06 transition hover:bg-primary-01">Load more</button>
                   ) : null}
                 </div>
               ) : null}
