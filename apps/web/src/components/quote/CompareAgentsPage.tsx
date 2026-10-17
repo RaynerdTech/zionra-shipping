@@ -88,17 +88,17 @@ function Tag({ children }: { children: ReactNode }) {
   return <span className="rounded-full border border-neutral-03 bg-neutral-02/60 px-2.5 py-1 font-sans text-[10px] leading-[14px] text-neutral-09">{children}</span>;
 }
 
-function AgentLogo({ agent }: { agent: QuoteAgentSummary }) {
+function AgentLogo({ agent, compact = false }: { agent: QuoteAgentSummary; compact?: boolean }) {
   return (
-    <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-primary-01">
-      {agent.logoUrl ? <img src={agent.logoUrl} alt={`${agent.companyName} logo`} className="h-full w-full object-cover" /> : <img src="/images/logo-zionra.png" alt="" className="h-7 w-7 object-contain" />}
+    <div className={`grid shrink-0 place-items-center overflow-hidden rounded-full bg-primary-01 ${compact ? "h-8 w-8" : "h-11 w-11"}`}>
+      {agent.logoUrl ? <img src={agent.logoUrl} alt={`${agent.companyName} logo`} className="h-full w-full object-cover" /> : <img src="/images/logo-zionra.png" alt="" className={compact ? "h-5 w-5 object-contain" : "h-7 w-7 object-contain"} />}
     </div>
   );
 }
 
 function AgentCard({ agent, best, onProfile, onSelect, selecting = false }: { agent: QuoteAgentSummary; best: boolean; onProfile: () => void; onSelect: () => void; selecting?: boolean }) {
   return (
-    <article className="grid gap-5 rounded-[14px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(7,22,44,0.02)] md:grid-cols-[minmax(0,1fr)_150px] md:px-7">
+    <article className="hidden gap-5 rounded-[14px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(7,22,44,0.02)] lg:grid lg:grid-cols-[minmax(0,1fr)_150px] lg:px-7">
       <div className="min-w-0">
         <div className="flex items-start gap-3">
           <AgentLogo agent={agent} />
@@ -133,6 +133,48 @@ function AgentCard({ agent, best, onProfile, onSelect, selecting = false }: { ag
           {agent.deliveryEstimate ?? "Delivery estimate unavailable"}
         </span>
         <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-4 min-h-[48px] w-full text-[15px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select"}</button>
+      </div>
+    </article>
+  );
+}
+
+function MobileAgentCard({ agent, best, onProfile, onSelect, selecting = false }: { agent: QuoteAgentSummary; best: boolean; onProfile: () => void; onSelect: () => void; selecting?: boolean }) {
+  return (
+    <article className="rounded-[12px] bg-white px-3 py-3 shadow-[0_1px_0_rgba(7,22,44,0.02)] lg:hidden">
+      <div className="flex items-center justify-between gap-2">
+        {agent.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-tertiary-10 px-2 py-1 text-[9px] leading-none text-white"><span>✓</span> Verified</span> : <span />}
+        {best ? <span className="rounded-full border border-primary-04 bg-primary-01 px-2 py-0.5 text-[8px] font-medium leading-none tracking-[0.5px] text-primary-06">Best match</span> : null}
+      </div>
+
+      <div className="mt-2.5 flex items-center gap-2">
+        <AgentLogo agent={agent} compact />
+        <h3 className="min-w-0 truncate font-display text-[13px] font-semibold leading-[18px] text-primary-10">{agent.companyName}</h3>
+      </div>
+
+      <div className="mt-2 flex min-w-0 items-center justify-between gap-2 text-[9px] leading-[14px]">
+        <button type="button" onClick={onProfile} className="shrink-0 font-medium text-primary-06 hover:underline">View full profile</button>
+        <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-neutral-06">
+          <span className="text-secondary-06">★ {agent.rating !== null ? agent.rating.toFixed(1) : "—"}</span>
+          <span>·</span>
+          <span>{agent.reviewCount > 0 ? `${agent.reviewCount} reviews` : "No reviews yet"}</span>
+        </div>
+      </div>
+
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Response Time: {agent.responseTime ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Collection Method: {agent.collectionMethod ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Delivery Method: {agent.deliveryMethod ?? "Not provided"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Insurance: {agent.insuranceAvailable === null ? "Not provided" : agent.insuranceAvailable ? "Yes" : "No"}</span>
+        <span className="shrink-0 rounded-full border border-neutral-03 bg-neutral-01 px-2 py-1 text-[8px] leading-[12px] text-neutral-09">Shipment frequency: {agent.shipmentFrequency ?? "Not provided"}</span>
+      </div>
+
+      <div className="mt-2 border-t border-neutral-03 pt-2.5">
+        <strong className="block font-display text-[18px] font-semibold leading-[24px] text-primary-10">{formatMoney(agent.estimatedPriceGbp)}</strong>
+        <span className="mt-0.5 flex items-center gap-1 text-[9px] leading-[14px] text-neutral-06">
+          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" /><path d="M8 5v3l2 1" stroke="currentColor" strokeLinecap="round" /></svg>
+          {agent.deliveryEstimate ?? "Delivery estimate unavailable"}
+        </span>
+        <button type="button" onClick={onSelect} disabled={selecting} className="zion-btn zion-btn-blue mt-2.5 min-h-[34px] w-full rounded-[4px] text-[10px] disabled:cursor-wait disabled:opacity-70">{selecting ? "Opening…" : "Select agent"}</button>
       </div>
     </article>
   );
@@ -223,8 +265,8 @@ function FilterPanel({ draft, onChange, embedded = false }: { draft: QuoteDraft;
   const update = <K extends keyof QuoteDraft>(key: K, value: QuoteDraft[K]) => onChange({ ...draft, [key]: value });
   return (
     <aside className={embedded ? "bg-white" : "sticky top-[112px] max-h-[calc(100vh-128px)] overflow-y-auto overscroll-contain rounded-[2px] bg-white p-5"}>
-      <h2 className="border-b border-neutral-03 pb-3 font-sans text-[13px] font-semibold text-primary-10">Filter results</h2>
-      <div className="mt-6 space-y-6">
+      {!embedded ? <h2 className="border-b border-neutral-03 pb-3 font-sans text-[13px] font-semibold text-primary-10">Filter results</h2> : null}
+      <div className={`${embedded ? "" : "mt-6"} space-y-6`}>
         <QuoteLocationInput label="From" helper="Enter postcode" placeholder="e.g Cr0 12t" countryCode="GB" flagSrc={UK_FLAG} value={draft.from} onChange={(value) => update("from", value)} />
         <QuoteLocationInput label="To" helper="Enter delivery location" placeholder="Enter full address" countryCode="NG" flagSrc={NG_FLAG} value={draft.to} onChange={(value) => update("to", value)} />
         <MultiItemFilter values={draft.itemTypes} onChange={(value) => update("itemTypes", value)} />
@@ -241,7 +283,7 @@ function FilterPanel({ draft, onChange, embedded = false }: { draft: QuoteDraft;
 
 function FilterIcon() {
   return (
-    <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+    <svg aria-hidden="true" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
@@ -258,7 +300,8 @@ export default function CompareAgentsPage() {
   const [sortMode, setSortMode] = useState<SortMode>("best");
   const [profileAgentId, setProfileAgentId] = useState<string | null>(null);
   const [eurToGbpRate, setEurToGbpRate] = useState(0.86);
-  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [mobileVisibleCount, setMobileVisibleCount] = useState(4);
   const [resolvedQueryKey, setResolvedQueryKey] = useState("");
   const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
 
@@ -285,14 +328,18 @@ export default function CompareAgentsPage() {
   }, [draft, hydrated]);
 
   useEffect(() => {
-    if (!mobileToolsOpen) return;
-    function onKeyDown(event: KeyboardEvent) { if (event.key === "Escape") setMobileToolsOpen(false); }
+    if (!mobileFiltersOpen) return;
+    function onKeyDown(event: KeyboardEvent) { if (event.key === "Escape") setMobileFiltersOpen(false); }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mobileToolsOpen]);
+  }, [mobileFiltersOpen]);
 
   const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && Number(draft.weightKg) > 0);
   const queryKey = canSearch ? buildAgentQuery(draft) : "";
+
+  useEffect(() => {
+    setMobileVisibleCount(4);
+  }, [queryKey, sortMode]);
 
   useEffect(() => {
     if (!hydrated || !canSearch || !draft.from) {
@@ -407,17 +454,53 @@ export default function CompareAgentsPage() {
 
       <main id="quote-results" className="min-h-[70vh] scroll-mt-24 bg-neutral-01 pb-20 font-sans lg:pb-16">
         <div className="mx-auto w-full max-w-[1272px] px-4 pt-4 sm:px-6 xl:px-0">
-          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-neutral-07">
-            <p><span>Home</span><span className="mx-2">/</span><span>Get a quote</span><span className="mx-2">/</span><span className="text-primary-10">Compare agents</span></p>
-            <button type="button" className="rounded-full bg-secondary-06 px-3 py-1 text-[10px] font-medium text-secondary-10 transition-colors hover:bg-secondary-05">Read on shipment prohibitions</button>
+          <div className="lg:hidden">
+            <p className="text-[9px] leading-[14px] text-neutral-06"><span>Home</span><span className="mx-1.5">/</span><span>Get a quote</span><span className="mx-1.5">/</span><span className="text-primary-10">Compare agents</span></p>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <h1 className="font-display text-[15px] font-semibold leading-[22px] text-primary-10">{loading ? "Finding agents…" : `${sortedAgents.length} agent${sortedAgents.length === 1 ? "" : "s"} found`}</h1>
+              <button type="button" className="shrink-0 rounded-full bg-secondary-06 px-2.5 py-1 text-[8px] font-medium leading-[12px] text-secondary-10 transition-colors hover:bg-secondary-05">Read on prohibitions</button>
+            </div>
+
+            <p className="mt-2 text-[9px] leading-[14px] text-neutral-08">{routeLabel}</p>
+
+            <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(true)}
+                aria-haspopup="dialog"
+                aria-expanded={mobileFiltersOpen}
+                className="inline-flex min-h-[34px] shrink-0 items-center gap-1.5 rounded-[12px] border border-neutral-03 bg-white px-3 text-[9px] text-neutral-08 transition hover:border-primary-04"
+              >
+                <FilterIcon />
+                <span>Filters</span>
+              </button>
+              {SORT_OPTIONS.map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setSortMode(value)}
+                  className={`min-h-[34px] shrink-0 rounded-[12px] border bg-white px-3 text-[9px] transition ${sortMode === value ? "border-primary-06 text-primary-06" : "border-neutral-03 text-neutral-07 hover:border-primary-04"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-2 grid gap-2 lg:grid-cols-[324px_minmax(0,1fr)] lg:gap-4">
-            <h1 className="font-display text-[20px] font-semibold leading-[30px] text-primary-10">{loading ? "Finding agents…" : `${sortedAgents.length} agent${sortedAgents.length === 1 ? "" : "s"} found`}</h1>
-            <p className="self-center text-[12px] text-neutral-08">{routeLabel}</p>
+          <div className="hidden lg:block">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-neutral-07">
+              <p><span>Home</span><span className="mx-2">/</span><span>Get a quote</span><span className="mx-2">/</span><span className="text-primary-10">Compare agents</span></p>
+              <button type="button" className="rounded-full bg-secondary-06 px-3 py-1 text-[10px] font-medium text-secondary-10 transition-colors hover:bg-secondary-05">Read on shipment prohibitions</button>
+            </div>
+
+            <div className="mt-2 grid gap-2 lg:grid-cols-[324px_minmax(0,1fr)] lg:gap-4">
+              <h1 className="font-display text-[20px] font-semibold leading-[30px] text-primary-10">{loading ? "Finding agents…" : `${sortedAgents.length} agent${sortedAgents.length === 1 ? "" : "s"} found`}</h1>
+              <p className="self-center text-[12px] text-neutral-08">{routeLabel}</p>
+            </div>
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-[324px_minmax(0,1fr)]">
+          <div className="mt-3 grid gap-4 lg:mt-4 lg:grid-cols-[324px_minmax(0,1fr)]">
             <div className="hidden lg:block">
               <FilterPanel draft={draft} onChange={setDraft} />
             </div>
@@ -434,40 +517,42 @@ export default function CompareAgentsPage() {
                   <div className="rounded-[14px] bg-white px-6 py-14 text-center"><p className="text-[14px] text-error">{error}</p></div>
                 ) : sortedAgents.length === 0 ? (
                   <div className="rounded-[14px] bg-white px-6 py-14 text-center"><h2 className="font-display text-[20px] font-semibold text-primary-10">No matching agents yet</h2><p className="mx-auto mt-2 max-w-lg text-[13px] leading-[20px] text-neutral-06">No approved shipping partner currently matches this pickup city and shipment. Try adjusting the filters or check again later.</p></div>
-                ) : sortedAgents.map((agent, index) => <AgentCard key={agent.id} agent={agent} best={sortMode === "best" && index === 0} selecting={pendingAgentId === agent.id} onProfile={() => setProfileAgentId(agent.id)} onSelect={() => selectAgent(agent.id)} />)}
+                ) : sortedAgents.map((agent, index) => (
+                  <div key={agent.id} className={index >= mobileVisibleCount ? "hidden lg:block" : "block"}>
+                    <MobileAgentCard agent={agent} best={sortMode === "best" && index === 0} selecting={pendingAgentId === agent.id} onProfile={() => setProfileAgentId(agent.id)} onSelect={() => selectAgent(agent.id)} />
+                    <AgentCard agent={agent} best={sortMode === "best" && index === 0} selecting={pendingAgentId === agent.id} onProfile={() => setProfileAgentId(agent.id)} onSelect={() => selectAgent(agent.id)} />
+                  </div>
+                ))}
               </div>
+
+              {!loading && canSearch && !error && sortedAgents.length > 0 ? (
+                <div className="mt-6 text-center lg:hidden">
+                  <p className="text-[8px] leading-[12px] text-neutral-06">Showing {Math.min(mobileVisibleCount, sortedAgents.length)} of {sortedAgents.length} agents</p>
+                  {mobileVisibleCount < sortedAgents.length ? (
+                    <button type="button" onClick={() => setMobileVisibleCount((count) => Math.min(count + 4, sortedAgents.length))} className="mt-2 min-h-[34px] min-w-[88px] rounded-[4px] border border-primary-06 bg-white px-4 text-[9px] font-medium text-primary-06 transition hover:bg-primary-01">Load more</button>
+                  ) : null}
+                </div>
+              ) : null}
             </section>
           </div>
         </div>
       </main>
 
-      {mobileToolsOpen ? (
+      {mobileFiltersOpen ? (
         <>
-          <button type="button" aria-label="Close sort and filters" onClick={() => setMobileToolsOpen(false)} className="fixed inset-0 z-40 bg-primary-10/25 lg:hidden" />
-          <section className="fixed bottom-[84px] left-4 right-4 z-50 max-h-[calc(100dvh-112px)] overflow-y-auto rounded-[18px] border border-neutral-03 bg-white p-4 shadow-[0_20px_50px_rgba(7,22,44,0.22)] lg:hidden">
+          <button type="button" aria-label="Close filters" onClick={() => setMobileFiltersOpen(false)} className="fixed inset-0 z-40 bg-primary-10/25 lg:hidden" />
+          <section role="dialog" aria-modal="true" aria-label="Filter results" className="fixed inset-x-0 bottom-0 z-50 max-h-[82dvh] overflow-y-auto rounded-t-[18px] border border-neutral-03 bg-white p-4 shadow-[0_20px_50px_rgba(7,22,44,0.22)] lg:hidden">
             <div className="mb-5 flex items-center justify-between gap-3">
-              <h2 className="font-display text-[18px] font-semibold text-primary-10">Sort and filter</h2>
-              <button type="button" onClick={() => setMobileToolsOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-neutral-01 text-primary-10" aria-label="Close sort and filters">
+              <h2 className="font-display text-[18px] font-semibold text-primary-10">Filter results</h2>
+              <button type="button" onClick={() => setMobileFiltersOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-neutral-01 text-primary-10" aria-label="Close filters">
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none"><path d="m4 4 8 8m0-8-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
               </button>
             </div>
-            <p className="mb-2 text-[12px] font-semibold text-primary-10">Sort by</p>
-            <SortControls sortMode={sortMode} onChange={setSortMode} compact />
-            <div className="my-5 border-t border-neutral-03" />
             <FilterPanel draft={draft} onChange={setDraft} embedded />
+            <button type="button" onClick={() => setMobileFiltersOpen(false)} className="zion-btn zion-btn-blue mt-6 min-h-[44px] w-full text-[13px]">Done</button>
           </section>
         </>
       ) : null}
-
-      <button
-        type="button"
-        aria-label={mobileToolsOpen ? "Hide sort and filters" : "Show sort and filters"}
-        aria-expanded={mobileToolsOpen}
-        onClick={() => setMobileToolsOpen((current) => !current)}
-        className="fixed bottom-4 left-4 z-[70] grid h-12 w-12 place-items-center rounded-full bg-primary-06 text-white shadow-[0_10px_24px_rgba(7,22,44,0.24)] transition-transform active:scale-95 lg:hidden"
-      >
-        {mobileToolsOpen ? <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10m0-10L7 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg> : <FilterIcon />}
-      </button>
 
       <AgentProfileModal agentId={profileAgentId} onClose={() => setProfileAgentId(null)} onSelect={selectAgent} />
     </>
