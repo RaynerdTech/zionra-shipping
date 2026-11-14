@@ -9,7 +9,9 @@ import type {
 } from "react";
 
 import { routes } from "@/config/routes";
+import { useIsClient } from "@/lib/useIsClient";
 import {
+  EMPTY_QUOTE_DRAFT,
   QUOTE_COLLECTION_OPTIONS,
   QUOTE_DELIVERY_OPTIONS,
   QUOTE_ITEM_OPTIONS,
@@ -810,60 +812,70 @@ function MultiSelectDropdownField({ label, placeholder, options, values, onChang
   );
 }
 
-export function QuoteForm({
-  variant = "homepage",
-  onDraftChange,
-}: {
+type QuoteFormProps = {
   variant?: "homepage" | "dedicated";
   onDraftChange?: (draft: QuoteDraft) => void;
-}) {
+};
+
+function storedLocationResult(
+  location: QuoteDraft["from"],
+  source: LocationResult["source"],
+): LocationResult | null {
+  if (!location) return null;
+  return {
+    id: `stored-${source}-${location.label}`,
+    label: location.label,
+    primary: location.primary,
+    secondary: location.secondary,
+    coordinates: location.coordinates,
+    raw: {
+      properties: {
+        name: location.primary,
+        city: location.city,
+        postcode: location.postcode,
+        state: location.state,
+        country: location.country,
+      },
+    },
+    source,
+  };
+}
+
+export function QuoteForm(props: QuoteFormProps) {
+  const isClient = useIsClient();
+  const initialDraft = useMemo(
+    () => isClient ? readQuoteDraft() : EMPTY_QUOTE_DRAFT,
+    [isClient],
+  );
+
+  return (
+    <QuoteFormContent
+      key={isClient ? "client" : "server"}
+      variant={props.variant ?? "homepage"}
+      onDraftChange={props.onDraftChange}
+      initialDraft={initialDraft}
+      hydrated={isClient}
+    />
+  );
+}
+
+function QuoteFormContent({
+  variant,
+  onDraftChange,
+  initialDraft,
+  hydrated,
+}: QuoteFormProps & { initialDraft: QuoteDraft; hydrated: boolean }) {
   const router = useRouter();
-  const [fromLocation, setFromLocation] = useState<LocationResult | null>(null);
-  const [toLocation, setToLocation] = useState<LocationResult | null>(null);
-  const [itemTypes, setItemTypes] = useState<string[]>([]);
-  const [collectionMode, setCollectionMode] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState("");
-  const [shippingMethod, setShippingMethod] = useState("");
-  const [weightKg, setWeightKg] = useState("");
-  const [lengthCm, setLengthCm] = useState("");
-  const [widthCm, setWidthCm] = useState("");
+  const [fromLocation, setFromLocation] = useState<LocationResult | null>(() => storedLocationResult(initialDraft.from, "photon"));
+  const [toLocation, setToLocation] = useState<LocationResult | null>(() => storedLocationResult(initialDraft.to, "photon"));
+  const [itemTypes, setItemTypes] = useState<string[]>(() => initialDraft.itemTypes ?? []);
+  const [collectionMode, setCollectionMode] = useState(() => initialDraft.collectionMode ?? "");
+  const [deliveryMode, setDeliveryMode] = useState(() => initialDraft.deliveryMode ?? "");
+  const [shippingMethod, setShippingMethod] = useState(() => initialDraft.shippingMethod ?? "");
+  const [weightKg, setWeightKg] = useState(() => initialDraft.weightKg ?? "");
+  const [lengthCm, setLengthCm] = useState(() => initialDraft.lengthCm ?? "");
+  const [widthCm, setWidthCm] = useState(() => initialDraft.widthCm ?? "");
   const [errors, setErrors] = useState<QuoteFormErrors>({});
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    const stored = readQuoteDraft();
-    const toLocationResult = (location: typeof stored.from, source: LocationResult["source"]): LocationResult | null => {
-      if (!location) return null;
-      return {
-        id: `stored-${source}-${location.label}`,
-        label: location.label,
-        primary: location.primary,
-        secondary: location.secondary,
-        coordinates: location.coordinates,
-        raw: {
-          properties: {
-            name: location.primary,
-            city: location.city,
-            postcode: location.postcode,
-            state: location.state,
-            country: location.country,
-          },
-        },
-        source,
-      };
-    };
-
-    setFromLocation(toLocationResult(stored.from, "photon"));
-    setToLocation(toLocationResult(stored.to, "photon"));
-    setItemTypes(stored.itemTypes ?? []);
-    setCollectionMode(stored.collectionMode ?? "");
-    setDeliveryMode(stored.deliveryMode ?? "");
-    setShippingMethod(stored.shippingMethod ?? "");
-    setWeightKg(stored.weightKg ?? "");
-    setLengthCm(stored.lengthCm ?? "");
-    setWidthCm(stored.widthCm ?? "");
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (!hydrated) return;

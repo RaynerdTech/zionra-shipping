@@ -11,7 +11,6 @@ import {
 const validOperationalDetails = {
   collectionCities: ["London"],
   itemsHandled: ["Furniture"],
-  operationalBusinessAddress: "1 Zionra Way, London",
   shippingMethod: "Both",
   shipmentFrequency: "Weekly",
   pricePerKg: "6",
@@ -59,6 +58,16 @@ test("operational details require the current pricing and shipment requirement f
   if (result.success) return;
   assert.equal(result.errors.pricePerKg, "Enter a valid price per KG.");
   assert.equal(result.errors.maxHeight, "Enter a valid maximum height.");
+});
+
+test("operational details do not accept a second business-address field", () => {
+  const result = validatePartnerOperationalDetails({
+    ...validOperationalDetails,
+    operationalBusinessAddress: "Untrusted, ignored address",
+  });
+  assert.equal(result.success, true);
+  if (!result.success) return;
+  assert.equal("operationalBusinessAddress" in result.data, false);
 });
 
 test("operational details normalize current pricing and dimensions", () => {

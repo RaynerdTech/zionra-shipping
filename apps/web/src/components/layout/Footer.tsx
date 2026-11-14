@@ -34,14 +34,15 @@ const groups: FooterGroup[] = [
   },
   {
     title: "Support",
-    items: [{ label: "Help center" }, { label: "Contact Us" }, { label: "FAQs" }],
+    items: [{ label: "Help center", href: routes.web.support }, { label: "Contact Us", href: `${routes.web.support}#contact` }, { label: "FAQs", href: `${routes.web.support}#faq` }],
   },
   {
     title: "Legal",
     items: [
       { label: "Privacy Policy", href: routes.web.privacy },
       { label: "Terms of service", href: routes.web.terms },
-      { label: "Cookie Policy" },
+      { label: "Cookie Policy", href: routes.web.cookiePolicy },
+      { label: "Refund Policy", href: routes.web.refundPolicy },
     ],
   },
 ];

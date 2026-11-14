@@ -7,10 +7,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { CountryCode } from "libphonenumber-js";
 import type { QuoteAgentDetail } from "./types";
 import CountrySelect from "@/components/ui/CountrySelect";
-import { useCustomerAuth } from "@/components/auth/CustomerAuthProvider";
+import { useCustomerAuth, type CustomerAccount } from "@/components/auth/CustomerAuthProvider";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import { storeCustomerAuthReturnTo, withCustomerReturnTo } from "@/lib/authReturn";
+import { useIsClient } from "@/lib/useIsClient";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import {
   quoteItemLabel,
@@ -77,6 +78,63 @@ function locationFromForm(address: string, city: string, postcode: string, state
   };
 }
 
+
+type ShipmentInitialState = {
+  draft: QuoteDraft;
+  agent: SelectedQuoteAgent | null;
+  agentLoading: boolean;
+  pickupLocation: QuoteLocation | null;
+  deliveryLocation: QuoteLocation | null;
+  form: FormState;
+};
+
+function createShipmentInitialState(agentId: string, customer: CustomerAccount | null): ShipmentInitialState {
+  const storedDraft = readQuoteDraft();
+  const storedAgent = readSelectedQuoteAgent();
+  const storedShipment = readShipmentDraft();
+  const agent = storedAgent?.id === agentId ? storedAgent : null;
+
+  const nextForm: FormState = {
+    senderFullName: storedShipment?.senderFullName || `${customer?.firstName ?? ""} ${customer?.lastName ?? ""}`.trim(),
+    senderPhoneCountryCode: storedShipment?.senderPhoneNumber
+      ? countryCodeFromCallingCode(storedShipment.senderPhoneCountryCode ?? "", "GB")
+      : customer
+        ? countryCodeFromCallingCode(customer.phoneCountryCode, "GB")
+        : countryCodeFromCallingCode(storedShipment?.senderPhoneCountryCode ?? "", "GB"),
+    senderPhoneNumber: storedShipment?.senderPhoneNumber || customer?.phoneNumber || "",
+    senderEmail: storedShipment?.senderEmail || customer?.email || "",
+    pickupAddress: storedShipment?.pickupAddress || storedDraft.from?.label || "",
+    pickupCity: storedShipment?.pickupCity || storedDraft.from?.city || "",
+    pickupPostcode: storedShipment?.pickupPostcode || storedDraft.from?.postcode || (storedDraft.from ? postcodeFromLabel(storedDraft.from.label) : ""),
+    receiverFullName: storedShipment?.receiverFullName ?? "",
+    receiverPhoneCountryCode: countryCodeFromCallingCode(storedShipment?.receiverPhoneCountryCode ?? "", "NG"),
+    receiverPhoneNumber: storedShipment?.receiverPhoneNumber ?? "",
+    receiverEmail: storedShipment?.receiverEmail ?? "",
+    deliveryAddress: storedShipment?.deliveryAddress || storedDraft.to?.label || "",
+    deliveryCity: storedShipment?.deliveryCity || storedDraft.to?.city || "",
+    deliveryState: storedShipment?.deliveryState || storedDraft.to?.state || "",
+    deliveryPostcode: storedShipment?.deliveryPostcode || storedDraft.to?.postcode || "",
+    itemsDescription: storedShipment?.itemsDescription || storedDraft.itemTypes.map(quoteItemLabel).join(", "),
+    weightKg: storedShipment?.weightKg || storedDraft.weightKg,
+    lengthCm: storedShipment?.lengthCm || storedDraft.lengthCm,
+    widthCm: storedShipment?.widthCm || storedDraft.widthCm,
+    declaredValueGbp: storedShipment?.declaredValueGbp ?? "",
+  };
+
+  return {
+    draft: storedDraft,
+    agent,
+    agentLoading: Boolean(agentId && !agent),
+    form: nextForm,
+    pickupLocation: storedDraft.from?.label === nextForm.pickupAddress
+      ? storedDraft.from
+      : locationFromForm(nextForm.pickupAddress, nextForm.pickupCity, nextForm.pickupPostcode),
+    deliveryLocation: storedDraft.to?.label === nextForm.deliveryAddress
+      ? storedDraft.to
+      : locationFromForm(nextForm.deliveryAddress, nextForm.deliveryCity, nextForm.deliveryPostcode, nextForm.deliveryState),
+  };
+}
+
 function money(value: number | null) {
   if (value === null) return "—";
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
@@ -118,137 +176,99 @@ function AgentSummaryCard({ agent, onUnselect, returning = false }: { agent: Sel
   );
 }
 
+function ShipmentDetailsLoading() {
+  return (
+    <main className="min-h-screen bg-neutral-01">
+      <div className="mx-auto max-w-[900px] animate-pulse px-4 py-12">
+        <div className="h-32 rounded bg-white" />
+        <div className="mt-4 h-[640px] rounded bg-white" />
+      </div>
+    </main>
+  );
+}
+
 export default function ShipmentDetailsPage() {
-  const router = useRouter();
+  const isClient = useIsClient();
   const { customer, status: authStatus } = useCustomerAuth();
   const searchParams = useSearchParams();
   const agentId = searchParams.get("agent") ?? "";
-  const [draft, setDraft] = useState<QuoteDraft | null>(null);
-  const [agent, setAgent] = useState<SelectedQuoteAgent | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const [agentLoading, setAgentLoading] = useState(false);
-  const [pickupLocation, setPickupLocation] = useState<QuoteLocation | null>(null);
-  const [deliveryLocation, setDeliveryLocation] = useState<QuoteLocation | null>(null);
+
+  if (!isClient || authStatus === "loading") return <ShipmentDetailsLoading />;
+
+  return (
+    <ShipmentDetailsPageContent
+      key={`${agentId}:${customer?.id ?? "guest"}`}
+      agentId={agentId}
+      customer={customer}
+      authStatus={authStatus}
+    />
+  );
+}
+
+function ShipmentDetailsPageContent({
+  agentId,
+  customer,
+  authStatus,
+}: {
+  agentId: string;
+  customer: CustomerAccount | null;
+  authStatus: "loading" | "authenticated" | "unauthenticated" | "error";
+}) {
+  const router = useRouter();
+  const [initialState] = useState(() => createShipmentInitialState(agentId, customer));
+  const [draft, setDraft] = useState<QuoteDraft>(initialState.draft);
+  const [agent, setAgent] = useState<SelectedQuoteAgent | null>(initialState.agent);
+  const [agentLoading, setAgentLoading] = useState(initialState.agentLoading);
+  const [pickupLocation, setPickupLocation] = useState<QuoteLocation | null>(initialState.pickupLocation);
+  const [deliveryLocation, setDeliveryLocation] = useState<QuoteLocation | null>(initialState.deliveryLocation);
   const [returningToAgents, setReturningToAgents] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState("");
   const authRedirectStarted = useRef(false);
   const [formError, setFormError] = useState("");
-  const [form, setForm] = useState<FormState>({
-    senderFullName: "",
-    senderPhoneCountryCode: "GB",
-    senderPhoneNumber: "",
-    senderEmail: "",
-    pickupAddress: "",
-    pickupCity: "",
-    pickupPostcode: "",
-    receiverFullName: "",
-    receiverPhoneCountryCode: "NG",
-    receiverPhoneNumber: "",
-    receiverEmail: "",
-    deliveryAddress: "",
-    deliveryCity: "",
-    deliveryState: "",
-    deliveryPostcode: "",
-    itemsDescription: "",
-    weightKg: "",
-    lengthCm: "",
-    widthCm: "",
-    declaredValueGbp: "",
-  });
+  const [form, setForm] = useState<FormState>(initialState.form);
 
   useEffect(() => {
-    const storedDraft = readQuoteDraft();
-    const storedAgent = readSelectedQuoteAgent();
-    const storedShipment = readShipmentDraft();
+    if (!agentId || agent) return;
+
     const controller = new AbortController();
     let active = true;
-
-    setDraft(storedDraft);
-    if (storedAgent?.id === agentId) {
-      setAgent(storedAgent);
-      setAgentLoading(false);
-    } else if (agentId) {
-      setAgentLoading(true);
-      void fetch(buildApiUrl(`${routes.api.quote.agents}/${encodeURIComponent(agentId)}`), { signal: controller.signal })
-        .then(async (response) => response.ok ? response.json() as Promise<QuoteAgentDetail> : null)
-        .then((detail) => {
-          if (!active || !detail) return;
-          setAgent({
-            id: detail.id,
-            companyName: detail.companyName,
-            logoUrl: detail.logoUrl,
-            verified: detail.verified,
-            rating: detail.rating,
-            reviewCount: detail.reviewCount,
-            responseTime: detail.responseTime,
-            collectionMethod: detail.collectionMethod,
-            deliveryMethod: detail.deliveryMethod,
-            insuranceAvailable: detail.insuranceAvailable,
-            shipmentFrequency: detail.shipmentFrequency,
-            shippingMethod: detail.shippingMethod,
-            estimatedPriceGbp: null,
-            pricePerKgEur: detail.pricePerKgEur,
-            eurToGbpRate: detail.eurToGbpRate,
-          });
-        })
-        .catch((error) => {
-          if (error instanceof DOMException && error.name === "AbortError") return;
-          if (active) setAgent(null);
-        })
-        .finally(() => { if (active) setAgentLoading(false); });
-    }
-
-    const nextForm: FormState = {
-      senderFullName: storedShipment?.senderFullName ?? "",
-      senderPhoneCountryCode: countryCodeFromCallingCode(storedShipment?.senderPhoneCountryCode ?? "", "GB"),
-      senderPhoneNumber: storedShipment?.senderPhoneNumber ?? "",
-      senderEmail: storedShipment?.senderEmail ?? "",
-      pickupAddress: storedShipment?.pickupAddress || storedDraft.from?.label || "",
-      pickupCity: storedShipment?.pickupCity || storedDraft.from?.city || "",
-      pickupPostcode: storedShipment?.pickupPostcode || storedDraft.from?.postcode || (storedDraft.from ? postcodeFromLabel(storedDraft.from.label) : ""),
-      receiverFullName: storedShipment?.receiverFullName ?? "",
-      receiverPhoneCountryCode: countryCodeFromCallingCode(storedShipment?.receiverPhoneCountryCode ?? "", "NG"),
-      receiverPhoneNumber: storedShipment?.receiverPhoneNumber ?? "",
-      receiverEmail: storedShipment?.receiverEmail ?? "",
-      deliveryAddress: storedShipment?.deliveryAddress || storedDraft.to?.label || "",
-      deliveryCity: storedShipment?.deliveryCity || storedDraft.to?.city || "",
-      deliveryState: storedShipment?.deliveryState || storedDraft.to?.state || "",
-      deliveryPostcode: storedShipment?.deliveryPostcode || storedDraft.to?.postcode || "",
-      itemsDescription: storedShipment?.itemsDescription || storedDraft.itemTypes.map(quoteItemLabel).join(", "),
-      weightKg: storedShipment?.weightKg || storedDraft.weightKg,
-      lengthCm: storedShipment?.lengthCm || storedDraft.lengthCm,
-      widthCm: storedShipment?.widthCm || storedDraft.widthCm,
-      declaredValueGbp: storedShipment?.declaredValueGbp ?? "",
-    };
-
-    setForm(nextForm);
-    setPickupLocation(storedDraft.from?.label === nextForm.pickupAddress ? storedDraft.from : locationFromForm(nextForm.pickupAddress, nextForm.pickupCity, nextForm.pickupPostcode));
-    setDeliveryLocation(storedDraft.to?.label === nextForm.deliveryAddress ? storedDraft.to : locationFromForm(nextForm.deliveryAddress, nextForm.deliveryCity, nextForm.deliveryPostcode, nextForm.deliveryState));
-    setHydrated(true);
+    void fetch(buildApiUrl(`${routes.api.quote.agents}/${encodeURIComponent(agentId)}`), { signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() as Promise<QuoteAgentDetail> : null)
+      .then((detail) => {
+        if (!active || !detail) return;
+        setAgent({
+          id: detail.id,
+          companyName: detail.companyName,
+          logoUrl: detail.logoUrl,
+          verified: detail.verified,
+          rating: detail.rating,
+          reviewCount: detail.reviewCount,
+          responseTime: detail.responseTime,
+          collectionMethod: detail.collectionMethod,
+          deliveryMethod: detail.deliveryMethod,
+          insuranceAvailable: detail.insuranceAvailable,
+          shipmentFrequency: detail.shipmentFrequency,
+          shippingMethod: detail.shippingMethod,
+          estimatedPriceGbp: null,
+          pricePerKgEur: detail.pricePerKgEur,
+          eurToGbpRate: detail.eurToGbpRate,
+        });
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (active) setAgent(null);
+      })
+      .finally(() => { if (active) setAgentLoading(false); });
 
     return () => {
       active = false;
       controller.abort();
     };
-  }, [agentId]);
+  }, [agent, agentId]);
 
   useEffect(() => {
     router.prefetch(routes.web.compareAgents);
   }, [router]);
-
-  useEffect(() => {
-    if (!hydrated || !customer) return;
-
-    setForm((current) => ({
-      ...current,
-      senderFullName: current.senderFullName || `${customer.firstName} ${customer.lastName}`.trim(),
-      senderPhoneCountryCode: current.senderPhoneNumber
-        ? current.senderPhoneCountryCode
-        : countryCodeFromCallingCode(customer.phoneCountryCode, "GB"),
-      senderPhoneNumber: current.senderPhoneNumber || customer.phoneNumber,
-      senderEmail: current.senderEmail || customer.email,
-    }));
-  }, [customer, hydrated]);
 
   useEffect(() => {
     if (authStatus === "loading" || authStatus === "authenticated" || authRedirectStarted.current) {
@@ -265,7 +285,7 @@ export default function ShipmentDetailsPage() {
   }, [agentId, authStatus, router]);
 
   useEffect(() => {
-    if (!hydrated || !agentId) return;
+    if (!agentId) return;
     writeShipmentDraft({
       agentId,
       senderFullName: form.senderFullName,
@@ -289,7 +309,7 @@ export default function ShipmentDetailsPage() {
       widthCm: form.widthCm,
       declaredValueGbp: form.declaredValueGbp,
     });
-  }, [agentId, form, hydrated]);
+  }, [agentId, form]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((current) => ({ ...current, [key]: value }));
   const selectPickupLocation = (value: QuoteLocation | null) => {
@@ -388,7 +408,7 @@ export default function ShipmentDetailsPage() {
     );
   }
 
-  if (!hydrated || !draft || agentLoading) {
+  if (agentLoading) {
     return <main className="min-h-screen bg-neutral-01"><div className="mx-auto max-w-[900px] animate-pulse px-4 py-12"><div className="h-32 rounded bg-white" /><div className="mt-4 h-[640px] rounded bg-white" /></div></main>;
   }
 

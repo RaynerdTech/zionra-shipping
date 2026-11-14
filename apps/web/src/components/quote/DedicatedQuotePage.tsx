@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { QuoteForm } from "@/components/sections/quote";
+import { useIsClient } from "@/lib/useIsClient";
 import {
   EMPTY_QUOTE_DRAFT,
   readQuoteDraft,
@@ -11,11 +12,19 @@ import {
 import QuoteSummaryBar from "./QuoteSummaryBar";
 
 export default function DedicatedQuotePage() {
-  const [draft, setDraft] = useState<QuoteDraft>(EMPTY_QUOTE_DRAFT);
+  const isClient = useIsClient();
+  const initialDraft = isClient ? readQuoteDraft() : EMPTY_QUOTE_DRAFT;
 
-  useEffect(() => {
-    setDraft(readQuoteDraft());
-  }, []);
+  return (
+    <DedicatedQuotePageContent
+      key={isClient ? "client" : "server"}
+      initialDraft={initialDraft}
+    />
+  );
+}
+
+function DedicatedQuotePageContent({ initialDraft }: { initialDraft: QuoteDraft }) {
+  const [draft, setDraft] = useState<QuoteDraft>(initialDraft);
 
   return (
     <main className="bg-white pt-[15px] font-sans">

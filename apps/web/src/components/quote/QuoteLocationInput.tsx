@@ -49,14 +49,21 @@ export default function QuoteLocationInput({
 }: Props) {
   const inputId = useId();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const [query, setQuery] = useState(value?.label ?? "");
-  const [results, setResults] = useState<Result[]>([]);
+  const selectedLabel = value?.label ?? null;
+  const [queryState, setQueryState] = useState(() => ({
+    selectedLabel,
+    text: selectedLabel ?? "",
+  }));
+  const query = queryState.selectedLabel === selectedLabel
+    ? queryState.text
+    : selectedLabel ?? "";
+  const [resultState, setResultState] = useState<{ key: string; results: Result[] } | null>(null);
   const [focused, setFocused] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (value?.label) setQuery(value.label);
-  }, [value?.label]);
+  const term = query.trim();
+  const searchKey = `${countryCode}:${term}`;
+  const shouldSearch = focused && term.length >= 2 && term !== value?.label;
+  const results = shouldSearch && resultState?.key === searchKey ? resultState.results : [];
+  const loading = shouldSearch && resultState?.key !== searchKey;
 
   useEffect(() => {
     function outside(event: PointerEvent) {
@@ -67,18 +74,12 @@ export default function QuoteLocationInput({
   }, []);
 
   useEffect(() => {
-    const term = query.trim();
-    if (!focused || term.length < 2 || term === value?.label) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
+    if (!shouldSearch) return;
 
     const controller = new AbortController();
     let active = true;
     const timer = window.setTimeout(async () => {
       if (!active) return;
-      setLoading(true);
       try {
         const params = new URLSearchParams({ q: term, limit: "6", lang: "en", countrycode: countryCode.toLowerCase() });
         const response = await fetch(`${PHOTON_ENDPOINT}?${params.toString()}`, { signal: controller.signal });
@@ -105,11 +106,11 @@ export default function QuoteLocationInput({
             country: text(p.country),
           };
         });
-        if (active) setResults(next);
+        if (active) setResultState({ key: searchKey, results: next });
       } catch (error) {
-        if (active && !(error instanceof DOMException && error.name === "AbortError")) setResults([]);
-      } finally {
-        if (active) setLoading(false);
+        if (active && !(error instanceof DOMException && error.name === "AbortError")) {
+          setResultState({ key: searchKey, results: [] });
+        }
       }
     }, 260);
 
@@ -118,7 +119,7 @@ export default function QuoteLocationInput({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [countryCode, focused, query, value?.label]);
+  }, [countryCode, searchKey, shouldSearch, term]);
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -135,7 +136,7 @@ export default function QuoteLocationInput({
           value={query}
           onChange={(event) => {
             const next = event.target.value;
-            setQuery(next);
+            setQueryState({ selectedLabel: null, text: next });
             onInputChange?.(next);
             onChange(null);
           }}
@@ -147,7 +148,7 @@ export default function QuoteLocationInput({
         {focused && query.trim().length >= 2 && query !== value?.label ? (
           <div className="absolute inset-x-0 top-[48px] z-50 max-h-60 overflow-y-auto rounded-[10px] border border-neutral-03 bg-white p-1 shadow-[0_14px_34px_rgba(7,22,44,0.14)]">
             {loading ? <p className="px-3 py-3 text-[13px] text-neutral-06">Searching locations...</p> : results.length ? results.map((result) => (
-              <button key={result.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => { onChange(result); setQuery(result.label); setFocused(false); }} className="flex w-full items-start gap-2 rounded-[8px] px-3 py-2.5 text-left hover:bg-primary-01">
+              <button key={result.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => { setQueryState({ selectedLabel: result.label, text: result.label }); onChange(result); setFocused(false); }} className="flex w-full items-start gap-2 rounded-[8px] px-3 py-2.5 text-left hover:bg-primary-01">
                 <img src={flagSrc} alt="" className="mt-1 h-[10px] w-[15px] rounded-[1px] object-cover" />
                 <span className="min-w-0"><strong className="block truncate text-[13px] font-medium text-primary-10">{result.primary}</strong>{result.secondary ? <span className="mt-0.5 block text-[11px] leading-[16px] text-neutral-06">{result.secondary}</span> : null}</span>
               </button>

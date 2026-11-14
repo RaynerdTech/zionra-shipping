@@ -44,32 +44,24 @@ function Tag({ children }: { children: ReactNode }) {
   return <span className="rounded-full border border-neutral-03 bg-neutral-01 px-3 py-1 font-sans text-[10px] leading-[14px] text-neutral-09 sm:text-[11px]">{children}</span>;
 }
 
-export default function AgentProfileModal({ agentId, onClose, onSelect }: Props) {
-  const [agent, setAgent] = useState<QuoteAgentDetail | null>(null);
-  const [loading, setLoading] = useState(false);
+export default function AgentProfileModal(props: Props) {
+  if (!props.agentId) return null;
+  return <AgentProfileModalContent key={props.agentId} {...props} agentId={props.agentId} />;
+}
+
+function AgentProfileModalContent({ agentId, onClose, onSelect }: Props & { agentId: string }) {
+  const cachedAgent = agentProfileCache.get(agentId) ?? null;
+  const [agent, setAgent] = useState<QuoteAgentDetail | null>(() => cachedAgent);
+  const [loading, setLoading] = useState(() => cachedAgent === null);
   const [error, setError] = useState("");
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (!agentId) return;
-    const cached = agentProfileCache.get(agentId);
-    if (cached) {
-      setAgent(cached);
-      setLoading(false);
-      setError("");
-      setReviewsOpen(false);
-      setVisibleReviews(3);
-      return;
-    }
+    if (cachedAgent) return;
     const controller = new AbortController();
     let active = true;
-    setLoading(true);
-    setError("");
-    setAgent(null);
-    setReviewsOpen(false);
-    setVisibleReviews(3);
 
     void fetch(buildApiUrl(`${routes.api.quote.agents}/${encodeURIComponent(agentId)}`), { signal: controller.signal })
       .then(async (response) => {
@@ -86,10 +78,9 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
       .finally(() => { if (active) setLoading(false); });
 
     return () => { active = false; controller.abort(); };
-  }, [agentId]);
+  }, [agentId, cachedAgent]);
 
   useEffect(() => {
-    if (!agentId) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     function escape(event: KeyboardEvent) { if (event.key === "Escape") onClose(); }
@@ -101,8 +92,6 @@ export default function AgentProfileModal({ agentId, onClose, onSelect }: Props)
   }, [agentId, onClose]);
 
   const reviews = useMemo(() => agent?.reviews.slice(0, visibleReviews) ?? [], [agent, visibleReviews]);
-
-  if (!agentId) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label="Shipping agent profile" onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>

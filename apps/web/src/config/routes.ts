@@ -55,6 +55,9 @@ export const routes = {
       "/partner/application/submitted",
     partnerDashboard: "/partner/dashboard",
 
+    support: "/support",
+    cookiePolicy: "/cookie-policy",
+    refundPolicy: "/refund-policy",
     learnDifference: "/learn-the-difference",
     terms: "/terms",
     privacy: "/privacy",

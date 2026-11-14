@@ -187,7 +187,6 @@ async function seed() {
             website: `https://${slug}-${index + 1}.example.com`,
             collectionCities: partner.collectionCities,
             itemsHandled: partner.items,
-            operationalBusinessAddress: `${12 + index} Test Logistics Way, ${partner.collectionCities[0]}, United Kingdom`,
             shippingMethod: partner.shippingMethod,
             shipmentFrequency: partner.shipmentFrequency,
             pricePerKg: partner.pricePerKg,

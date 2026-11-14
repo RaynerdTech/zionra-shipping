@@ -33,7 +33,6 @@ type OperationalValues = {
   collectionCities: string[];
   itemsHandled: string[];
   otherItemsHandled: string;
-  operationalBusinessAddress: string;
   shippingMethod: string;
   shipmentFrequency: string;
   pricePerKg: string;
@@ -70,8 +69,6 @@ function buildOperationalValues(
       .map((item) => item.slice(OTHER_ITEM_PREFIX.length).trim())
       .filter(Boolean)
       .join(", "),
-    operationalBusinessAddress:
-      data.application.operationalBusinessAddress ?? "",
     shippingMethod: data.application.shippingMethod ?? "",
     shipmentFrequency: data.application.shipmentFrequency ?? "",
     pricePerKg: data.application.pricePerKg ?? "",
@@ -200,7 +197,6 @@ function OperationalDetailsEditor({
             collectionCities: values.collectionCities,
             itemsHandled: values.itemsHandled,
             otherItemsHandled: values.otherItemsHandled,
-            operationalBusinessAddress: values.operationalBusinessAddress,
             shippingMethod: values.shippingMethod,
             shipmentFrequency: values.shipmentFrequency,
             pricePerKg: values.pricePerKg,
@@ -299,26 +295,6 @@ function OperationalDetailsEditor({
               <FieldError>{errors.otherItemsHandled}</FieldError>
             </div>
           ) : null}
-
-          <div className="md:col-span-2">
-            <FieldLabel htmlFor="operationalBusinessAddress" required>
-              Business Address
-            </FieldLabel>
-            <input
-              id="operationalBusinessAddress"
-              value={values.operationalBusinessAddress}
-              onChange={(event) =>
-                updateField(
-                  "operationalBusinessAddress",
-                  event.target.value,
-                )
-              }
-              placeholder="Enter business address"
-              className={INPUT_CLASS}
-              aria-invalid={Boolean(errors.operationalBusinessAddress)}
-            />
-            <FieldError>{errors.operationalBusinessAddress}</FieldError>
-          </div>
 
           <div>
             <FieldLabel required>Shipping Method</FieldLabel>

@@ -79,7 +79,6 @@ export type PartnerBusinessInformationInput = {
 export type PartnerOperationalDetailsInput = {
   collectionCities: string[];
   itemsHandled: string[];
-  operationalBusinessAddress: string;
   shippingMethod: (typeof PARTNER_SHIPPING_METHODS)[number];
   shipmentFrequency: (typeof PARTNER_SHIPMENT_FREQUENCIES)[number];
   pricePerKg: string;
@@ -244,7 +243,6 @@ export function validatePartnerOperationalDetails(
   const collectionCities = getStringArray(body, "collectionCities");
   const rawItemsHandled = getStringArray(body, "itemsHandled");
   const otherItemsHandled = getString(body, "otherItemsHandled");
-  const operationalBusinessAddress = getString(body, "operationalBusinessAddress");
   const shippingMethod = getString(body, "shippingMethod");
   const shipmentFrequency = getString(body, "shipmentFrequency");
   const rawPricePerKg = getString(body, "pricePerKg");
@@ -287,9 +285,6 @@ export function validatePartnerOperationalDetails(
     errors.itemsHandled = "Select valid item categories.";
   }
 
-  if (!operationalBusinessAddress) {
-    errors.operationalBusinessAddress = REQUIRED_MESSAGE;
-  }
   if (!isAllowed(shippingMethod, PARTNER_SHIPPING_METHODS)) {
     errors.shippingMethod = "Select a valid shipping method.";
   }
@@ -330,7 +325,6 @@ export function validatePartnerOperationalDetails(
     data: {
       collectionCities: normalizedCollectionCities!,
       itemsHandled: [...new Set(normalizedItemsHandled)],
-      operationalBusinessAddress,
       shippingMethod: shippingMethod as PartnerOperationalDetailsInput["shippingMethod"],
       shipmentFrequency: shipmentFrequency as PartnerOperationalDetailsInput["shipmentFrequency"],
       pricePerKg: pricePerKg!,

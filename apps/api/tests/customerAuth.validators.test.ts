@@ -17,6 +17,7 @@ import {
 const validRegistrationBody = {
   firstName: "  Rudy  ",
   lastName: "  Romero  ",
+  dateOfBirth: "1990-05-15",
   email: "  RUDY@EXAMPLE.COM  ",
   phoneCountryCode: "+44",
   phoneNumber: " 07700 900-123 ",
@@ -40,6 +41,7 @@ test("registration validation normalizes customer input", () => {
   assert.deepEqual(result.data, {
     firstName: "Rudy",
     lastName: "Romero",
+    dateOfBirth: new Date("1990-05-15T00:00:00.000Z"),
     email: "rudy@example.com",
     phoneCountryCode: "+44",
     phoneNumber: "07700900123",

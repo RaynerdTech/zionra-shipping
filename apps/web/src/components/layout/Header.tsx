@@ -15,7 +15,7 @@ const navItems = [
   { label: "How it works", href: routes.web.howItWorks, icon: NetworkIcon },
   { label: "Get quote", href: routes.web.quote, icon: CalculatorIcon },
   { label: "About us", href: routes.web.aboutUs, icon: AboutIcon },
-  { label: "Support", href: `${routes.web.home}#support`, icon: SupportIcon },
+  { label: "Support", href: routes.web.support, icon: SupportIcon },
 ] as const;
 
 const accountItems = [
@@ -53,6 +53,10 @@ const accountItems = [
 
 function Header() {
   const pathname = usePathname();
+  return <HeaderContent key={pathname} pathname={pathname} />;
+}
+
+function HeaderContent({ pathname }: { pathname: string }) {
   const router = useRouter();
   const { customer, status, signOut } = useCustomerAuth();
 
@@ -100,12 +104,6 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    setIsOpen(false);
-    setIsProfileOpen(false);
-    setIsMobileProfileOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     function syncHash() {
       setCurrentHash(window.location.hash);
     }
@@ -114,10 +112,6 @@ function Header() {
     window.addEventListener("hashchange", syncHash);
     return () => window.removeEventListener("hashchange", syncHash);
   }, [pathname]);
-
-  useEffect(() => {
-    if (isOpen || isProfileOpen) setIsHeaderVisible(true);
-  }, [isOpen, isProfileOpen]);
 
   useEffect(() => {
     if (!authenticated || !isOpen) return;
@@ -441,6 +435,7 @@ function isNavActive(pathname: string, href: string) {
   if (href === routes.web.home) return pathname === routes.web.home;
   if (href === routes.web.howItWorks) return pathname === routes.web.howItWorks;
   if (href === routes.web.aboutUs) return pathname === routes.web.aboutUs;
+  if (href === routes.web.support) return pathname === routes.web.support;
   if (href === routes.web.quote) return pathname.startsWith(routes.web.quote);
   return false;
 }

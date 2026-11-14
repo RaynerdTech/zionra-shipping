@@ -2230,7 +2230,6 @@ export const ShippingPartnerApplicationScalarFieldEnum = {
   website: 'website',
   collectionCities: 'collectionCities',
   itemsHandled: 'itemsHandled',
-  operationalBusinessAddress: 'operationalBusinessAddress',
   shippingMethod: 'shippingMethod',
   shipmentFrequency: 'shipmentFrequency',
   airCargoPricePerKg: 'airCargoPricePerKg',

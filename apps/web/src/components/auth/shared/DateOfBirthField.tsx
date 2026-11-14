@@ -89,7 +89,12 @@ export default function DateOfBirthField({
   const selectedYearRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [pickerView, setPickerView] = useState<PickerView>(null);
-  const [draft, setDraft] = useState<Date | null>(() => parseIsoDate(value));
+  const [draftState, setDraftState] = useState(() => ({
+    sourceValue: value,
+    date: parseIsoDate(value),
+  }));
+  const draft = draftState.sourceValue === value ? draftState.date : parseIsoDate(value);
+  const setDraft = (date: Date | null) => setDraftState({ sourceValue: value, date });
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const initial = initialCalendarDate(value);
     return new Date(initial.getFullYear(), initial.getMonth(), 1);
@@ -121,11 +126,6 @@ export default function DateOfBirthField({
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open, pickerView]);
-
-  useEffect(() => {
-    const parsed = parseIsoDate(value);
-    if (parsed) setDraft(parsed);
-  }, [value]);
 
   useEffect(() => {
     if (pickerView !== "year") return;

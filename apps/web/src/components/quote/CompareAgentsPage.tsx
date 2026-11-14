@@ -8,6 +8,7 @@ import { useCustomerAuth } from "@/components/auth/CustomerAuthProvider";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
 import { storeCustomerAuthReturnTo, withCustomerReturnTo } from "@/lib/authReturn";
+import { useIsClient } from "@/lib/useIsClient";
 import {
   EMPTY_QUOTE_DRAFT,
   QUOTE_COLLECTION_OPTIONS,
@@ -291,34 +292,64 @@ function FilterIcon() {
   );
 }
 
+type CompareAgentsInitialState = {
+  draft: QuoteDraft;
+  cachedResults: AgentResultsCache | null;
+};
+
+type AgentSearchState = {
+  queryKey: string;
+  agents: QuoteAgentSummary[];
+  rate: number;
+  error: string;
+  resolved: boolean;
+};
+
 export default function CompareAgentsPage() {
+  const isClient = useIsClient();
+  const initialState = useMemo<CompareAgentsInitialState | null>(() => {
+    if (!isClient) return null;
+    const draft = readQuoteDraft();
+    const cached = readAgentResultsCache();
+    return {
+      draft,
+      cachedResults: cached?.queryKey === buildAgentQuery(draft) ? cached : null,
+    };
+  }, [isClient]);
+
+  return (
+    <CompareAgentsPageContent
+      key={isClient ? "client" : "server"}
+      initialState={initialState}
+      hydrated={isClient}
+    />
+  );
+}
+
+function CompareAgentsPageContent({
+  initialState,
+  hydrated,
+}: {
+  initialState: CompareAgentsInitialState | null;
+  hydrated: boolean;
+}) {
   const router = useRouter();
   const { status: authStatus, refreshCustomer } = useCustomerAuth();
-  const [draft, setDraft] = useState<QuoteDraft>(EMPTY_QUOTE_DRAFT);
-  const [hydrated, setHydrated] = useState(false);
-  const [agents, setAgents] = useState<QuoteAgentSummary[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [draft, setDraft] = useState<QuoteDraft>(() => initialState?.draft ?? EMPTY_QUOTE_DRAFT);
+  const [searchState, setSearchState] = useState<AgentSearchState>(() => initialState?.cachedResults
+    ? {
+        queryKey: initialState.cachedResults.queryKey,
+        agents: initialState.cachedResults.response.agents,
+        rate: initialState.cachedResults.response.rate.value,
+        error: "",
+        resolved: true,
+      }
+    : { queryKey: "", agents: [], rate: 0.86, error: "", resolved: false });
   const [sortMode, setSortMode] = useState<SortMode>("best");
   const [profileAgentId, setProfileAgentId] = useState<string | null>(null);
-  const [eurToGbpRate, setEurToGbpRate] = useState(0.86);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [mobileVisibleCount, setMobileVisibleCount] = useState(4);
-  const [resolvedQueryKey, setResolvedQueryKey] = useState("");
+  const [mobileCountState, setMobileCountState] = useState({ queryKey: "", sortMode: "best" as SortMode, count: 4 });
   const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedDraft = readQuoteDraft();
-    const storedQueryKey = buildAgentQuery(storedDraft);
-    const cached = readAgentResultsCache();
-    setDraft(storedDraft);
-    if (cached?.queryKey === storedQueryKey) {
-      setAgents(cached.response.agents);
-      setEurToGbpRate(cached.response.rate.value);
-      setResolvedQueryKey(storedQueryKey);
-    }
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     router.prefetch(routes.web.quoteShipment);
@@ -338,30 +369,38 @@ export default function CompareAgentsPage() {
 
   const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && Number(draft.weightKg) > 0);
   const queryKey = canSearch ? buildAgentQuery(draft) : "";
+  const currentSearchState = searchState.queryKey === queryKey ? searchState : null;
+  const agents = useMemo(() => (canSearch ? currentSearchState?.agents ?? [] : []), [canSearch, currentSearchState]);
+  const loading = hydrated && canSearch && (!currentSearchState || !currentSearchState.resolved);
+  const error = canSearch ? currentSearchState?.error ?? "" : "";
+  const eurToGbpRate = currentSearchState?.rate ?? 0.86;
+  const mobileVisibleCount = mobileCountState.queryKey === queryKey && mobileCountState.sortMode === sortMode
+    ? mobileCountState.count
+    : 4;
+
+  function updateDraft(nextDraft: QuoteDraft) {
+    const nextCanSearch = Boolean(nextDraft.from?.city && nextDraft.to && nextDraft.itemTypes.length && nextDraft.collectionMode && Number(nextDraft.weightKg) > 0);
+    const nextQueryKey = nextCanSearch ? buildAgentQuery(nextDraft) : "";
+    setDraft(nextDraft);
+    if (nextQueryKey !== queryKey) {
+      setMobileCountState({ queryKey: nextQueryKey, sortMode, count: 4 });
+    }
+  }
+
+  function updateSortMode(nextSortMode: SortMode) {
+    setSortMode(nextSortMode);
+    if (nextSortMode !== sortMode) {
+      setMobileCountState({ queryKey, sortMode: nextSortMode, count: 4 });
+    }
+  }
 
   useEffect(() => {
-    setMobileVisibleCount(4);
-  }, [queryKey, sortMode]);
+    if (!hydrated || !canSearch || !draft.from) return;
 
-  useEffect(() => {
-    if (!hydrated || !canSearch || !draft.from) {
-      setAgents([]);
-      setLoading(false);
-      setError("");
-      setResolvedQueryKey("");
-      return;
-    }
-
-    if (queryKey && resolvedQueryKey === queryKey) {
-      setLoading(false);
-      setError("");
-      return;
-    }
+    if (searchState.queryKey === queryKey && searchState.resolved) return;
 
     const controller = new AbortController();
     let active = true;
-    setLoading(true);
-    setError("");
     const timer = window.setTimeout(async () => {
       if (!active) return;
       try {
@@ -372,22 +411,29 @@ export default function CompareAgentsPage() {
         }
         const body = await response.json() as QuoteAgentsResponse;
         if (!active) return;
-        setAgents(body.agents);
-        setEurToGbpRate(body.rate.value);
-        setResolvedQueryKey(queryKey);
+        setSearchState({
+          queryKey,
+          agents: body.agents,
+          rate: body.rate.value,
+          error: "",
+          resolved: true,
+        });
         writeAgentResultsCache({ queryKey, response: body });
       } catch (caught) {
         if (active && !(caught instanceof DOMException && caught.name === "AbortError")) {
-          setError(caught instanceof Error ? caught.message : "Unable to compare shipping agents.");
-          setAgents([]);
+          setSearchState((current) => ({
+            queryKey,
+            agents: [],
+            rate: current.queryKey === queryKey ? current.rate : 0.86,
+            error: caught instanceof Error ? caught.message : "Unable to compare shipping agents.",
+            resolved: true,
+          }));
         }
-      } finally {
-        if (active) setLoading(false);
       }
     }, 220);
 
     return () => { active = false; window.clearTimeout(timer); controller.abort(); };
-  }, [canSearch, draft.from, hydrated, queryKey, resolvedQueryKey]);
+  }, [canSearch, draft.from, hydrated, queryKey, searchState]);
 
   const sortedAgents = useMemo(() => {
     const next = [...agents];
@@ -452,7 +498,7 @@ export default function CompareAgentsPage() {
 
   return (
     <>
-      <QuoteBanner draft={draft} onDraftChange={setDraft} onSubmit={submitExpandedQuote} />
+      <QuoteBanner draft={draft} onDraftChange={updateDraft} onSubmit={submitExpandedQuote} />
 
       <main id="quote-results" className="min-h-[70vh] scroll-mt-24 bg-neutral-01 pb-20 font-sans lg:pb-16">
         <div className="mx-auto w-full max-w-[1272px] px-5 pt-4 sm:px-6 xl:px-0">
@@ -481,7 +527,7 @@ export default function CompareAgentsPage() {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setSortMode(value)}
+                  onClick={() => updateSortMode(value)}
                   className={`min-h-[38px] shrink-0 rounded-[12px] border bg-white px-3.5 text-[10px] transition ${sortMode === value ? "border-primary-06 text-primary-06" : "border-neutral-03 text-neutral-07 hover:border-primary-04"}`}
                 >
                   {label}
@@ -504,12 +550,12 @@ export default function CompareAgentsPage() {
 
           <div className="mt-3 grid gap-4 lg:mt-4 lg:grid-cols-[324px_minmax(0,1fr)]">
             <div className="hidden lg:block">
-              <FilterPanel draft={draft} onChange={setDraft} />
+              <FilterPanel draft={draft} onChange={updateDraft} />
             </div>
 
             <section className="min-w-0">
               <div className="mb-5 hidden lg:block">
-                <SortControls sortMode={sortMode} onChange={setSortMode} />
+                <SortControls sortMode={sortMode} onChange={updateSortMode} />
               </div>
 
               <div className="space-y-4" aria-live="polite">
@@ -531,7 +577,7 @@ export default function CompareAgentsPage() {
                 <div className="mt-6 text-center lg:hidden">
                   <p className="text-[10px] leading-[15px] text-neutral-06">Showing {Math.min(mobileVisibleCount, sortedAgents.length)} of {sortedAgents.length} agents</p>
                   {mobileVisibleCount < sortedAgents.length ? (
-                    <button type="button" onClick={() => setMobileVisibleCount((count) => Math.min(count + 4, sortedAgents.length))} className="mt-2.5 min-h-[38px] min-w-[96px] rounded-[4px] border border-primary-06 bg-white px-4 text-[10px] font-medium text-primary-06 transition hover:bg-primary-01">Load more</button>
+                    <button type="button" onClick={() => setMobileCountState({ queryKey, sortMode, count: Math.min(mobileVisibleCount + 4, sortedAgents.length) })} className="mt-2.5 min-h-[38px] min-w-[96px] rounded-[4px] border border-primary-06 bg-white px-4 text-[10px] font-medium text-primary-06 transition hover:bg-primary-01">Load more</button>
                   ) : null}
                 </div>
               ) : null}
@@ -550,7 +596,7 @@ export default function CompareAgentsPage() {
                 <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none"><path d="m4 4 8 8m0-8-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
               </button>
             </div>
-            <FilterPanel draft={draft} onChange={setDraft} embedded />
+            <FilterPanel draft={draft} onChange={updateDraft} embedded />
             <button type="button" onClick={() => setMobileFiltersOpen(false)} className="zion-btn zion-btn-blue mt-6 min-h-[44px] w-full text-[13px]">Done</button>
           </section>
         </>

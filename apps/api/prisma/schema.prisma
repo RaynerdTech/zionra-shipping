@@ -394,7 +394,6 @@ model ShippingPartnerApplication {
 
   collectionCities           String[]                       @default([])
   itemsHandled               String[]                       @default([])
-  operationalBusinessAddress String?
   shippingMethod             String?
   shipmentFrequency          String?
   airCargoPricePerKg         Decimal?                       @db.Decimal(12, 2)

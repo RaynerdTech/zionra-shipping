@@ -320,11 +320,6 @@ function StrategicPartnerships() {
     const rail = railRef.current;
     if (!rail) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRailVisible(true);
-      return;
-    }
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
@@ -518,11 +513,6 @@ function Reveal({
     const node = ref.current;
     if (!node) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
-    }
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
@@ -572,11 +562,6 @@ function useSectionEntered(
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setEntered(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
