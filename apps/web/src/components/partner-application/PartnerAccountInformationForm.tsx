@@ -212,7 +212,15 @@ function AccountInformationEditor({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!values || isSaving) return;
+    if (isSaving) return;
+    if (
+      APPLICATION_STEP_RANK[data.application.currentStep] > 3 &&
+      JSON.stringify(values) === JSON.stringify(buildAccountValues(data))
+    ) {
+      clearDraft(draftKey);
+      router.push(routes.web.partnerApplicationReview);
+      return;
+    }
     setIsSaving(true);
     setErrors({});
     setFormError("");

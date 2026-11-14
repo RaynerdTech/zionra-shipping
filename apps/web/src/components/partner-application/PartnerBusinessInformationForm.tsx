@@ -8,7 +8,7 @@ import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { INPUT_CLASS, JOB_TITLE_OPTIONS } from "./constants";
+import { APPLICATION_STEP_RANK, INPUT_CLASS, JOB_TITLE_OPTIONS } from "./constants";
 import {
   AddContactButton,
   ApplicationLoadError,
@@ -182,7 +182,15 @@ function BusinessInformationEditor({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!values || isSaving) return;
+    if (isSaving) return;
+    if (
+      APPLICATION_STEP_RANK[data.application.currentStep] > 1 &&
+      JSON.stringify(values) === JSON.stringify(buildBusinessValues(data))
+    ) {
+      clearDraft(draftKey);
+      router.push(nextRoute);
+      return;
+    }
     setIsSaving(true);
     setErrors({});
     setFormError("");

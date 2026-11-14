@@ -217,12 +217,9 @@ function HeaderContent({ pathname }: { pathname: string }) {
 
           <div className="ml-auto hidden items-center xl:flex">
             {status === "loading" ? (
-              <div
-                className="grid h-10 w-10 place-items-center rounded-full bg-primary-01 text-primary-06"
-                aria-label="Checking account status"
-                role="status"
-              >
-                <ProfileIcon />
+              <div className="flex items-center gap-2" aria-hidden="true">
+                <span className="h-10 w-10 animate-pulse rounded-full bg-neutral-02" />
+                <span className="h-4 w-4 animate-pulse rounded bg-neutral-02" />
               </div>
             ) : authenticated && customer ? (
               <div ref={profileRef} className="relative">

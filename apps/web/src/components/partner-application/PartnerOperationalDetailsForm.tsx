@@ -191,6 +191,14 @@ function OperationalDetailsEditor({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isSaving) return;
+    if (
+      APPLICATION_STEP_RANK[data.application.currentStep] > 2 &&
+      JSON.stringify(values) === JSON.stringify(buildOperationalValues(data))
+    ) {
+      clearDraft(draftKey);
+      router.push(nextRoute);
+      return;
+    }
 
     setIsSaving(true);
     setErrors({});
