@@ -44,8 +44,6 @@ export default function PartnerApplicationProcessing() {
   useEffect(() => {
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    const startedAt = Date.now();
-
     function preventNavigation(event: BeforeUnloadEvent) {
       event.preventDefault();
       event.returnValue = "";
@@ -91,16 +89,15 @@ export default function PartnerApplicationProcessing() {
           );
         }
 
-        const remaining = Math.max(0, 5800 - (Date.now() - startedAt));
-        await new Promise((resolve) => setTimeout(resolve, remaining));
         if (cancelled) return;
 
+        timers.forEach(clearTimeout);
+        window.removeEventListener("beforeunload", preventNavigation);
         setActiveStep(STEPS.length);
         setProgress(100);
-        await new Promise((resolve) => setTimeout(resolve, 400));
+        await new Promise((resolve) => setTimeout(resolve, 200));
         if (cancelled) return;
 
-        window.removeEventListener("beforeunload", preventNavigation);
         window.history.replaceState(
           window.history.state,
           "",

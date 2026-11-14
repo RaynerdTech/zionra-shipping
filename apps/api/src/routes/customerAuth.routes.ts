@@ -33,7 +33,10 @@ import {
   linkGoogleAccountController,
   startGoogleAuthController,
 } from "../controllers/googleAuth.controller.js";
-import { requireCustomerAuth } from "../middleware/requireCustomerAuth.js";
+import {
+  requireCustomerAuth,
+  requireCustomerAuthWithCustomer,
+} from "../middleware/requireCustomerAuth.js";
 
 const router = Router();
 
@@ -49,7 +52,11 @@ router.post("/login/verify-code", verifyLoginCodeController);
 router.post("/login/resend-code", resendLoginCodeController);
 router.post("/login/cancel", cancelLoginChallengeController);
 router.post("/logout", logoutCustomerController);
-router.get("/me", requireCustomerAuth, getCurrentCustomerController);
+router.get(
+  "/me",
+  requireCustomerAuthWithCustomer,
+  getCurrentCustomerController,
+);
 router.get("/profile", requireCustomerAuth, getCustomerProfileController);
 router.patch("/profile", requireCustomerAuth, updateCustomerProfileController);
 router.post("/profile/addresses", requireCustomerAuth, createCustomerAddressController);

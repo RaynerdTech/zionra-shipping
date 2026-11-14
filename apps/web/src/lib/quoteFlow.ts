@@ -87,7 +87,7 @@ function readJson<T>(key: string): T | null {
     const stored = window.localStorage.getItem(key);
     if (stored) return JSON.parse(stored) as T;
 
-    // Migrate quote-flow state created by older builds from sessionStorage.
+    // Migrate legacy selected-agent state created by older builds from sessionStorage.
     const legacy = window.sessionStorage.getItem(key);
     if (!legacy) return null;
     window.localStorage.setItem(key, legacy);
@@ -107,20 +107,51 @@ function writeJson(key: string, value: unknown) {
   }
 }
 
+function readSessionJson<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const stored = window.sessionStorage.getItem(key);
+    if (stored) {
+      window.localStorage.removeItem(key);
+      return JSON.parse(stored) as T;
+    }
+
+    // Move legacy quote and shipment drafts out of persistent localStorage.
+    const legacy = window.localStorage.getItem(key);
+    if (!legacy) return null;
+    window.sessionStorage.setItem(key, legacy);
+    window.localStorage.removeItem(key);
+    return JSON.parse(legacy) as T;
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionJson(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // A blocked/full sessionStorage should not stop the quote flow.
+  }
+}
+
 export function readQuoteDraft(): QuoteDraft {
-  return readJson<QuoteDraft>(QUOTE_DRAFT_KEY) ?? EMPTY_QUOTE_DRAFT;
+  return readSessionJson<QuoteDraft>(QUOTE_DRAFT_KEY) ?? EMPTY_QUOTE_DRAFT;
 }
 
 export function writeQuoteDraft(draft: QuoteDraft) {
-  writeJson(QUOTE_DRAFT_KEY, draft);
+  writeSessionJson(QUOTE_DRAFT_KEY, draft);
 }
 
 export function writeShipmentDraft(draft: QuoteShipmentDraft) {
-  writeJson(SHIPMENT_DRAFT_KEY, draft);
+  writeSessionJson(SHIPMENT_DRAFT_KEY, draft);
 }
 
 export function readShipmentDraft(): QuoteShipmentDraft | null {
-  return readJson<QuoteShipmentDraft>(SHIPMENT_DRAFT_KEY);
+  return readSessionJson<QuoteShipmentDraft>(SHIPMENT_DRAFT_KEY);
 }
 
 export function writeSelectedQuoteAgent(agent: SelectedQuoteAgent) {
@@ -129,6 +160,19 @@ export function writeSelectedQuoteAgent(agent: SelectedQuoteAgent) {
 
 export function readSelectedQuoteAgent(): SelectedQuoteAgent | null {
   return readJson<SelectedQuoteAgent>(SELECTED_AGENT_KEY);
+}
+
+export function clearQuoteDrafts() {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.removeItem(QUOTE_DRAFT_KEY);
+    window.sessionStorage.removeItem(SHIPMENT_DRAFT_KEY);
+    window.localStorage.removeItem(QUOTE_DRAFT_KEY);
+    window.localStorage.removeItem(SHIPMENT_DRAFT_KEY);
+  } catch {
+    // Clearing draft storage must not block sign-out.
+  }
 }
 
 export function normalizeQuoteCity(value: string) {

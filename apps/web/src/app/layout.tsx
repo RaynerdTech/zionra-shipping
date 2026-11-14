@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { DM_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { CustomerAuthProvider } from "@/components/auth/CustomerAuthProvider";
+import { AppDraftProvider } from "@/components/providers/AppDraftProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
-      <body><CustomerAuthProvider>{children}</CustomerAuthProvider></body>
+      <body>
+        <AppDraftProvider>
+          <CustomerAuthProvider>{children}</CustomerAuthProvider>
+        </AppDraftProvider>
+      </body>
     </html>
   );
 }

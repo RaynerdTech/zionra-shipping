@@ -23,7 +23,6 @@ import { HTTP_STATUS, HttpError } from "../lib/httpError.js";
 import { WEB_ROUTES } from "../config/routes.js";
 import {
   cancelCustomerLoginChallenge,
-  getCurrentCustomer,
   getCustomerLoginChallenge,
   getCustomerPasswordResetSession,
   logoutCustomer,
@@ -44,6 +43,7 @@ import {
   updateCustomerAddress,
   updateCustomerProfile,
 } from "../services/customer-auth/customerProfile.service.js";
+import { toPublicCustomer } from "../services/customer-auth/customerAuth.shared.js";
 import {
   validateCustomerAddress,
   validateEmailCodeInput,
@@ -349,9 +349,16 @@ export async function getCurrentCustomerController(
       return;
     }
 
-    const result = await getCurrentCustomer(customerId);
+    const customer = req.customerAuth?.customer;
+    if (!customer) {
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        message: "Customer account no longer exists.",
+      });
+      clearCustomerAuthCookie(res);
+      return;
+    }
 
-    res.status(HTTP_STATUS.OK).json(result);
+    res.status(HTTP_STATUS.OK).json({ customer: toPublicCustomer(customer) });
   } catch (error) {
     if (error instanceof HttpError && error.statusCode === HTTP_STATUS.UNAUTHORIZED) {
       clearCustomerAuthCookie(res);

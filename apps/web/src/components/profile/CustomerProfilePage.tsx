@@ -7,6 +7,8 @@ import Header from "@/components/layout/Header";
 import { useCustomerAuth, type CustomerAccount } from "@/components/auth/CustomerAuthProvider";
 import DateOfBirthField from "@/components/auth/shared/DateOfBirthField";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
+import { fetchMemoryCached, invalidateMemoryCache, isMemoryCacheFresh, readMemoryCache, writeMemoryCache } from "@/lib/memoryCache";
 import { buildApiUrl } from "@/lib/api";
 import { withCustomerReturnTo } from "@/lib/authReturn";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -78,11 +80,17 @@ function initials(customer: CustomerAccount | null) {
 export default function CustomerProfilePage() {
   const router = useRouter();
   const { customer, status, refreshCustomer } = useCustomerAuth();
+  const { getDraft, setDraft, clearDraft } = useAppDrafts();
+  const profileCacheKey = customer ? `customer-profile:${customer.id}` : "";
+  const profileDraftKey = customer ? `customer-profile-draft:${customer.id}` : "";
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [totalShipments, setTotalShipments] = useState<number | null>(null);
   const [form, setForm] = useState<ProfileForm | null>(null);
   const [initialForm, setInitialForm] = useState<ProfileForm | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadedCustomerId, setLoadedCustomerId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(() =>
+    !profileCacheKey || !readMemoryCache<ProfileResponse>(profileCacheKey),
+  );
   const [saving, setSaving] = useState(false);
   const [editingPhone, setEditingPhone] = useState(false);
   const [activeSection, setActiveSection] = useState<"personal" | "addresses">("personal");
@@ -97,45 +105,84 @@ export default function CustomerProfilePage() {
   }, [router, status]);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-    const controller = new AbortController();
+    if (status !== "authenticated" || !customer || !profileCacheKey) return;
+
+    const customerId = customer.id;
+    let active = true;
+
+    function applyProfile(result: ProfileResponse) {
+      if (!result.customer) return;
+
+      const serverValues: ProfileForm = {
+        firstName: result.customer.firstName,
+        lastName: result.customer.lastName,
+        dateOfBirth: isoDate(result.customer.dateOfBirth),
+        nationality: result.customer.nationality ?? "",
+        phoneCountryCode: result.customer.phoneCountryCode,
+        phoneNumber: result.customer.phoneNumber,
+        countryOfResidence: result.customer.countryOfResidence,
+      };
+
+      setForm(getDraft<ProfileForm>(profileDraftKey) ?? serverValues);
+      setInitialForm(serverValues);
+      setLoadedCustomerId(customerId);
+      setAddresses(result.addresses ?? []);
+      setTotalShipments(
+        typeof result.totalShipments === "number" ? result.totalShipments : null,
+      );
+    }
+
+    const cached = readMemoryCache<ProfileResponse>(profileCacheKey);
+    if (cached?.customer) {
+      void Promise.resolve().then(() => {
+        if (!active) return;
+        applyProfile(cached);
+        setLoading(false);
+      });
+    }
+
+    if (isMemoryCacheFresh(profileCacheKey)) {
+      return () => {
+        active = false;
+      };
+    }
 
     async function loadProfile() {
-      setLoading(true);
       setError("");
-      try {
-        const response = await fetch(buildApiUrl(routes.api.customerAuth.profile), {
-          credentials: "include",
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        const result = (await response.json().catch(() => ({}))) as ProfileResponse;
-        if (!response.ok || !result.customer) throw new Error(result.message ?? "Unable to load your profile.");
 
-        const values: ProfileForm = {
-          firstName: result.customer.firstName,
-          lastName: result.customer.lastName,
-          dateOfBirth: isoDate(result.customer.dateOfBirth),
-          nationality: result.customer.nationality ?? "",
-          phoneCountryCode: result.customer.phoneCountryCode,
-          phoneNumber: result.customer.phoneNumber,
-          countryOfResidence: result.customer.countryOfResidence,
-        };
-        setForm(values);
-        setInitialForm(values);
-        setAddresses(result.addresses ?? []);
-        setTotalShipments(typeof result.totalShipments === "number" ? result.totalShipments : null);
+      try {
+        const result = await fetchMemoryCached(
+          profileCacheKey,
+          async () => {
+            const response = await fetch(buildApiUrl(routes.api.customerAuth.profile), {
+              credentials: "include",
+              cache: "no-store",
+            });
+            const body = (await response.json().catch(() => ({}))) as ProfileResponse;
+            if (!response.ok || !body.customer) {
+              throw new Error(body.message ?? "Unable to load your profile.");
+            }
+            return body;
+          },
+          60_000,
+        );
+
+        if (active) applyProfile(result);
       } catch (caught) {
-        if (caught instanceof DOMException && caught.name === "AbortError") return;
-        setError(caught instanceof Error ? caught.message : "Unable to load your profile.");
+        if (active) {
+          setError(caught instanceof Error ? caught.message : "Unable to load your profile.");
+        }
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (active) setLoading(false);
       }
     }
 
     void loadProfile();
-    return () => controller.abort();
-  }, [status]);
+
+    return () => {
+      active = false;
+    };
+  }, [customer, getDraft, profileCacheKey, profileDraftKey, status]);
 
   const dirty = useMemo(
     () => Boolean(form && initialForm && JSON.stringify(form) !== JSON.stringify(initialForm)),
@@ -143,7 +190,10 @@ export default function CustomerProfilePage() {
   );
 
   function updateForm<K extends keyof ProfileForm>(key: K, value: ProfileForm[K]) {
-    setForm((current) => (current ? { ...current, [key]: value } : current));
+    if (!form) return;
+    const next = { ...form, [key]: value };
+    setForm(next);
+    if (profileDraftKey) setDraft(profileDraftKey, next);
     setMessage("");
     setError("");
   }
@@ -165,6 +215,25 @@ export default function CustomerProfilePage() {
       if (!response.ok) throw new Error(result.errors ? Object.values(result.errors)[0] : result.message ?? "Unable to update profile.");
 
       setInitialForm(form);
+      if (profileDraftKey) clearDraft(profileDraftKey);
+      if (profileCacheKey) {
+        const cached = readMemoryCache<ProfileResponse>(profileCacheKey);
+        invalidateMemoryCache(profileCacheKey);
+        if (cached?.customer) {
+          writeMemoryCache(
+            profileCacheKey,
+            {
+              ...cached,
+              customer: {
+                ...cached.customer,
+                ...form,
+                dateOfBirth: form.dateOfBirth || null,
+              },
+            },
+            60_000,
+          );
+        }
+      }
       setEditingPhone(false);
       setMessage(result.message ?? "Profile updated successfully.");
       await refreshCustomer();
@@ -192,7 +261,7 @@ export default function CustomerProfilePage() {
 
   const defaultAddress = addresses.find((address) => address.isDefault) ?? addresses[0];
 
-  if (status === "loading" || loading || !form || !customer) {
+  if (status === "loading" || loading || !form || !customer || loadedCustomerId !== customer.id) {
     return (
       <main className="min-h-screen bg-neutral-01">
         <Header />
@@ -346,14 +415,27 @@ export default function CustomerProfilePage() {
           editor={addressEditor}
           onClose={() => setAddressEditor(null)}
           onSaved={(address) => {
-            setAddresses((current) => {
-              const next = addressEditor.id ? current.map((item) => item.id === address.id ? address : item) : [...current, address];
-              return next.map((item) => item.id === address.id ? address : address.isDefault ? { ...item, isDefault: false } : item).sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
-            });
+            const next = (addressEditor.id
+              ? addresses.map((item) => item.id === address.id ? address : item)
+              : [...addresses, address])
+              .map((item) => item.id === address.id ? address : address.isDefault ? { ...item, isDefault: false } : item)
+              .sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
+            setAddresses(next);
+            if (profileCacheKey) {
+              const cached = readMemoryCache<ProfileResponse>(profileCacheKey);
+              invalidateMemoryCache(profileCacheKey);
+              if (cached) writeMemoryCache(profileCacheKey, { ...cached, addresses: next }, 60_000);
+            }
             setAddressEditor(null);
           }}
           onDeleted={addressEditor.id ? (id) => {
-            setAddresses((current) => current.filter((item) => item.id !== id));
+            const next = addresses.filter((item) => item.id !== id);
+            setAddresses(next);
+            if (profileCacheKey) {
+              const cached = readMemoryCache<ProfileResponse>(profileCacheKey);
+              invalidateMemoryCache(profileCacheKey);
+              if (cached) writeMemoryCache(profileCacheKey, { ...cached, addresses: next }, 60_000);
+            }
             setAddressEditor(null);
           } : undefined}
         />

@@ -53,7 +53,7 @@ const accountItems = [
 
 function Header() {
   const pathname = usePathname();
-  return <HeaderContent key={pathname} pathname={pathname} />;
+  return <HeaderContent pathname={pathname} />;
 }
 
 function HeaderContent({ pathname }: { pathname: string }) {
@@ -191,7 +191,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
           <Link
             href={routes.web.home}
             aria-label="Zionra home"
-            onClick={() => setIsOpen(false)}
+            onClick={() => { setIsOpen(false); setIsProfileOpen(false); setIsMobileProfileOpen(false); }}
             className="flex shrink-0 items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-06/35 focus-visible:ring-offset-2"
           >
             <Logo />
@@ -205,6 +205,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
                   key={item.label}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
+                  onClick={() => { setIsOpen(false); setIsProfileOpen(false); setIsMobileProfileOpen(false); }}
                   className={`group relative flex h-11 items-center px-[14px] text-[14px] font-medium leading-[22px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-06/35 focus-visible:ring-offset-2 ${active ? "text-primary-06" : "text-primary-10"}`}
                 >
                   {item.label}
@@ -216,9 +217,12 @@ function HeaderContent({ pathname }: { pathname: string }) {
 
           <div className="ml-auto hidden items-center xl:flex">
             {status === "loading" ? (
-              <div className="flex items-center gap-2" aria-hidden="true">
-                <span className="h-10 w-10 animate-pulse rounded-full bg-neutral-02" />
-                <span className="h-4 w-4 animate-pulse rounded bg-neutral-02" />
+              <div
+                className="grid h-10 w-10 place-items-center rounded-full bg-primary-01 text-primary-06"
+                aria-label="Checking account status"
+                role="status"
+              >
+                <ProfileIcon />
               </div>
             ) : authenticated && customer ? (
               <div ref={profileRef} className="relative">
@@ -255,6 +259,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
                           key={item.label}
                           href={item.href}
                           aria-current={active ? "page" : undefined}
+                          onClick={() => { setIsProfileOpen(false); setIsMobileProfileOpen(false); }}
                           className={`group flex items-center gap-3 border-b border-neutral-02 px-2 py-3.5 no-underline transition-colors last:border-b-0 ${active ? "-mx-4 bg-primary-01 px-6 text-primary-06" : "text-primary-10 hover:-mx-4 hover:bg-primary-01 hover:px-6 hover:text-primary-06"}`}
                         >
                           <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border transition-colors ${active ? "border-primary-03 bg-primary-01 text-primary-08" : "border-transparent bg-neutral-01 text-primary-10 group-hover:border-primary-03 group-hover:bg-white group-hover:text-primary-08"}`}>

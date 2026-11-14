@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
+import { clearMemoryCache } from "@/lib/memoryCache";
+import { clearQuoteDrafts } from "@/lib/quoteFlow";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ApplicationLoadError, ApplicationLoading } from "./PartnerApplicationUI";
 import type { PartnerApplicationStep } from "./types";
@@ -125,6 +128,7 @@ function getStatusCopy(status: string) {
 
 export default function PartnerDashboardPlaceholder() {
   const router = useRouter();
+  const { clearAllDrafts } = useAppDrafts();
   const { data, error, isLoading } = usePartnerApplication({ dashboard: true });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
@@ -149,6 +153,9 @@ export default function PartnerDashboardPlaceholder() {
         throw new Error(result.message ?? "Unable to log out.");
       }
 
+      clearAllDrafts();
+      clearMemoryCache("partner-dashboard");
+      clearQuoteDrafts();
       router.replace(routes.web.home);
       router.refresh();
     } catch (logoutFailure) {

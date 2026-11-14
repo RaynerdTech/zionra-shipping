@@ -13,7 +13,9 @@ import {
 } from "react";
 import type { CountryCode } from "libphonenumber-js";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
+import { clearMemoryCache } from "@/lib/memoryCache";
 import CountrySelect from "@/components/ui/CountrySelect";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { UK_CITIES } from "@/lib/ukCities";
@@ -166,6 +168,7 @@ function ApplicationSteps({ activeStep, currentStep }: { activeStep: 1 | 2 | 3; 
 
 function CancelApplicationModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const { clearAllDrafts } = useAppDrafts();
   const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState("");
 
@@ -189,6 +192,8 @@ function CancelApplicationModal({ onClose }: { onClose: () => void }) {
       });
       const result = (await response.json().catch(() => ({}))) as ApiErrorResponse;
       if (!response.ok) throw new Error(result.message ?? "Unable to cancel the application.");
+      clearAllDrafts();
+      clearMemoryCache("partner-dashboard");
       router.replace(routes.web.partnerApplication);
     } catch (cancelError) {
       setError(cancelError instanceof Error ? cancelError.message : "Unable to cancel the application.");

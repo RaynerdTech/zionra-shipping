@@ -1,9 +1,10 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type Dispatch, type FormEvent, type SetStateAction, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
@@ -93,7 +94,7 @@ function buildOperationalValues(
 
 export default function PartnerOperationalDetailsForm() {
   const router = useRouter();
-  const { data, error: loadError, isLoading } = usePartnerApplication();
+  const { data, setData, error: loadError, isLoading } = usePartnerApplication();
 
   useEffect(() => {
     if (!data) return;
@@ -123,18 +124,22 @@ export default function PartnerOperationalDetailsForm() {
     return <ApplicationLoading />;
   }
 
-  return <OperationalDetailsEditor key={data.application.id} data={data} />;
+  return <OperationalDetailsEditor key={data.application.id} data={data} setData={setData} />;
 }
 
 function OperationalDetailsEditor({
   data,
+  setData,
 }: {
   data: PartnerApplicationResponse;
+  setData: Dispatch<SetStateAction<PartnerApplicationResponse | null>>;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [values, setValues] = useState<OperationalValues>(() =>
-    buildOperationalValues(data),
+  const { getDraft, setDraft, clearDraft } = useAppDrafts();
+  const draftKey = "partner-application:operational-details";
+  const [values, setValues] = useState<OperationalValues>(
+    () => getDraft<OperationalValues>(draftKey) ?? buildOperationalValues(data),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
@@ -150,11 +155,16 @@ function OperationalDetailsEditor({
     router.prefetch(nextRoute);
   }, [nextRoute, router]);
 
+  function updateValues(next: OperationalValues) {
+    setValues(next);
+    setDraft(draftKey, next);
+  }
+
   function updateField<K extends keyof OperationalValues>(
     field: K,
     value: OperationalValues[K],
   ) {
-    setValues((current) => ({ ...current, [field]: value }));
+    updateValues({ ...values, [field]: value });
     setErrors((current) => {
       const next = { ...current };
       delete next[field];
@@ -163,13 +173,13 @@ function OperationalDetailsEditor({
   }
 
   function updateItemsHandled(nextItems: string[]) {
-    setValues((current) => ({
-      ...current,
+    updateValues({
+      ...values,
       itemsHandled: nextItems,
       otherItemsHandled: nextItems.includes("Other")
-        ? current.otherItemsHandled
+        ? values.otherItemsHandled
         : "",
-    }));
+    });
     setErrors((current) => {
       const next = { ...current };
       delete next.itemsHandled;
@@ -218,7 +228,9 @@ function OperationalDetailsEditor({
 
       const result = (await response
         .json()
-        .catch(() => ({}))) as ApiErrorResponse;
+        .catch(() => ({}))) as ApiErrorResponse & {
+          application?: PartnerApplicationResponse["application"];
+        };
 
       if (!response.ok) {
         setErrors(result.errors ?? {});
@@ -227,6 +239,10 @@ function OperationalDetailsEditor({
         );
       }
 
+      if (result.application) {
+        setData((current) => current ? { ...current, application: result.application! } : current);
+      }
+      clearDraft(draftKey);
       router.push(nextRoute);
     } catch (submitError) {
       setFormError(

@@ -4,32 +4,27 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { buildApiUrl } from "@/lib/api";
+import { fetchMemoryCached, readMemoryCache } from "@/lib/memoryCache";
 import type { ApiErrorResponse, PartnerApplicationResponse } from "./types";
+import { useOptionalPartnerApplication } from "./PartnerApplicationProvider";
 
 type ApplicationRequestResult =
   | { kind: "success"; data: PartnerApplicationResponse }
   | { kind: "unauthorized" }
   | { kind: "redirect"; redirectTo: string };
 
-async function requestPartnerApplication(
+async function requestPartnerData(
   endpoint: string,
-  signal?: AbortSignal,
 ): Promise<ApplicationRequestResult> {
-  const response = await fetch(
-    buildApiUrl(endpoint),
-    {
-      credentials: "include",
-      cache: "no-store",
-      signal,
-    },
-  );
+  const response = await fetch(buildApiUrl(endpoint), {
+    credentials: "include",
+    cache: "no-store",
+  });
   const result = (await response.json().catch(() => ({}))) as
     | PartnerApplicationResponse
     | ApiErrorResponse;
 
-  if (response.status === 401) {
-    return { kind: "unauthorized" };
-  }
+  if (response.status === 401) return { kind: "unauthorized" };
 
   if (
     response.status === 403 &&
@@ -42,99 +37,112 @@ async function requestPartnerApplication(
   }
 
   const hasApplication =
-    typeof result === "object" &&
-    result !== null &&
-    "application" in result;
+    typeof result === "object" && result !== null && "application" in result;
 
   if (!response.ok || !hasApplication) {
     throw new Error(
-      (result as ApiErrorResponse).message ??
-        "Unable to load your application.",
+      (result as ApiErrorResponse).message ?? "Unable to load your application.",
     );
   }
 
-  return { kind: "success", data: result };
+  return { kind: "success", data: result as PartnerApplicationResponse };
 }
 
 export function usePartnerApplication({
   dashboard = false,
 }: { dashboard?: boolean } = {}) {
-  const endpoint = dashboard
-    ? routes.api.partnerAuth.dashboard
-    : routes.api.partnerAuth.application;
   const router = useRouter();
-  const [data, setData] = useState<PartnerApplicationResponse | null>(null);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const context = useOptionalPartnerApplication();
+  const cachedDashboard = readMemoryCache<PartnerApplicationResponse>("partner-dashboard");
+  const [dashboardData, setDashboardData] =
+    useState<PartnerApplicationResponse | null>(cachedDashboard ?? null);
+  const [dashboardError, setDashboardError] = useState("");
+  const [dashboardLoading, setDashboardLoading] = useState(dashboard && !cachedDashboard);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    let isActive = true;
-
-    async function loadInitialApplication() {
-      try {
-        const result = await requestPartnerApplication(endpoint, controller.signal);
-        if (!isActive) return;
-
-        if (result.kind === "unauthorized") {
+  const fetchDashboard = useCallback(async () => {
+    return fetchMemoryCached(
+      "partner-dashboard",
+      async () => {
+        const response = await requestPartnerData(routes.api.partnerAuth.dashboard);
+        if (response.kind === "unauthorized") {
           router.replace(routes.web.partnerLogin);
-          return;
+          throw new Error("Your partner session has expired.");
         }
-
-        if (result.kind === "redirect") {
-          router.replace(result.redirectTo);
-          return;
+        if (response.kind === "redirect") {
+          router.replace(response.redirectTo);
+          throw new Error("Redirecting to the next application step.");
         }
+        return response.data;
+      },
+      45_000,
+    );
+  }, [router]);
 
-        setData(result.data);
-      } catch (loadError) {
-        if (!isActive || controller.signal.aborted) return;
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load your application.",
-        );
-      } finally {
-        if (isActive) setIsLoading(false);
-      }
-    }
-
-    void loadInitialApplication();
-
-    return () => {
-      isActive = false;
-      controller.abort();
-    };
-  }, [endpoint, router]);
-
-  const reload = useCallback(async () => {
-    setIsLoading(true);
-    setError("");
+  const reloadDashboard = useCallback(async () => {
+    setDashboardLoading(true);
 
     try {
-      const result = await requestPartnerApplication(endpoint);
-
-      if (result.kind === "unauthorized") {
-        router.replace(routes.web.partnerLogin);
-        return;
-      }
-
-      if (result.kind === "redirect") {
-        router.replace(result.redirectTo);
-        return;
-      }
-
-      setData(result.data);
-    } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load your application.",
+      const result = await fetchDashboard();
+      setDashboardData(result);
+      setDashboardError("");
+    } catch (caught) {
+      setDashboardError(
+        caught instanceof Error
+          ? caught.message
+          : "Unable to load your dashboard.",
       );
     } finally {
-      setIsLoading(false);
+      setDashboardLoading(false);
     }
-  }, [endpoint, router]);
+  }, [fetchDashboard]);
 
-  return { data, setData, error, isLoading, reload };
+  useEffect(() => {
+    if (!dashboard) return;
+
+    let active = true;
+
+    async function loadDashboard() {
+      try {
+        const result = await fetchDashboard();
+        if (!active) return;
+
+        setDashboardData(result);
+        setDashboardError("");
+      } catch (caught) {
+        if (active) {
+          setDashboardError(
+            caught instanceof Error
+              ? caught.message
+              : "Unable to load your dashboard.",
+          );
+        }
+      } finally {
+        if (active) setDashboardLoading(false);
+      }
+    }
+
+    void loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, [dashboard, fetchDashboard]);
+
+  if (dashboard) {
+    return {
+      data: dashboardData,
+      setData: setDashboardData,
+      error: dashboardError,
+      isLoading: dashboardLoading,
+      reload: reloadDashboard,
+    };
+  }
+
+  if (!context) {
+    throw new Error(
+      "usePartnerApplication must be used inside the partner application layout.",
+    );
+  }
+
+  return context;
 }

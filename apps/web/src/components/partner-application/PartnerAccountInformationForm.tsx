@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
@@ -121,8 +122,10 @@ function AccountInformationEditor({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [values, setValues] = useState<AccountValues>(() =>
-    buildAccountValues(data),
+  const { getDraft, setDraft, clearDraft } = useAppDrafts();
+  const draftKey = "partner-application:account-information";
+  const [values, setValues] = useState<AccountValues>(
+    () => getDraft<AccountValues>(draftKey) ?? buildAccountValues(data),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
@@ -139,8 +142,10 @@ function AccountInformationEditor({
   const wordCount = companyBio ? companyBio.split(/\s+/).length : 0;
 
   function updateField(field: keyof AccountValues, value: string) {
-    setValues((current) => current ? { ...current, [field]: value } : current);
-    setErrors((current) => { const next = { ...current }; delete next[field]; return next; });
+    const next = { ...values, [field]: value };
+    setValues(next);
+    setDraft(draftKey, next);
+    setErrors((current) => { const nextErrors = { ...current }; delete nextErrors[field]; return nextErrors; });
   }
 
   async function uploadLogo(event: ChangeEvent<HTMLInputElement>) {
@@ -219,11 +224,17 @@ function AccountInformationEditor({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      const result = (await response.json().catch(() => ({}))) as ApiErrorResponse;
+      const result = (await response.json().catch(() => ({}))) as ApiErrorResponse & {
+        application?: PartnerApplicationResponse["application"];
+      };
       if (!response.ok) {
         setErrors(result.errors ?? {});
         throw new Error(result.message ?? "Unable to save account information.");
       }
+      if (result.application) {
+        setData((current) => current ? { ...current, application: result.application! } : current);
+      }
+      clearDraft(draftKey);
       router.push(routes.web.partnerApplicationReview);
     } catch (submitError) {
       setFormError(submitError instanceof Error ? submitError.message : "Unable to save account information.");

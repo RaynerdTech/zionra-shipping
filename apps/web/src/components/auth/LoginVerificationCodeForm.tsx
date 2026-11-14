@@ -16,6 +16,9 @@ import {
   useState,
 } from "react";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
+import { clearMemoryCache } from "@/lib/memoryCache";
+import { clearQuoteDrafts } from "@/lib/quoteFlow";
 import { buildApiUrl } from "@/lib/api";
 import { useCustomerAuth } from "./CustomerAuthProvider";
 import {
@@ -190,6 +193,7 @@ export default function LoginVerificationCodeForm({
     : routes.web.customerDashboard;
   const router = useRouter();
   const { refreshCustomer } = useCustomerAuth();
+  const { clearDraft } = useAppDrafts();
   const safeReturnTo = isPartner ? null : normalizeCustomerReturnTo(returnTo);
   const otpInputRef = useRef<AuthOtpInputHandle | null>(null);
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -333,6 +337,12 @@ export default function LoginVerificationCodeForm({
 
       if (!isPartner) {
         await refreshCustomer();
+      } else {
+        clearDraft("partner-application:business-information");
+        clearDraft("partner-application:operational-details");
+        clearDraft("partner-application:account-information");
+        clearMemoryCache("partner-dashboard");
+        clearQuoteDrafts();
       }
 
       redirectTimeoutRef.current = setTimeout(() => {

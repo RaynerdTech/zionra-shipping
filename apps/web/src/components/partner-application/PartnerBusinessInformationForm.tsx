@@ -1,9 +1,10 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type Dispatch, type FormEvent, type SetStateAction, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CountryCode } from "libphonenumber-js";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -90,7 +91,7 @@ function buildBusinessValues(
 
 export default function PartnerBusinessInformationForm() {
   const router = useRouter();
-  const { data, error: loadError, isLoading } = usePartnerApplication();
+  const { data, setData, error: loadError, isLoading } = usePartnerApplication();
 
   useEffect(() => {
     if (data?.application.currentStep === "SUBMITTED") {
@@ -114,19 +115,24 @@ export default function PartnerBusinessInformationForm() {
     <BusinessInformationEditor
       key={data.application.id}
       data={data}
+      setData={setData}
     />
   );
 }
 
 function BusinessInformationEditor({
   data,
+  setData,
 }: {
   data: PartnerApplicationResponse;
+  setData: Dispatch<SetStateAction<PartnerApplicationResponse | null>>;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [values, setValues] = useState<BusinessValues>(() =>
-    buildBusinessValues(data),
+  const { getDraft, setDraft, clearDraft } = useAppDrafts();
+  const draftKey = "partner-application:business-information";
+  const [values, setValues] = useState<BusinessValues>(
+    () => getDraft<BusinessValues>(draftKey) ?? buildBusinessValues(data),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
@@ -141,31 +147,37 @@ function BusinessInformationEditor({
     router.prefetch(nextRoute);
   }, [nextRoute, router]);
 
+  function updateValues(next: BusinessValues) {
+    setValues(next);
+    setDraft(draftKey, next);
+  }
+
   function updateField<K extends keyof Omit<BusinessValues, "contacts">>(field: K, value: BusinessValues[K]) {
-    setValues((current) => (current ? { ...current, [field]: value } : current));
+    updateValues({ ...values, [field]: value });
     setErrors((current) => { const next = { ...current }; delete next[field]; return next; });
   }
 
   function updateContact(index: number, field: keyof PartnerApplicationContact, value: string | boolean | number) {
-    setValues((current) => current ? {
-      ...current,
-      contacts: current.contacts.map((contact, contactIndex) => contactIndex === index ? { ...contact, [field]: value } : contact),
-    } : current);
+    updateValues({
+      ...values,
+      contacts: values.contacts.map((contact, contactIndex) => contactIndex === index ? { ...contact, [field]: value } : contact),
+    });
     setErrors((current) => { const next = { ...current }; delete next[`contacts.${index}.${field}`]; return next; });
   }
 
   function addContact() {
-    setValues((current) => current && current.contacts.length < 6 ? {
-      ...current,
-      contacts: [...current.contacts, { ...EMPTY_CONTACT, position: current.contacts.length }],
-    } : current);
+    if (values.contacts.length >= 6) return;
+    updateValues({
+      ...values,
+      contacts: [...values.contacts, { ...EMPTY_CONTACT, position: values.contacts.length }],
+    });
   }
 
   function removeContact(index: number) {
-    setValues((current) => current ? {
-      ...current,
-      contacts: current.contacts.filter((_, contactIndex) => contactIndex !== index).map((contact, position) => ({ ...contact, position })),
-    } : current);
+    updateValues({
+      ...values,
+      contacts: values.contacts.filter((_, contactIndex) => contactIndex !== index).map((contact, position) => ({ ...contact, position })),
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -182,11 +194,17 @@ function BusinessInformationEditor({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      const result = (await response.json().catch(() => ({}))) as ApiErrorResponse;
+      const result = (await response.json().catch(() => ({}))) as ApiErrorResponse & {
+        application?: PartnerApplicationResponse["application"];
+      };
       if (!response.ok) {
         setErrors(result.errors ?? {});
         throw new Error(result.message ?? "Unable to save business information.");
       }
+      if (result.application) {
+        setData((current) => current ? { ...current, application: result.application! } : current);
+      }
+      clearDraft(draftKey);
       router.push(nextRoute);
     } catch (submitError) {
       setFormError(submitError instanceof Error ? submitError.message : "Unable to save business information.");

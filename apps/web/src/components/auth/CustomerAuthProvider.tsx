@@ -10,8 +10,12 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 import { routes } from "@/config/routes";
+import { useAppDrafts } from "@/components/providers/AppDraftProvider";
 import { buildApiUrl } from "@/lib/api";
+import { clearMemoryCache } from "@/lib/memoryCache";
+import { clearQuoteDrafts } from "@/lib/quoteFlow";
 
 export type CustomerAccount = {
   id: string;
@@ -47,6 +51,13 @@ type MeResponse = {
 };
 
 export function CustomerAuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const { clearAllDrafts } = useAppDrafts();
+  const protectedCustomerPath =
+    pathname === routes.web.customerDashboard || pathname === routes.web.customerProfile;
+  const partnerPath = pathname.startsWith("/partner/") || pathname === "/partner";
+  const lastProtectedPathCheckRef = useRef<string | null>(null);
+  const lastVerifiedAtRef = useRef(0);
   const [customer, setCustomer] = useState<CustomerAccount | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [error, setError] = useState("");
@@ -87,6 +98,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
         setError(message);
         return null;
       } finally {
+        lastVerifiedAtRef.current = Date.now();
         inFlightRef.current = null;
       }
     })();
@@ -96,8 +108,41 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void refreshCustomer();
-  }, [refreshCustomer]);
+    if (partnerPath) return;
+
+    if (status === "loading") {
+      if (protectedCustomerPath) lastProtectedPathCheckRef.current = pathname;
+      if (!inFlightRef.current) void refreshCustomer();
+      return;
+    }
+
+    if (
+      status === "unauthenticated" &&
+      protectedCustomerPath &&
+      lastProtectedPathCheckRef.current !== pathname
+    ) {
+      lastProtectedPathCheckRef.current = pathname;
+      void refreshCustomer();
+    }
+  }, [pathname, partnerPath, protectedCustomerPath, refreshCustomer, status]);
+
+  useEffect(() => {
+    if (partnerPath || status !== "authenticated") return;
+
+    function revalidateWhenVisible() {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastVerifiedAtRef.current < 2 * 60 * 1000) return;
+      void refreshCustomer();
+    }
+
+    window.addEventListener("focus", revalidateWhenVisible);
+    document.addEventListener("visibilitychange", revalidateWhenVisible);
+
+    return () => {
+      window.removeEventListener("focus", revalidateWhenVisible);
+      document.removeEventListener("visibilitychange", revalidateWhenVisible);
+    };
+  }, [partnerPath, refreshCustomer, status]);
 
   const signOut = useCallback(async () => {
     const response = await fetch(buildApiUrl(routes.api.customerAuth.logout), {
@@ -113,7 +158,10 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     setCustomer(null);
     setStatus("unauthenticated");
     setError("");
-  }, []);
+    clearAllDrafts();
+    clearMemoryCache("customer-profile:");
+    clearQuoteDrafts();
+  }, [clearAllDrafts]);
 
   const value = useMemo(
     () => ({ customer, status, error, refreshCustomer, signOut }),

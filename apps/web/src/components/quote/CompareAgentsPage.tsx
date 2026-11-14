@@ -44,7 +44,11 @@ const AGENT_RESULTS_CACHE_KEY = "zionra.quote-agent-results.v1";
 type AgentResultsCache = {
   queryKey: string;
   response: QuoteAgentsResponse;
+  savedAt: number;
 };
+
+const AGENT_RESULTS_CACHE_TTL_MS = 2 * 60 * 1000;
+const EMPTY_AGENT_RESULTS: QuoteAgentSummary[] = [];
 
 function buildAgentQuery(draft: QuoteDraft) {
   const params = new URLSearchParams({
@@ -64,17 +68,22 @@ function buildAgentQuery(draft: QuoteDraft) {
 function readAgentResultsCache(): AgentResultsCache | null {
   if (typeof window === "undefined") return null;
   try {
-    const value = window.localStorage.getItem(AGENT_RESULTS_CACHE_KEY);
+    const value =
+      window.sessionStorage.getItem(AGENT_RESULTS_CACHE_KEY) ??
+      window.localStorage.getItem(AGENT_RESULTS_CACHE_KEY);
     return value ? JSON.parse(value) as AgentResultsCache : null;
   } catch {
     return null;
   }
 }
 
-function writeAgentResultsCache(cache: AgentResultsCache) {
+function writeAgentResultsCache(cache: Omit<AgentResultsCache, "savedAt">) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(AGENT_RESULTS_CACHE_KEY, JSON.stringify(cache));
+    window.sessionStorage.setItem(
+      AGENT_RESULTS_CACHE_KEY,
+      JSON.stringify({ ...cache, savedAt: Date.now() }),
+    );
   } catch {
     // Cache failure should not block quote comparison.
   }
@@ -370,7 +379,7 @@ function CompareAgentsPageContent({
   const canSearch = Boolean(draft.from?.city && draft.to && draft.itemTypes.length && draft.collectionMode && Number(draft.weightKg) > 0);
   const queryKey = canSearch ? buildAgentQuery(draft) : "";
   const currentSearchState = searchState.queryKey === queryKey ? searchState : null;
-  const agents = useMemo(() => (canSearch ? currentSearchState?.agents ?? [] : []), [canSearch, currentSearchState]);
+  const agents = canSearch ? currentSearchState?.agents ?? EMPTY_AGENT_RESULTS : EMPTY_AGENT_RESULTS;
   const loading = hydrated && canSearch && (!currentSearchState || !currentSearchState.resolved);
   const error = canSearch ? currentSearchState?.error ?? "" : "";
   const eurToGbpRate = currentSearchState?.rate ?? 0.86;
@@ -393,6 +402,32 @@ function CompareAgentsPageContent({
       setMobileCountState({ queryKey, sortMode: nextSortMode, count: 4 });
     }
   }
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const legacy = window.localStorage.getItem(AGENT_RESULTS_CACHE_KEY);
+    if (legacy && !window.sessionStorage.getItem(AGENT_RESULTS_CACHE_KEY)) {
+      window.sessionStorage.setItem(AGENT_RESULTS_CACHE_KEY, legacy);
+      window.localStorage.removeItem(AGENT_RESULTS_CACHE_KEY);
+    }
+
+    const cached = initialState?.cachedResults;
+    if (!cached) return;
+
+    if (
+      typeof cached.savedAt !== "number" ||
+      Date.now() - cached.savedAt > AGENT_RESULTS_CACHE_TTL_MS
+    ) {
+      window.sessionStorage.removeItem(AGENT_RESULTS_CACHE_KEY);
+      window.localStorage.removeItem(AGENT_RESULTS_CACHE_KEY);
+      setSearchState((current) =>
+        current.queryKey === cached.queryKey
+          ? { ...current, resolved: false }
+          : current,
+      );
+    }
+  }, [hydrated, initialState?.cachedResults]);
 
   useEffect(() => {
     if (!hydrated || !canSearch || !draft.from) return;

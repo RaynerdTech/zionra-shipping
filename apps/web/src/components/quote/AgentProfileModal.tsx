@@ -13,7 +13,12 @@ type Props = {
   onSelect: (agentId: string) => void;
 };
 
-const agentProfileCache = new Map<string, QuoteAgentDetail>();
+const AGENT_PROFILE_CACHE_TTL_MS = 5 * 60 * 1000;
+const agentProfileCache = new Map<
+  string,
+  { data: QuoteAgentDetail; expiresAt: number }
+>();
+
 
 function relativeDate(value: string) {
   const days = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 86_400_000));
@@ -50,16 +55,17 @@ export default function AgentProfileModal(props: Props) {
 }
 
 function AgentProfileModalContent({ agentId, onClose, onSelect }: Props & { agentId: string }) {
-  const cachedAgent = agentProfileCache.get(agentId) ?? null;
-  const [agent, setAgent] = useState<QuoteAgentDetail | null>(() => cachedAgent);
-  const [loading, setLoading] = useState(() => cachedAgent === null);
+  const cachedEntry = agentProfileCache.get(agentId) ?? null;
+  const [agent, setAgent] = useState<QuoteAgentDetail | null>(() => cachedEntry?.data ?? null);
+  const [loading, setLoading] = useState(() => cachedEntry === null);
   const [error, setError] = useState("");
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState(3);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (cachedAgent) return;
+    if (cachedEntry && cachedEntry.expiresAt > Date.now()) return;
+    if (cachedEntry) agentProfileCache.delete(agentId);
     const controller = new AbortController();
     let active = true;
 
@@ -69,7 +75,10 @@ function AgentProfileModalContent({ agentId, onClose, onSelect }: Props & { agen
         return response.json() as Promise<QuoteAgentDetail>;
       })
       .then((body) => {
-        agentProfileCache.set(agentId, body);
+        agentProfileCache.set(agentId, {
+          data: body,
+          expiresAt: Date.now() + AGENT_PROFILE_CACHE_TTL_MS,
+        });
         if (active) setAgent(body);
       })
       .catch((caught) => {
@@ -78,7 +87,7 @@ function AgentProfileModalContent({ agentId, onClose, onSelect }: Props & { agen
       .finally(() => { if (active) setLoading(false); });
 
     return () => { active = false; controller.abort(); };
-  }, [agentId, cachedAgent]);
+  }, [agentId, cachedEntry]);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
